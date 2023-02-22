@@ -1,4 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
+
 import { init } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
