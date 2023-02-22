@@ -1,0 +1,2271 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Introduction",
+    "description": "The Events API provides access to basic CRUD functionality for custom events.",
+    "version": "v2"
+  },
+  "tags": [
+    {
+      "name": "Events"
+    },
+    {
+      "name": "Users"
+    }
+  ],
+  "host": "api.fullstory.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2beta/events": {
+      "post": {
+        "summary": "Create Events",
+        "description": "Creates one or more events with the specified details",
+        "operationId": "CreateEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventsCreateEventsResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventsCreateEventsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ]
+      }
+    },
+    "/v2beta/events/batch": {
+      "post": {
+        "summary": "Create Events Import",
+        "description": "Creates a batch events import job with the given list of event information.\n\nThe number of request objects that can be included in a single batch request is `50,000`.",
+        "operationId": "CreateBatchEventsImportJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventsCreateBatchEventsImportJobResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/eventsCreateBatchEventsImportJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/events/batch/{job_id}": {
+      "get": {
+        "summary": "Get Batch Import Job Details",
+        "description": "Get the status for a batch events import job with job details.",
+        "operationId": "GetBatchEventsImportStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventsGetBatchEventsImportStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/events/batch/{job_id}/errors": {
+      "get": {
+        "summary": "Get Batch Import Errors",
+        "description": "Get the error message and code for any events that failed from an events import job.",
+        "operationId": "GetBatchEventsImportErrors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventsGetBatchEventsImportErrorsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": {}
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/events/batch/{job_id}/imports": {
+      "get": {
+        "summary": "Get Batch Imported Events",
+        "description": "Get the event details for successful events imported from a batch events import job.",
+        "operationId": "GetBatchEventsImports",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/eventsGetBatchEventsImportsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": {}
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/users": {
+      "get": {
+        "summary": "Get Users",
+        "description": "Retrieve a list of users matching the supplied filter criteria",
+        "operationId": "ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersListUsersResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uid",
+            "description": "The application-specific ID you've given to a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "The email address associated with a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "display_name",
+            "description": "The nice-looking name for a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_identified",
+            "description": "Whether or not a user is anonymous or identified",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "page_token",
+            "description": "The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "summary": "Create User",
+        "description": "Creates a user with the specified details",
+        "operationId": "CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersCreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v2beta/users/batch": {
+      "post": {
+        "summary": "Create Batch Import",
+        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`.",
+        "operationId": "CreateBatchUserImportJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersCreateBatchUserImportJobResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/usersCreateBatchUserImportJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/users/batch/{job_id}": {
+      "get": {
+        "summary": "Get Batch Import Job Details",
+        "description": "Get the status for a batch user import job with job details.",
+        "operationId": "GetBatchUserImportStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersGetBatchUserImportStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/users/batch/{job_id}/errors": {
+      "get": {
+        "summary": "Get Batch Import Errors",
+        "description": "Get the error message and code for any users that failed from a user import job.",
+        "operationId": "GetBatchUserImportErrors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersGetBatchUserImportErrorsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job that is still processing.",
+            "schema": {}
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/users/batch/{job_id}/imports": {
+      "get": {
+        "summary": "Get Batch Imported Users",
+        "description": "Get the FullStory uid and user details for successful users imported from a batch user import job.",
+        "operationId": "GetBatchUserImports",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersGetBatchUserImportsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job that is still processing.",
+            "schema": {}
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ]
+      }
+    },
+    "/v2beta/users/{id}": {
+      "get": {
+        "summary": "Get User",
+        "description": "Retrieve details for a single user",
+        "operationId": "GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersGetUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory assigned user ID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "summary": "Delete User",
+        "description": "Delete a single user",
+        "operationId": "DeleteUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersDeleteUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory assigned user ID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "summary": "Update User",
+        "description": "Updates a user with the specified details",
+        "operationId": "UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/usersUpdateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/apierrorErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory assigned user ID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "example": {
+                "uid": "xyz123",
+                "display_name": "Daniel Falko",
+                "email": "daniel.falko@example.com",
+                "properties": {
+                  "pricing_plan_str": "paid",
+                  "popup_help_bool": true,
+                  "total_spent_real": 14.50
+                }
+              },
+              "properties": {
+                "uid": {
+                  "type": "string",
+                  "description": "The application-specific ID you've given to the user",
+                  "maxLength": 256
+                },
+                "display_name": {
+                  "type": "string",
+                  "description": "The nice-looking name for this user",
+                  "maxLength": 256
+                },
+                "email": {
+                  "type": "string",
+                  "description": "The email address associated with this user",
+                  "maxLength": 128
+                },
+                "properties": {
+                  "type": "object",
+                  "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+                  "maxProperties": 500
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "GetBatchEventsImportErrorsResponseFailedEventsImport": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Description of the failure encountered while importing the events"
+        },
+        "code": {
+          "type": "string",
+          "description": "Error code"
+        },
+        "events": {
+          "$ref": "#/definitions/eventsCreateEventsRequest",
+          "description": "Corresponding events import request that resulted in failure"
+        }
+      }
+    },
+    "GetBatchUserImportErrorsResponseFailedUserImport": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Description of the failure encountered while importing the user"
+        },
+        "code": {
+          "type": "string",
+          "description": "Error code"
+        },
+        "user": {
+          "$ref": "#/definitions/usersBatchUserImportRequest",
+          "description": "Corresponding user import request that resulted in failure"
+        }
+      }
+    },
+    "apierrorErrorResponse": {
+      "type": "object",
+      "example": {
+        "message": "User with that ID does not exist",
+        "code": "user_not_found"
+      },
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Long form description of what went wrong"
+        },
+        "code": {
+          "type": "string",
+          "description": "A short snake-cased value that is safe to handle programmatically"
+        }
+      }
+    },
+    "eventsContext": {
+      "type": "object",
+      "properties": {
+        "integration": {
+          "type": "string"
+        },
+        "custom_annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "web": {
+          "$ref": "#/definitions/eventsWebContext"
+        },
+        "mobile": {
+          "$ref": "#/definitions/eventsMobileContext"
+        },
+        "device": {
+          "$ref": "#/definitions/eventsDeviceContext"
+        },
+        "location": {
+          "$ref": "#/definitions/eventsLocationContext"
+        }
+      }
+    },
+    "eventsCreateBatchEventsImportJobRequest": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventsCreateEventsRequest"
+          },
+          "description": "The list of event requests that should be imported"
+        }
+      }
+    },
+    "eventsCreateBatchEventsImportJobResponse": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "job": {
+          "$ref": "#/definitions/jobJobMetadata",
+          "description": "Information about the job that was initiated to import the list of events submitted"
+        }
+      }
+    },
+    "eventsCreateEventsRequest": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/eventsUserIdRequest"
+        },
+        "session": {
+          "$ref": "#/definitions/eventsSessionIdRequest"
+        },
+        "context": {
+          "$ref": "#/definitions/eventsContext"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventsEvent"
+          }
+        },
+        "include_schema": {
+          "type": "boolean"
+        }
+      }
+    },
+    "eventsCreateEventsResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/eventsUserResponse"
+        },
+        "session": {
+          "$ref": "#/definitions/eventsSessionResponse"
+        },
+        "context": {
+          "$ref": "#/definitions/eventsContext"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventsEvent"
+          }
+        }
+      }
+    },
+    "eventsDeviceContext": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "os_version": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_number": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "screen_width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "screen_height": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "viewport_width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "viewport_height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "eventsEvent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The event name."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional event timestamp, defaults to current time."
+        },
+        "properties": {
+          "type": "object",
+          "description": "The custom event payload."
+        },
+        "schema": {
+          "$ref": "#/definitions/v2eventsSchema",
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
+        }
+      }
+    },
+    "eventsGetBatchEventsImportErrorsResponse": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetBatchEventsImportErrorsResponseFailedEventsImport"
+          },
+          "description": "Page of events import failures for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "The total number of failures for the specified events import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
+        }
+      }
+    },
+    "eventsGetBatchEventsImportStatusResponse": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "imports": {
+          "type": "string",
+          "format": "int64",
+          "description": "The stats on the number of events imported successfully"
+        },
+        "errors": {
+          "type": "string",
+          "format": "int64",
+          "description": "Only included for failed imports. The stats on the number of events that failed to be imported"
+        },
+        "job": {
+          "$ref": "#/definitions/jobJobMetadata",
+          "description": "Information about the current state of the job that was initiated to import the list of events"
+        }
+      }
+    },
+    "eventsGetBatchEventsImportsResponse": {
+      "type": "object",
+      "example": {},
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/eventsCreateEventsResponse"
+          },
+          "description": "Page of events import responses for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "Total number of records in this batch import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import results"
+        }
+      }
+    },
+    "eventsLocationContext": {
+      "type": "object",
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "region_code": {
+          "type": "string"
+        },
+        "city_name": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "eventsMobileContext": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string"
+        },
+        "app_version": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "build_variant": {
+          "type": "string"
+        }
+      }
+    },
+    "eventsSessionIdRequest": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "use_most_recent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "eventsSessionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "eventsUserIdRequest": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
+        }
+      }
+    },
+    "eventsUserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
+    },
+    "eventsWebContext": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "user_agent": {
+          "type": "string"
+        },
+        "referrer_url": {
+          "type": "string"
+        }
+      }
+    },
+    "jobJobMetadata": {
+      "type": "object",
+      "example": {
+        "id": "abc123",
+        "status": "PROCESSING",
+        "created": "2017-01-15T01:30:15.01Z",
+        "finished": "2017-01-15T02:30:15.01Z"
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the job."
+        },
+        "status": {
+          "$ref": "#/definitions/jobJobStatus",
+          "description": "Status of the job."
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the job was accepted."
+        },
+        "finished": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the job was finished, either successfully or unsuccessfully."
+        }
+      },
+      "description": "JobMetadata contains metadata about asynchronous jobs.",
+      "title": "JobMetadata"
+    },
+    "jobJobStatus": {
+      "type": "string",
+      "enum": [
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED"
+      ],
+      "default": "UNKNOWN",
+      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being\nprocessed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "usersBatchUserImportRequest": {
+      "type": "object",
+      "example": {
+        "id": 123,
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
+        },
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "usersBatchUserImportResponse": {
+      "type": "object",
+      "example": {
+        "id": "987654321",
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID",
+          "maxLength": 256
+        },
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "usersCreateBatchUserImportJobRequest": {
+      "type": "object",
+      "example": {
+        "requests": [
+          {
+            "uid": "xyz123",
+            "properties": {
+              "rewards_status_str": "platinum"
+            }
+          }
+        ]
+      },
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/usersBatchUserImportRequest"
+          },
+          "description": "The list of users and their information that should be imported in this batch request"
+        }
+      }
+    },
+    "usersCreateBatchUserImportJobResponse": {
+      "type": "object",
+      "example": {
+        "job": {
+          "id": "otpo123",
+          "status": "PROCESSING",
+          "created": "2019-04-18T14:36:11.123Z"
+        }
+      },
+      "properties": {
+        "job": {
+          "$ref": "#/definitions/jobJobMetadata",
+          "description": "Information about the job that was initiated to import the list of users submitted"
+        }
+      }
+    },
+    "usersCreateUserRequest": {
+      "type": "object",
+      "example": {
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "usersCreateUserResponse": {
+      "type": "object",
+      "example": {
+        "id": "987654321",
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
+        },
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "usersDeleteUserResponse": {
+      "type": "object"
+    },
+    "usersGetBatchUserImportErrorsResponse": {
+      "type": "object",
+      "example": {
+        "results": [
+          {
+            "message": "The error message",
+            "code": "error_code",
+            "user": {
+              "uid": "xyz123",
+              "display_name": "Daniel Falko",
+              "email": "daniel.falko@example.com",
+              "properties": {
+                "pricing_plan_str": "paid",
+                "popup_help_bool": true,
+                "total_spent_real": 14.50
+              }
+            }
+          },
+          {
+            "message": "The error message",
+            "code": "error_code",
+            "user": {
+              "display_name": "Stan Bandee",
+              "email": "stan.bandee@example.com",
+              "properties": {
+                "pricing_plan_str": "free",
+                "popup_help_bool": true,
+                "total_spent_real": 0
+              }
+            }
+          }
+        ],
+        "total_records": 98,
+        "next_page_token": "asd543"
+      },
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetBatchUserImportErrorsResponseFailedUserImport"
+          },
+          "description": "Page of user import failures for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "The total number of failures for the specified user import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
+        }
+      }
+    },
+    "usersGetBatchUserImportStatusResponse": {
+      "type": "object",
+      "example": {
+        "imports": 42,
+        "errors": 4,
+        "job": {
+          "id": "otpo123",
+          "status": "COMPLETED",
+          "created": "2019-04-18T14:36:11.123Z",
+          "finished": "2019-04-18T15:36:11.123Z"
+        }
+      },
+      "properties": {
+        "imports": {
+          "type": "string",
+          "format": "int64",
+          "description": "The stats on the number of users imported successfully"
+        },
+        "errors": {
+          "type": "string",
+          "format": "int64",
+          "description": "Only included for failed imports. The stats on the number of users that failed to be imported"
+        },
+        "job": {
+          "$ref": "#/definitions/jobJobMetadata",
+          "description": "Information about the current state of the job that was initiated to import the list of users"
+        }
+      }
+    },
+    "usersGetBatchUserImportsResponse": {
+      "type": "object",
+      "example": {
+        "results": [
+          {
+            "uid": "xyz123",
+            "display_name": "Daniel Falko",
+            "email": "daniel.falko@example.com",
+            "properties": {
+              "pricing_plan_str": "paid",
+              "popup_help_bool": true,
+              "total_spent_real": 14.50
+            }
+          },
+          {
+            "uid": "xyz124",
+            "display_name": "Steve Falko",
+            "email": "steve.falko@example.com",
+            "properties": {
+              "pricing_plan_str": "paid",
+              "popup_help_bool": true,
+              "total_spent_real": 14.50
+            }
+          }
+        ],
+        "total_records": 98,
+        "next_page_token": "asd543"
+      },
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/usersBatchUserImportResponse"
+          },
+          "description": "Page of user import responses for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "Total number of records in this batch import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import results"
+        }
+      }
+    },
+    "usersGetUserResponse": {
+      "type": "object",
+      "example": {
+        "id": "987654321",
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
+        },
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "is_being_deleted": {
+          "type": "boolean",
+          "description": "Indicates whether or not this user is in the process of being removed"
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "usersListUsersResponse": {
+      "type": "object",
+      "example": {
+        "results": [
+          {
+            "id": "987654321",
+            "uid": "xyz123",
+            "display_name": "Daniel Falko",
+            "email": "daniel.falko@example.com",
+            "properties": {
+              "pricing_plan_str": "paid",
+              "popup_help_bool": true,
+              "total_spent_real": 14.50
+            }
+          }
+        ],
+        "total_records": 1200,
+        "next_page_token": "asd543"
+      },
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/usersGetUserResponse"
+          },
+          "description": "The list of users that match the input filter criteria"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The total number of users that matched the filter criteria"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request with the same filter criteria to fetch the next page of users"
+        }
+      }
+    },
+    "usersUpdateUserResponse": {
+      "type": "object",
+      "example": {
+        "id": "987654321",
+        "uid": "xyz123",
+        "display_name": "Daniel Falko",
+        "email": "daniel.falko@example.com",
+        "properties": {
+          "pricing_plan_str": "paid",
+          "popup_help_bool": true,
+          "total_spent_real": 14.50
+        }
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID",
+          "maxLength": 256
+        },
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "display_name": {
+          "type": "string",
+          "description": "The nice-looking name for this user",
+          "maxLength": 256
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address associated with this user",
+          "maxLength": 128
+        },
+        "properties": {
+          "type": "object",
+          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "maxProperties": 500
+        }
+      }
+    },
+    "v2eventsSchema": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "A mapping of field names to their corresponding types."
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\"",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
