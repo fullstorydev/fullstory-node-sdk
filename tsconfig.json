@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": "./lib",
+        "rootDir": "./src",
+        "target": "es6",
+        "strict": true,
+        "declaration": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strictFunctionTypes": true
+    },
+    "include": ["./src/**/*"],
+    "exclude": [
+        "lib",
+        "node_modules",
+        "**/__mocks__/**/*",
+        "**/__tests__/**/*"
+    ]
+}
