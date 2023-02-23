@@ -35,13 +35,13 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   }
 
   /**
-   * Returns human-friendly help for the generator.  Provide the consumer with help
+   * Returns human-friendly help for the generator. Provide the consumer with help
    * tips, parameters here
    *
    * @return A string value for the help message
    */
   public String getHelp() {
-    //TODO(sabrina)
+    // TODO(sabrina)
     return "Generates a fullstory-typescript client library.";
   }
 
@@ -55,23 +55,25 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     apiPackage = "api";
     modelPackage = "model";
   }
-  
+
   /**
-   * Location to write model files.  You can use the modelPackage() as defined when the class is
+   * Location to write model files. You can use the modelPackage() as defined when
+   * the class is
    * instantiated
    */
   public String modelFileFolder() {
-    //TODO(sabrina): put into correct folder
+    // TODO(sabrina): put into correct folder
     return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.', File.separatorChar);
   }
 
   /**
-   * Location to write api files.  You can use the apiPackage() as defined when the class is
+   * Location to write api files. You can use the apiPackage() as defined when the
+   * class is
    * instantiated
    */
   @Override
   public String apiFileFolder() {
-    //TODO(sabrina): put into correct folder
+    // TODO(sabrina): put into correct folder
     return outputFolder + "/" + sourceFolder + "/" + apiPackage().replace('.', File.separatorChar);
   }
 }
