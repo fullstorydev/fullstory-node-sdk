@@ -1,7 +1,6 @@
 {
-    "generatorName":"fullstory-typescript",
+    "generatorName": "fullstory-typescript",
     "outputDir": ".",
     "inputSpec": "all.swagger.json",
     "globalProperty": "models"
 }
-  

@@ -1,8 +1,8 @@
 # OpenAPI Generator for the fullstory-typescript library
 
 ## Overview
-This is a boiler-plate project to generate your own project derived from an OpenAPI specification.
-Its goal is to get you started with the basic plumbing so you can put in your own logic.
+This is [created from the boiler-plate project](https://openapi-generator.tech/docs/customization#custom-generator-and-template) to generate TypeScript code derived from our swagger specification.
+Its goal is to get started with the basic plumbing so any custom logic needed can be put into place.
 
 ## What's OpenAPI
 The goal of OpenAPI is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection.
@@ -12,10 +12,10 @@ Similar to what interfaces have done for lower-level programming, OpenAPI remove
 Check out [OpenAPI-Spec](https://github.com/OAI/OpenAPI-Specification) for additional information about the OpenAPI project, including additional libraries with support for other languages and more.
 
 ## How do I use this?
-At this point, you've likely generated a client setup.  It will include something along these lines:
+At this point, the generator is setup to ba have minimal logic to generate TypeScript Client code.
 
 ```
-.
+. // current folder (openapi-generator)
 |- README.md    // this file
 |- pom.xml      // build script
 |-- src
@@ -29,56 +29,57 @@ At this point, you've likely generated a client setup.  It will include somethin
 |------- org.openapitools.codegen.CodegenConfig
 ```
 
-You _will_ need to make changes in at least the following:
+To make changes in the generator:
 
-`FullstoryTypescriptGenerator.java`
+`src/main/java/com/fullstory/typescript/FullstoryTypescriptGenerator.java`
 
-Templates in this folder:
+To make changes to the templates:
 
 `src/main/resources/fullstory-typescript`
 
-Once modified, you can run this:
+Once modified, you can run the following commend _from the root_:
 
 ```
-mvn package
+make gen-openapi
 ```
 
-In your generator project. A single jar file will be produced in `target`. You can now use that with [OpenAPI Generator](https://openapi-generator.tech):
+This will re-build the generator, A single jar file will be produced in `target` folder.
+The commend also generates the TypeScript files into the appropriate place in the `src` folder.
 
-For mac/linux:
-```
-java -cp /path/to/openapi-generator-cli.jar:/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g fullstory-typescript -i /path/to/openapi.yaml -o ./test
-```
-(Do not forget to replace the values `/path/to/openapi-generator-cli.jar`, `/path/to/your.jar` and `/path/to/openapi.yaml` in the previous command)
+## How do I modify this?
+The `FullstoryTypescriptGenerator` class,  in `FullstoryTypescriptGenerator.java`, extends the `org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen` class.
+Which in turn extends `DefaultCodegen`and implements `CodegenConfig`.
+Read the code in the super class and interface to understand the logic. A good example of TypeScript Client generator, and what we will likely borrow some logic from, is the `org.openapitools.codegen.languages.TypeScriptNodeClientCodegen` class.
 
-For Windows users, you will need to use `;` instead of `:` in the classpath, e.g.
-```
-java -cp /path/to/openapi-generator-cli.jar;/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g fullstory-typescript -i /path/to/openapi.yaml -o ./test
-```
+There is also a test `FullstoryTypescriptGeneratorTest.java`. You can step through the code in a debugger by debugging the test.
 
-Now your templates are available to the client generator and you can write output values
+There are a number of debugging data and messages available to be printed out.
+You can execute the `java` command from above while passing different debug flags to show the object you have available during client generation:
 
-## But how do I modify this?
-The `FullstoryTypescriptGenerator.java` has comments in it--lots of comments.  There is no good substitute
-for reading the code more, though.  See how the `FullstoryTypescriptGenerator` implements `CodegenConfig`.
-That class has the signature of all values that can be overridden.
-
-You can also step through FullstoryTypescriptGenerator.java in a debugger.  Just debug the JUnit
-test in DebugCodegenLauncher.  That runs the command line tool and lets you inspect what the code is doing.
-
-For the templates themselves, you have a number of values available to you for generation.
-You can execute the `java` command from above while passing different debug flags to show
-the object you have available during client generation:
-
-```
+```shell
 # The following additional debug options are available for all codegen targets:
 # -DdebugOpenAPI prints the OpenAPI Specification as interpreted by the codegen
 # -DdebugModels prints models passed to the template engine
 # -DdebugOperations prints operations passed to the template engine
 # -DdebugSupportingFiles prints additional data passed to the template engine
 
-java -DdebugOperations -cp /path/to/openapi-generator-cli.jar:/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g fullstory-typescript -i /path/to/openapi.yaml -o ./test
+# For example, the following command outputs the debug info for "models".
+# You can use this info in the "model.mustache" file.
+java -DdebugModels -cp 
+openapi-generator/target/fullstory-typescript-openapi-generator-1.0.0.jar:node_modules/@openapitools/openapi-generator-cli/versions/$(OPENAPI_GEN_VERSION).jar \
+org.openapitools.codegen.OpenAPIGenerator \
+generate -g fullstory-typescript -i /path/to/openapi.yaml -o ./test
 ```
 
-Will, for example, output the debug info for operations.
-You can use this info in the `api.mustache` file.
+## Where are the specifications from?
+The `all.swagger.json` file is generated by FullStory that contains the specifications of the FullStory server APIs supported by this client SDK.
+Please do not edit (unless you are a FullStory developer).
+There are plans to synchronize the spec file in a more [bionic](https://www.fullstory.com/blog/watchwords-empathy-clarity-bionics/) process. But for now this file is manually copied inside this project.
+
+## Where are the generated code?
+At the moment, no APIs or supporting files are generated yet: only models are generated.
+All the models inside `<root>/src/model` are automatically generated.
+
+See `<root>/.openapi-generator/FILES` contains a list of all files. 
+
+See `<root>/.openapi-generator-ignore` for allowing any non-generated files to live inside the same folder.
