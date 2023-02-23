@@ -44,7 +44,7 @@ make gen-openapi
 ```
 
 This will re-build the generator, A single jar file will be produced in `target` folder.
-The commend also generates the TypeScript files into the appropriate place in the `src` folder.
+The command also generates the TypeScript files into the appropriate place in the `src` folder.
 
 ## How do I modify this?
 The `FullstoryTypescriptGenerator` class,  in `FullstoryTypescriptGenerator.java`, extends the `org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen` class.
