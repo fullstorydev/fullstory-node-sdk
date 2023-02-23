@@ -1,2 +1,5 @@
-src/model linguist-generated=true
-.openapi-generator linguist-generated=true
+#  TODO(sabrina): unmark this as generated initially 
+#  to allow easier review of the generator. Mark later.
+#  src/model/**/* linguist-generated
+
+.openapi-generator/**/* linguist-generated
