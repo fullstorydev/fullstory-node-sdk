@@ -10,7 +10,7 @@ lerna-debug.log*
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Dependency directories
-node_modules
+node_modules/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -22,4 +22,4 @@ node_modules
 *.tgz
 
 # build / generate output
-lib
+lib/
