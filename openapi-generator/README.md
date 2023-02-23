@@ -12,7 +12,7 @@ Similar to what interfaces have done for lower-level programming, OpenAPI remove
 Check out [OpenAPI-Spec](https://github.com/OAI/OpenAPI-Specification) for additional information about the OpenAPI project, including additional libraries with support for other languages and more.
 
 ## How do I use this?
-At this point, the generator is setup to ba have minimal logic to generate TypeScript Client code.
+At this point, the generator is setup to have minimal logic to generate TypeScript Client code.
 
 ```
 . // current folder (openapi-generator)
