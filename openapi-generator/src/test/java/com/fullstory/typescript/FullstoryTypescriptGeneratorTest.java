@@ -25,12 +25,9 @@ public class FullstoryTypescriptGeneratorTest {
   // this allows you to easily set break points in FullstoryTypescriptGenerator.
   @Test
   public void launchCodeGenerator() {
-    Map<String, String> globalProps = new HashMap<>();
-    globalProps.put("models", "*");
     final CodegenConfigurator configurator = new CodegenConfigurator()
         .setGeneratorName("fullstory-typescript")
-        .setGlobalProperties(globalProps)
-        .setInputSpec("all.swagger.json")
+        .setInputSpec("../all.swagger.json")
         .setOutputDir("out");
 
     final ClientOptInput clientOptInput = configurator.toClientOptInput();

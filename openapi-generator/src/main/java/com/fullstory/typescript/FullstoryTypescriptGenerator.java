@@ -48,12 +48,20 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   public FullstoryTypescriptGenerator() {
     super();
 
-    modelTemplateFiles.put("model.mustache", ".ts");
-
-    outputFolder = "generated-code/fullstory-typescript";
+    outputFolder = "out";
     templateDir = "fullstory-typescript";
     apiPackage = "api";
     modelPackage = "model";
+  }
+
+  @Override
+  public void processOpts() {
+    super.processOpts();
+
+    modelTemplateFiles.put("model.mustache", ".ts");
+    supportingFiles
+        .add(new SupportingFile("model-index.mustache",
+            sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar), "index.ts"));
   }
 
   /**

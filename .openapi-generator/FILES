@@ -16,3 +16,4 @@ src/model/UsersGetUserResponse.ts
 src/model/UsersListUsersResponse.ts
 src/model/UsersUpdateUserRequest.ts
 src/model/UsersUpdateUserResponse.ts
+src/model/index.ts
