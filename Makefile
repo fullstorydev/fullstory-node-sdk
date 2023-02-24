@@ -1,6 +1,5 @@
 OPENAPI_GEN_VERSION := 6.4.0
 
-.PHONY: gen-openapi
 gen-openapi:
 	npx @openapitools/openapi-generator-cli version-manager set $(OPENAPI_GEN_VERSION)
 	
