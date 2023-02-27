@@ -2,5 +2,8 @@
     "generatorName": "fullstory-typescript",
     "outputDir": ".",
     "inputSpec": "all.swagger.json",
-    "globalProperty": "models"
+    "globalProperty": "models",
+    "schemaMappings": {
+        "google.protobuf.NullValue": "null"
+    }
 }
