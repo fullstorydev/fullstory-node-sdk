@@ -28,11 +28,16 @@ public class FullstoryTypescriptGeneratorTest {
     Map<String, String> sm = new HashMap<>();
     sm.put("google.protobuf.NullValue", "null");
 
+    Map<String, String> gp = new HashMap<>();
+    gp.put("models", "");
+    gp.put("supportingFiles", "");
+
     final CodegenConfigurator configurator = new CodegenConfigurator()
         .setGeneratorName("fullstory-typescript")
         .setInputSpec("../all.swagger.json")
         .setOutputDir("out")
-        .setSchemaMappings(sm);
+        .setSchemaMappings(sm)
+        .setGlobalProperties(gp);
 
     final ClientOptInput clientOptInput = configurator.toClientOptInput();
     DefaultGenerator generator = new DefaultGenerator();
