@@ -19,5 +19,10 @@ module.exports = {
     semi: ['error', 'always'],
     quotes: ['error', 'single'],
     'no-trailing-spaces': 'error',
-  }
+  },
+  settings: {
+    'import/resolver': {
+      typescript: {} // load tsconfig.json to eslint to use aliased imports
+    },
+  },
 };

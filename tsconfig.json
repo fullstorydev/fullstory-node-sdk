@@ -15,13 +15,19 @@
         "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
         "noImplicitThis": true,
-        "strictFunctionTypes": true
+        "strictFunctionTypes": true,
+
+        "baseUrl": "./src",
+        "paths": {
+            "@model/*": [ "model/*" ],
+        }
     },
-    "include": ["./src/**/*"],
+    "include": [ "./src/**/*" ],
     "exclude": [
         "lib",
         "node_modules",
         "**/__mocks__/**/*",
         "**/__tests__/**/*"
-    ]
+    ],
+
 }
