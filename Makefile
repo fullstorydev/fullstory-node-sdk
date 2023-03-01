@@ -9,4 +9,4 @@ gen-openapi:
 	java -cp \
 	openapi-generator/target/fullstory-typescript-openapi-generator-1.0.0.jar:node_modules/@openapitools/openapi-generator-cli/versions/$(OPENAPI_GEN_VERSION).jar \
 	org.openapitools.codegen.OpenAPIGenerator \
-	generate -c openapi-gen.config.json
+	batch --clean -- openapi-gen.config.json
