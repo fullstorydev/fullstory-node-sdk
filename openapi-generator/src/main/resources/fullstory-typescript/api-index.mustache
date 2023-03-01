@@ -1,0 +1,18 @@
+{{! 
+This file is mostly a duplicate of typescript-node template with minor changes.
+TODO(sabrina): change as neccessary for FullStory APIs.
+}}
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable simple-import-sort/imports */
+
+{{>info}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+export * from './{{ classFilename }}';
+{{/operations}}
+{{#withInterfaces}}
+export * from './{{ classFilename }}Interface'
+{{/withInterfaces}}
+{{/apis}}
+{{/apiInfo}}

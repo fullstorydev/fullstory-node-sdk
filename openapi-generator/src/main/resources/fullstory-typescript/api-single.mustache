@@ -1,0 +1,43 @@
+{{! 
+This file is mostly a duplicate of typescript-node template with minor changes.
+TODO(sabrina): change as neccessary for FullStory APIs.
+}}
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable simple-import-sort/imports */
+
+{{>info}}
+{{#tsImports}}
+{{#entrySet}}
+import { {{key}} } from '@model/{{value}}';
+{{/entrySet}}
+{{/tsImports}}
+import { RequestOptions } from './options';
+
+{{#operations}}
+{{#description}}
+/**
+* {{&description}}
+*/
+{{/description}}
+
+export interface {{classname}} {
+{{#operation}}
+    /**
+     * {{&notes}}
+     {{#summary}}
+     * @summary {{&summary}}
+     {{/summary}}
+     {{#allParams}}
+     * @param {{paramName}}{{#description}} {{.}}{{/description}}
+     {{/allParams}}
+     */
+    {{nickname}}: ({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: RequestOptions) => Promise<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>;
+{{/operation}}
+}
+
+////////////////////////////////////////////////
+// TODO(sabrina): add implementations
+////////////////////////////////////////////////
+
+class {{classname}}Impl implements {{classname}} { }
+{{/operations}}

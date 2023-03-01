@@ -1,11 +1,16 @@
 package com.fullstory.typescript;
 
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.model.*;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
+import org.openapitools.codegen.languages.TypeScriptNodeClientCodegen;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.io.File;
+// import java.util.stream.Collectors;
 
 public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodegen {
 
@@ -59,9 +64,16 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     super.processOpts();
 
     modelTemplateFiles.put("model.mustache", ".ts");
+    apiTemplateFiles.put("api-single.mustache", ".ts");
+
     supportingFiles
         .add(new SupportingFile("model-index.mustache",
-            sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar), "index.ts"));
+            sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar),
+            "index.ts"));
+    supportingFiles
+        .add(new SupportingFile("api-index.mustache",
+            sourceFolder + File.separator + apiPackage().replace('.', File.separatorChar),
+            "index.ts"));
   }
 
   /**
@@ -87,6 +99,18 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
    */
   @Override
   public String modelFileFolder() {
+    return sourceFolder() + modelPackage().replace('.', File.separatorChar);
+  }
+
+  /**
+   * Root location to write all API files.
+   */
+  @Override
+  public String apiFileFolder() {
+    return sourceFolder() + apiPackage().replace('.', File.separatorChar);
+  }
+
+  private String sourceFolder() {
     String folder = "";
     if (outputFolder != "") {
       folder += outputFolder + File.separator;
@@ -94,7 +118,6 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     if (sourceFolder != "") {
       folder += sourceFolder + File.separator;
     }
-    folder += modelPackage().replace('.', File.separatorChar);
     return folder;
   }
 
@@ -135,41 +158,110 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     return models;
   }
 
+  /**
+   * Post-processing for all api operations to with TS specific fields.
+   */
+  @Override
+  public OperationsMap postProcessOperationsWithModels(OperationsMap operations, List<ModelMap> allModels) {
+
+    OperationMap operationMap = operations.getOperations();
+    // List<CodegenOperation> filteredOps =
+    // operationMap.getOperation().stream().filter(op -> {
+    // // only take the last tag
+    // int last = op.tags.size() - 1;
+    // Tag lastTag = op.tags.get(last);
+    // String sTag = sanitizeTag(lastTag.getName());
+    // return sTag.equals(op.baseName);
+    // }).collect(Collectors.toList());
+    // operationMap.setOperation(filteredOps);
+
+    // put ts imports, for now, api files only imports form @model
+    Map<String, String> importPathMap = new HashMap<>();
+    for (ModelMap mo : allModels) {
+      String importPath = setImportPathForModel(mo.getModel().getName(), mo);
+      importPathMap.put(mo.getModel().getClassname(), importPath);
+    }
+    Map<String, String> tsImports = new HashMap<>();
+    for (CodegenOperation op : operationMap.getOperation()) {
+      for (String im : op.imports) {
+        tsImports.put(im, importPathMap.get(im));
+      }
+      // should always have a named return type, unless api does not return anything.
+      // i.e. DELETE requests
+      if (op.returnType == "object") {
+        op.returnType = null;
+      }
+    }
+    operations.put("tsImports", tsImports);
+
+    return operations;
+  }
+
+  @Override
+  public void addOperationToGroup(
+      String tag,
+      String resourcePath,
+      Operation operation,
+      CodegenOperation co,
+      Map<String, List<CodegenOperation>> operations) {
+    // Operations are added to OperationsMap based on tags. If more than one tag is
+    // added for an operation, there will be duplicates in the group. Remove any
+    // duplicate operations and only have it remain in the last tags' group.
+    Tag lastTag = co.tags.get(co.tags.size() - 1);
+    if (lastTag == null || !tag.equals(sanitizeTag(lastTag.getName()))) {
+      return;
+    }
+
+    String concatTags = "";
+    for (Tag t : co.tags) {
+      concatTags += sanitizeTag(t.getName());
+    }
+    super.addOperationToGroup(concatTags, resourcePath, operation, co, operations);
+  }
+
   private Map<String, String> overrideAllImportsPathsInModels(Map<String, ModelsMap> models) {
     Map<String, String> importLocMap = new HashMap<>();
     for (String modelName : models.keySet()) {
       ModelsMap entry = models.get(modelName);
       for (ModelMap mo : entry.getModels()) {
-        String className = mo.getModel().getClassname();
-        // TODO(sabrina): handle possible duplicate classnames from different path?
-        String tsImportRelPath = toModelFolderName(modelName) + "/" + className;
 
-        mo.put("importPath", tsImportRelPath);
+        String className = mo.getModel().getClassname();
+        String tsImportRelPath = setImportPathForModel(modelName, mo);
         importLocMap.put(className, tsImportRelPath);
       }
     }
     return importLocMap;
   }
 
+  private String setImportPathForModel(String modelName, ModelMap mo) {
+    String className = mo.getModel().getClassname();
+    // TODO(sabrina): handle possible duplicate classnames from different path?
+    String tsImportRelPath = toModelFolderName(modelName) + "/" + className;
+
+    mo.put("importPath", tsImportRelPath);
+    return tsImportRelPath;
+  }
+
   private void addTsImportsToModels(Map<String, ModelsMap> models, Map<String, String> importLocMap) {
     for (String modelName : models.keySet()) {
-
       ModelsMap entry = models.get(modelName);
       for (ModelMap mo : entry.getModels()) {
-
-        CodegenModel cm = mo.getModel();
-        List<Map<String, String>> tsImports = new ArrayList<>();
-
-        for (String im : cm.imports) {
-          HashMap<String, String> tsImport = new HashMap<>();
-          tsImport.put("classname", im);
-          tsImport.put("filename", importLocMap.get(im));
-          tsImports.add(tsImport);
-        }
-
-        mo.put("tsImports", tsImports);
+        addTsImportsToModel(mo, importLocMap);
       }
-
     }
+  }
+
+  private void addTsImportsToModel(ModelMap mo, Map<String, String> importLocMap) {
+    CodegenModel cm = mo.getModel();
+    List<Map<String, String>> tsImports = new ArrayList<>();
+
+    for (String im : cm.imports) {
+      HashMap<String, String> tsImport = new HashMap<>();
+      tsImport.put("classname", im);
+      tsImport.put("filename", importLocMap.get(im));
+      tsImports.add(tsImport);
+    }
+
+    mo.put("tsImports", tsImports);
   }
 }
