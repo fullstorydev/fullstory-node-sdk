@@ -1,3 +1,5 @@
+import { UsersApi, UsersBatchImportApi } from 'api';
+
 /**
  * RequestOptions provide additional options to be applied when calling FullStory APIs.
 */
@@ -15,6 +17,7 @@ export interface FullStoryOptions extends RequestOptions {
 
 // TODO(sabrina): create the interface
 export interface FullStoryClient {
+    users: UsersApi & UsersBatchImportApi;
 }
 
 // TODO(sabrina): create the implementation
@@ -23,5 +26,4 @@ class FullStoryImpl implements FullStoryClient {
 }
 
 export function init(opts: FullStoryOptions): FullStoryClient {
-    return new FullStoryImpl(opts);
 }
