@@ -94,7 +94,7 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     if (sourceFolder != "") {
       folder += sourceFolder + File.separator;
     }
-    folder += modelPackage.replace('.', File.separatorChar);
+    folder += modelPackage().replace('.', File.separatorChar);
     return folder;
   }
 
