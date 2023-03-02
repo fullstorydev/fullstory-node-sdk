@@ -14,7 +14,7 @@ import { UpdateUserResponse } from '@model/users/UpdateUserResponse';
 import { CreateUserRequest } from '@model/users/CreateUserRequest';
 import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
-import { RequestOptions } from './options';
+import { RequestOptions } from '../../options';
 
 
 export interface UsersApi {

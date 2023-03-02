@@ -1,6 +1,6 @@
-src/api/UsersApi.ts
-src/api/UsersBatchImportApi.ts
 src/api/index.ts
+src/api/users/UsersApi.ts
+src/api/users/UsersBatchImportApi.ts
 src/model/apierror/ErrorResponse.ts
 src/model/index.ts
 src/model/job/JobMetadata.ts

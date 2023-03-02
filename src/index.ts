@@ -1,5 +1,5 @@
-import { UsersApi, UsersBatchImportApi } from 'api';
-import { FullStoryOptions } from 'api/options';
+import { UsersApi, UsersBatchImportApi } from './api';
+import { FullStoryOptions } from './options';
 
 // TODO(sabrina): create the interface
 export interface FullStoryClient {

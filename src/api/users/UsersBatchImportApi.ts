@@ -13,7 +13,7 @@ import { GetBatchUserImportErrorsResponse } from '@model/users/GetBatchUserImpor
 import { CreateBatchUserImportJobResponse } from '@model/users/CreateBatchUserImportJobResponse';
 import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImportStatusResponse';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
-import { RequestOptions } from './options';
+import { RequestOptions } from '../../options';
 
 
 export interface UsersBatchImportApi {
@@ -24,6 +24,12 @@ export interface UsersBatchImportApi {
      */
     createBatchUserImportJob: (body: CreateBatchUserImportJobRequest, options?: RequestOptions) => Promise<CreateBatchUserImportJobResponse>;
     /**
+     * Creates a batch user import job with the given list of users\' information. Users are upserted (created if they do not exist or updated if they do exist).  ### Payload Limits  The number of request objects that can be included in a single batch request is `50,000`.
+     * @summary Create Batch Import
+     * @param body
+     */
+    createBatchUserImportJob_1: (body: CreateBatchUserImportJobRequest, options?: RequestOptions) => Promise<CreateBatchUserImportJobResponse>;
+    /**
      * Get the error message and code for any users that failed from a user import job.
      * @summary Get Batch Import Errors
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
@@ -31,11 +37,24 @@ export interface UsersBatchImportApi {
      */
     getBatchUserImportErrors: (jobId: string, nextPageToken?: string, options?: RequestOptions) => Promise<GetBatchUserImportErrorsResponse>;
     /**
+     * Get the error message and code for any users that failed from a user import job.
+     * @summary Get Batch Import Errors
+     * @param jobId ID that can be used to check the status and retrieve results for the batch import
+     * @param nextPageToken The token that can be used in a request to fetch the next page of results
+     */
+    getBatchUserImportErrors_2: (jobId: string, nextPageToken?: string, options?: RequestOptions) => Promise<GetBatchUserImportErrorsResponse>;
+    /**
      * Get the status for a batch user import job with job details.
      * @summary Get Batch Import Job Details
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      */
     getBatchUserImportStatus: (jobId: string, options?: RequestOptions) => Promise<GetBatchUserImportStatusResponse>;
+    /**
+     * Get the status for a batch user import job with job details.
+     * @summary Get Batch Import Job Details
+     * @param jobId ID that can be used to check the status and retrieve results for the batch import
+     */
+    getBatchUserImportStatus_3: (jobId: string, options?: RequestOptions) => Promise<GetBatchUserImportStatusResponse>;
     /**
      * Get the FullStory uid and user details for successful users imported from a batch user import job.
      * @summary Get Batch Imported Users
@@ -43,6 +62,13 @@ export interface UsersBatchImportApi {
      * @param nextPageToken The token that can be used in a request to fetch the next page of results
      */
     getBatchUserImports: (jobId: string, nextPageToken?: string, options?: RequestOptions) => Promise<GetBatchUserImportsResponse>;
+    /**
+     * Get the FullStory uid and user details for successful users imported from a batch user import job.
+     * @summary Get Batch Imported Users
+     * @param jobId ID that can be used to check the status and retrieve results for the batch import
+     * @param nextPageToken The token that can be used in a request to fetch the next page of results
+     */
+    getBatchUserImports_4: (jobId: string, nextPageToken?: string, options?: RequestOptions) => Promise<GetBatchUserImportsResponse>;
 }
 
 ////////////////////////////////////////////////

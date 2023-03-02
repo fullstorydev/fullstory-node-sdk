@@ -7,5 +7,5 @@
  * Do not edit manually.
  */
 
-export * from './UsersApi';
-export * from './UsersBatchImportApi';
+export * from '@api/users/UsersApi';
+export * from '@api/users/UsersBatchImportApi';
