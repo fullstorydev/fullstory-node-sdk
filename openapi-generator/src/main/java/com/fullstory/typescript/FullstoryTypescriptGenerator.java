@@ -4,13 +4,14 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.model.*;
+import org.openapitools.codegen.utils.CamelizeOption;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
-import org.openapitools.codegen.languages.TypeScriptNodeClientCodegen;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.io.File;
-// import java.util.stream.Collectors;
+
+import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodegen {
 
@@ -110,6 +111,10 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     return sourceFolder() + apiPackage().replace('.', File.separatorChar);
   }
 
+  /**
+   * Root location to for source folder.
+   * Source folder contains both api and model folders.
+   */
   private String sourceFolder() {
     String folder = "";
     if (outputFolder != "") {
@@ -131,7 +136,7 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
         name = segments[2];
       }
     }
-    return name;
+    return camelize(name, CamelizeOption.LOWERCASE_FIRST_LETTER);
   }
 
   @Override
@@ -139,6 +144,25 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     String suffix = modelTemplateFiles().get(templateName);
     String filename = modelFileFolder() + File.separator + toModelFolderName(modelName) + File.separator
         + toModelFilename(modelName) + suffix;
+    return filename;
+  }
+
+  /**
+   * Subfolder inside apiFileFolder() to write api files.
+   */
+  private String toApiFolderName(String tag) {
+    String[] segments = tag.split("\\.");
+    if (segments.length > 0) {
+      tag = segments[0];
+    }
+    return camelize(tag, CamelizeOption.LOWERCASE_FIRST_LETTER);
+  }
+
+  @Override
+  public String apiFilename(String templateName, String tag) {
+    String suffix = apiTemplateFiles().get(templateName);
+    String filename = apiFileFolder() + File.separator + toApiFolderName(tag) + File.separator
+        + toApiFilename(tag) + suffix;
     return filename;
   }
 
@@ -153,6 +177,7 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     Map<String, String> importLocMap = overrideAllImportsPathsInModels(models);
 
     // loop over all models to add "tsImport" to each model
+    // TODO(sarbina): maybe use toModelImport?
     addTsImportsToModels(models, importLocMap);
 
     return models;
@@ -163,17 +188,7 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
    */
   @Override
   public OperationsMap postProcessOperationsWithModels(OperationsMap operations, List<ModelMap> allModels) {
-
     OperationMap operationMap = operations.getOperations();
-    // List<CodegenOperation> filteredOps =
-    // operationMap.getOperation().stream().filter(op -> {
-    // // only take the last tag
-    // int last = op.tags.size() - 1;
-    // Tag lastTag = op.tags.get(last);
-    // String sTag = sanitizeTag(lastTag.getName());
-    // return sTag.equals(op.baseName);
-    // }).collect(Collectors.toList());
-    // operationMap.setOperation(filteredOps);
 
     // put ts imports, for now, api files only imports form @model
     Map<String, String> importPathMap = new HashMap<>();
@@ -193,6 +208,8 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
       }
     }
     operations.put("tsImports", tsImports);
+    // TODO(sarbina): maybe use toApiImport?
+    operationMap.put("importPath", toApiFolderName(operationMap.getPathPrefix()));
 
     return operations;
   }
@@ -206,17 +223,18 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
       Map<String, List<CodegenOperation>> operations) {
     // Operations are added to OperationsMap based on tags. If more than one tag is
     // added for an operation, there will be duplicates in the group. Remove any
-    // duplicate operations and only have it remain in the last tags' group.
-    Tag lastTag = co.tags.get(co.tags.size() - 1);
-    if (lastTag == null || !tag.equals(sanitizeTag(lastTag.getName()))) {
+    // duplicate operations and only process it once when seeing the first tag.
+    if (co.tags.size() == 0) {
+      super.addOperationToGroup(tag, resourcePath, operation, co, operations);
       return;
     }
 
-    String concatTags = "";
-    for (Tag t : co.tags) {
-      concatTags += sanitizeTag(t.getName());
-    }
-    super.addOperationToGroup(concatTags, resourcePath, operation, co, operations);
+    super.addOperationToGroup(sanitizeAndJoinTags(".", co.tags), resourcePath, operation, co, operations);
+  }
+
+  private String sanitizeAndJoinTags(String separator, List<Tag> tags) {
+    List<String> cleanTagNames = tags.stream().map(t -> sanitizeTag(t.getName())).collect(Collectors.toList());
+    return String.join(separator, cleanTagNames);
   }
 
   private Map<String, String> overrideAllImportsPathsInModels(Map<String, ModelsMap> models) {

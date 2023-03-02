@@ -20,6 +20,7 @@
         "baseUrl": "./src",
         "paths": {
             "@model/*": [ "model/*" ],
+            "@api/*": [ "api/*" ],
         }
     },
     "include": [ "./src/**/*" ],
