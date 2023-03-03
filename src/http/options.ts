@@ -1,7 +1,7 @@
 /**
 * RequestOptions provide additional options to be applied when calling FullStory APIs.
 */
-export interface RequestOptions {
+export interface FSRequestOptions {
     /** An optional integration source string denoting the origin of the requests. */
     readonly integration_src?: string;
 }
@@ -9,6 +9,6 @@ export interface RequestOptions {
 /**
 * FullStoryOptions provide additional options for instantiating the FullStory Client.
 */
-export interface FullStoryOptions extends RequestOptions {
+export interface FullStoryOptions extends FSRequestOptions {
     readonly apiKey: string;
 }
