@@ -11,11 +11,3 @@ TODO(sabrina): change as neccessary for FullStory APIs.
 export * from '@model/{{importPath}}';
 {{/model}}
 {{/models}}
-{{! Object serialization only relevant if generating APIs, too }}
-{{#generateApis}}
-{{#models}}
-{{#model}}
-import { {{classname}} } from '@model/{{importPath}}';
-{{/model}}
-{{/models}}
-{{/generateApis}}

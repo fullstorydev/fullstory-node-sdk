@@ -7,6 +7,9 @@
  * Do not edit manually.
  */
 
+import { OutgoingHttpHeaders } from 'node:http';
+import { RequestOptions } from 'node:https';
+
 import { GetUserResponse } from '@model/users/GetUserResponse';
 import { ListUsersResponse } from '@model/users/ListUsersResponse';
 import { CreateUserResponse } from '@model/users/CreateUserResponse';
@@ -14,28 +17,90 @@ import { UpdateUserResponse } from '@model/users/UpdateUserResponse';
 import { CreateUserRequest } from '@model/users/CreateUserRequest';
 import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
-import { RequestOptions } from '../../options';
 
+import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
 
-export interface UsersApi {
+export class UsersApi {
+    protected readonly basePath = 'http://localhost';
+    protected readonly httpClient: FSHttpClient;
+
+    constructor(opts: FullStoryOptions) {
+        this.httpClient = new FSHttpClient(opts);
+    }
+
     /**
      * Creates a user with the specified details
      * @summary Create User
      * @param body
-     */
-    createUser: (body: CreateUserRequest, options?: RequestOptions) => Promise<CreateUserResponse>;
+    */
+    public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<CreateUserResponse> {
+        const apiPath = `${this.basePath}/v2beta/users`;
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+
+        const consumes = ['application/json'];
+        // prefer 'application/json' if supported
+        if (consumes.indexOf('application/json') >= 0) {
+            headerParams.accept = 'application/json';
+        } else {
+            headerParams.accept = consumes.join(',');
+        }
+
+        const requestOptions: RequestOptions = {
+            method: 'POST',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, options, body);
+        return response;
+    }
+
     /**
      * Delete a single user
      * @summary Delete User
      * @param id The FullStory assigned user ID
-     */
-    deleteUser: (id: string, options?: RequestOptions) => Promise<void>;
+    */
+    public async deleteUser(id: string, options?: FSRequestOptions): Promise<void> {
+        const apiPath = `${this.basePath}/v2beta/users/{id}`
+            .replace('id', encodeURIComponent(String(id)));
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+
+        const requestOptions: RequestOptions = {
+            method: 'DELETE',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<void, void>(requestOptions, options, undefined);
+        return response;
+    }
+
     /**
      * Retrieve details for a single user
      * @summary Get User
      * @param id The FullStory assigned user ID
-     */
-    getUser: (id: string, options?: RequestOptions) => Promise<GetUserResponse>;
+    */
+    public async getUser(id: string, options?: FSRequestOptions): Promise<GetUserResponse> {
+        const apiPath = `${this.basePath}/v2beta/users/{id}`
+            .replace('id', encodeURIComponent(String(id)));
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+
+        const requestOptions: RequestOptions = {
+            method: 'GET',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<void, GetUserResponse>(requestOptions, options, undefined);
+        return response;
+    }
+
     /**
      * Retrieve a list of users matching the supplied filter criteria
      * @summary Get Users
@@ -44,19 +109,68 @@ export interface UsersApi {
      * @param displayName The nice-looking name for a user
      * @param isIdentified Whether or not a user is anonymous or identified
      * @param pageToken The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.
-     */
-    listUsers: (uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: RequestOptions) => Promise<ListUsersResponse>;
+    */
+    public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: FSRequestOptions): Promise<ListUsersResponse> {
+        const apiPath = `${this.basePath}/v2beta/users`;
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+        if (uid !== undefined) {
+            queryParams.set('uid', uid);
+        }
+        if (email !== undefined) {
+            queryParams.set('email', email);
+        }
+        if (displayName !== undefined) {
+            queryParams.set('display_name', displayName);
+        }
+        if (isIdentified !== undefined) {
+            queryParams.set('is_identified', isIdentified);
+        }
+        if (pageToken !== undefined) {
+            queryParams.set('page_token', pageToken);
+        }
+
+        const requestOptions: RequestOptions = {
+            method: 'GET',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<void, ListUsersResponse>(requestOptions, options, undefined);
+        return response;
+    }
+
     /**
      * Updates a user with the specified details
      * @summary Update User
      * @param id The FullStory assigned user ID
      * @param body
-     */
-    updateUser: (id: string, body: UpdateUserRequest, options?: RequestOptions) => Promise<UpdateUserResponse>;
+    */
+    public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<UpdateUserResponse> {
+        const apiPath = `${this.basePath}/v2beta/users/{id}`
+            .replace('id', encodeURIComponent(String(id)));
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+
+        const consumes = ['application/json'];
+        // prefer 'application/json' if supported
+        if (consumes.indexOf('application/json') >= 0) {
+            headerParams.accept = 'application/json';
+        } else {
+            headerParams.accept = consumes.join(',');
+        }
+
+        const requestOptions: RequestOptions = {
+            method: 'POST',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, options, body);
+        return response;
+    }
 }
 
-////////////////////////////////////////////////
-// TODO(sabrina): add implementations
-////////////////////////////////////////////////
 
-class UsersApiImpl implements UsersApi { }
