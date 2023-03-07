@@ -21,7 +21,7 @@ import { ErrorResponse } from '@model/apierror/ErrorResponse';
 import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
 
 export class UsersApi {
-    protected readonly basePath = 'http://localhost';
+    protected readonly basePath = 'https://api.fullstory.com';
     protected readonly httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
