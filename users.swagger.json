@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "FullStory Server API",
-    "description": "The FullStory HTTP API. See https://developer.fullstory.com for more details",
+    "title": "Introduction",
+    "description": "The Users API provides access to basic CRUD functionality for user objects.",
     "version": "v2"
   },
   "tags": [
@@ -10,6 +10,7 @@
       "name": "Users"
     }
   ],
+  "host": "api.fullstory.com",
   "schemes": [
     "https"
   ],
@@ -416,7 +417,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job that is still processing.",
-            "schema": { }
+            "schema": {}
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -516,7 +517,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job that is still processing.",
-            "schema": { }
+            "schema": {}
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -1450,16 +1451,16 @@
     }
   },
   "securityDefinitions": {
-    "apikeyAuth": {
+    "ApiKeyAuth": {
       "type": "apiKey",
-      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The header value takes the form \"Basic {YOUR_API_KEY}\". See https://help.fullstory.com/hc/en-us/articles/360052021773 for more details.",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\"",
       "name": "Authorization",
       "in": "header"
     }
   },
   "security": [
     {
-      "apikeyAuth": [ ]
+      "ApiKeyAuth": []
     }
   ]
 }

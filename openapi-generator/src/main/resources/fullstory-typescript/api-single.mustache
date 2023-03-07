@@ -1,0 +1,89 @@
+{{! 
+This file is mostly a duplicate of typescript-node template with minor changes.
+TODO(sabrina): change as neccessary for FullStory APIs.
+}}
+/* eslint-disable simple-import-sort/exports */
+/* eslint-disable simple-import-sort/imports */
+
+{{>info}}
+import { OutgoingHttpHeaders } from 'node:http';
+import { RequestOptions } from 'node:https';
+{{#tsImports}}
+
+{{#entrySet}}
+import { {{key}} } from '@model/{{value}}';
+{{/entrySet}}
+{{/tsImports}}
+
+import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
+{{#operations}}
+
+{{#description}}
+/**
+ * {{.}}
+*/
+{{/description}}
+export class {{classname}} {
+    protected readonly basePath = '{{{basePath}}}';
+    protected readonly httpClient: FSHttpClient;
+
+    constructor(opts: FullStoryOptions) {
+        this.httpClient = new FSHttpClient(opts);
+    }
+{{#operation}}
+
+    /**
+     * {{&notes}}
+     {{#summary}}
+     * @summary {{&summary}}
+     {{/summary}}
+     {{#allParams}}
+     * @param {{paramName}}{{#description}} {{.}}{{/description}}
+     {{/allParams}}
+     {{! TODO(sabrina): @throws error }}
+    */
+    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+        const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
+            .replace('{{{baseName}}}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+        {{! TODO(sabrina): don't have any Form Params for now. Add if needed. }}
+        {{ #queryParams }}
+        if ({{paramName}} !== undefined) {
+            {{! TODO(sabrina): properly serialize param into String }}
+            queryParams.set('{{baseName}}', {{paramName}});
+        }
+        {{/queryParams}}
+        {{#headerParams}}
+        if ({{paramName}} !== undefined) {
+            headerParams['{{baseName}}'] = {{paramName}};
+        }
+        {{/headerParams}}
+        {{#hasConsumes}}
+
+        const consumes = [{{#consumes}}'{{{mediaType}}}'{{^-last}}, {{/-last}}{{/consumes}}];
+        // prefer 'application/json' if supported
+        if (consumes.indexOf('application/json') >= 0) {
+            headerParams.accept = 'application/json';
+        } else {
+            headerParams.accept = consumes.join(',');
+        }
+        {{/hasConsumes}}
+
+        const requestOptions: RequestOptions = {
+            method: '{{httpMethod}}',
+            headers: headerParams,
+            path: apiPath + queryParams.toString(),
+        };
+
+        const response = await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions, options, {{#bodyParam}}body{{/bodyParam}}{{^bodyParam}}undefined{{/bodyParam}});
+        return response;
+        {{! TODO(Sabrina): Check for AuthMethods.
+        server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}
+    }
+{{/operation}}
+}
+
+{{/operations}}
+

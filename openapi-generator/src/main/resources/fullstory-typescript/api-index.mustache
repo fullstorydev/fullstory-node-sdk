@@ -6,8 +6,13 @@ TODO(sabrina): change as neccessary for FullStory APIs.
 /* eslint-disable simple-import-sort/imports */
 
 {{>info-index}}
-{{#models}}
-{{#model}}
-export * from '@model/{{importPath}}';
-{{/model}}
-{{/models}}
+{{#apiInfo}}
+{{#apis}}
+{{#operations}}
+export * from '@api/{{ importPath }}/{{ classFilename }}';
+{{/operations}}
+{{#withInterfaces}}
+export * from '@api/{{ classFilename }}Interface'
+{{/withInterfaces}}
+{{/apis}}
+{{/apiInfo}}
