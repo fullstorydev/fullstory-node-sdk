@@ -14,8 +14,7 @@ import java.io.File;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodegen {
-
-  // source folder where to write the files
+  // source folder where to write the files, relative to root
   protected String sourceFolder = "src";
   protected String fsPrefix = "fullstory.v2";
 
@@ -69,11 +68,11 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
 
     supportingFiles
         .add(new SupportingFile("model-index.mustache",
-            sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar),
+            getSourceFolder() + File.separator + modelDir(),
             "index.ts"));
     supportingFiles
         .add(new SupportingFile("api-index.mustache",
-            sourceFolder + File.separator + apiPackage().replace('.', File.separatorChar),
+            getSourceFolder() + File.separator + apiDir(),
             "index.ts"));
   }
 
@@ -95,12 +94,41 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     return super.toTypescriptTypeName(name, safePrefix);
   }
 
+  protected String modelDir() {
+    return modelPackage().replace('.', File.separatorChar);
+  }
+
+  protected String apiDir() {
+    return apiPackage().replace('.', File.separatorChar);
+  }
+
+  protected String getSourceFolder() {
+    return sourceFolder;
+  }
+
+  /**
+   * Root location to for source folder.
+   * Source folder contains both api and model folders.
+   * 
+   * @return absolute path to the source folder.
+   */
+  protected String getAbsoluteSourceFolder() {
+    String folder = "";
+    if (getOutputDir() != "") {
+      folder += getOutputDir() + File.separator;
+    }
+    if (getSourceFolder() != "") {
+      folder += getSourceFolder();
+    }
+    return folder;
+  }
+
   /**
    * Root location to write all model files.
    */
   @Override
   public String modelFileFolder() {
-    return sourceFolder() + modelPackage().replace('.', File.separatorChar);
+    return getAbsoluteSourceFolder() + File.separator + modelDir();
   }
 
   /**
@@ -108,22 +136,7 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
    */
   @Override
   public String apiFileFolder() {
-    return sourceFolder() + apiPackage().replace('.', File.separatorChar);
-  }
-
-  /**
-   * Root location to for source folder.
-   * Source folder contains both api and model folders.
-   */
-  private String sourceFolder() {
-    String folder = "";
-    if (outputFolder != "") {
-      folder += outputFolder + File.separator;
-    }
-    if (sourceFolder != "") {
-      folder += sourceFolder + File.separator;
-    }
-    return folder;
+    return getAbsoluteSourceFolder() + File.separator + apiDir();
   }
 
   /**
