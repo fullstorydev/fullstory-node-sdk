@@ -114,10 +114,10 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
    */
   protected String getAbsoluteSourceFolder() {
     String folder = "";
-    if (getOutputDir() != "") {
+    if (!"".equals(getOutputDir())) {
       folder += getOutputDir() + File.separator;
     }
-    if (getSourceFolder() != "") {
+    if (!"".equals(getSourceFolder())) {
       folder += getSourceFolder();
     }
     return folder;
@@ -148,6 +148,9 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
       if (segments.length > 2) {
         name = segments[2];
       }
+    } else {
+      // if not starting with fsPrefix, then don't put in any subfolder.
+      name = "";
     }
     return camelize(name, CamelizeOption.LOWERCASE_FIRST_LETTER);
   }
@@ -155,7 +158,8 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   @Override
   public String modelFilename(String templateName, String modelName) {
     String suffix = modelTemplateFiles().get(templateName);
-    String filename = modelFileFolder() + File.separator + toModelFolderName(modelName) + File.separator
+    String filename = (!"".equals(modelFileFolder()) ? modelFileFolder() + File.separator : "")
+        + (!"".equals(toModelFolderName(modelName)) ? toModelFolderName(modelName) + File.separator : "")
         + toModelFilename(modelName) + suffix;
     return filename;
   }
@@ -174,7 +178,8 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   @Override
   public String apiFilename(String templateName, String tag) {
     String suffix = apiTemplateFiles().get(templateName);
-    String filename = apiFileFolder() + File.separator + toApiFolderName(tag) + File.separator
+    String filename = (!"".equals(apiFileFolder()) ? apiFileFolder() + File.separator : "")
+        + (!"".equals(toApiFolderName(tag)) ? toApiFolderName(tag) + File.separator : "")
         + toApiFilename(tag) + suffix;
     return filename;
   }
