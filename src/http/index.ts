@@ -82,8 +82,11 @@ export class FSHttpClient {
                     } catch (e) {
                         // It's possible that response is invalid json
                         // return parse error regardless of response code
-                        reject(FSErrorImpl.newParserError(res, responseData));
-                        return;
+                        if (e instanceof Error) {
+                            reject(FSErrorImpl.newParserError(res, responseData, e));
+                            return;
+                        }
+                        reject(FSErrorImpl.newParserError(res, responseData, new Error(`Unknown Error: ${e}`)));
                     }
                 }
 

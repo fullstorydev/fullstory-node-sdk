@@ -5,22 +5,43 @@ import { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-export class FSErrorImpl implements FSError {
+export interface FSError extends Error {
+    httpCode?: number;
+    code: string;
+    message: string;
+
+    // any additional payload
+    [key: string]: any;
+}
+
+export enum FSErrorName {
+    ERROR_UNKNOWN = 'UNKNOWN',
+    ERROR_TIMEOUT = 'TIMEOUT',
+    ERROR_PARSE_RESPONSE = 'PARSE_RESPONSE',
+    ERROR_FULLSTORY = 'FULLSTORY_API'
+}
+
+export class FSErrorImpl extends Error implements FSError {
     name: string;
     httpCode?: number;
     headers?: OutgoingHttpHeaders;
     code: string; // fullstory error code
     message: string; // fullstory error message
+    cause?: Error;
+
     [key: string]: any; // additional data from error response
 
     constructor(
         name: string,
         res?: IncomingMessage,
-        data?: any
+        data?: any,
+        cause?: Error
     ) {
+        super(name);
         this.name = name;
         this.httpCode = res?.statusCode;
         this.headers = res?.headers;
+        this.cause = cause;
         this.code = data.code || 'unknown';
         this.message = data.message || 'unknown';
 
@@ -38,38 +59,24 @@ export class FSErrorImpl implements FSError {
         );
     }
 
-    static newParserError(msg: IncomingMessage, resData: string): FSError {
+    static newParserError(msg: IncomingMessage, resData: string, cause?: Error): FSError {
         const parseError = new FSErrorImpl(
             FSErrorName.ERROR_PARSE_RESPONSE,
             msg,
-            { resDataStr: resData }
+            { resDataStr: resData },
+            cause
         );
         parseError.code = 'parse_error_response_failed';
         parseError.message = 'Unable to parse response body into error object';
         return parseError;
     }
 
-    static newFSError(msg: IncomingMessage, response: ErrorResponse): FSError {
+    static newFSError(msg: IncomingMessage, response: ErrorResponse, cause?: Error): FSError {
         return new FSErrorImpl(
             FSErrorName.ERROR_FULLSTORY,
             msg,
-            response
+            response,
+            cause
         );
     }
-}
-
-export interface FSError extends Error {
-    httpCode?: number;
-    code: string;
-    message: string;
-
-    // any additional payload
-    [key: string]: any;
-}
-
-export enum FSErrorName {
-    ERROR_UNKNOWN = 'UNKNOWN',
-    ERROR_TIMEOUT = 'TIMEOUT',
-    ERROR_PARSE_RESPONSE = 'PARSE_RESPONSE',
-    ERROR_FULLSTORY = 'FULLSTORY_API'
 }

@@ -5,7 +5,7 @@ import { GetUserResponse } from '@model/users/GetUserResponse';
 import { RequestOptions } from 'https';
 import nock from 'nock';
 
-import { FSError, FSErrorName, FSHttpClient } from '../index';
+import { FSErrorImpl, FSErrorName, FSHttpClient } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const testHost = 'api.fullstory.test';
@@ -49,11 +49,6 @@ describe('FSHttpClient', () => {
         mockEndpoint().reply(200, JSON.stringify(mockReply));
 
         const promise = client.request<any, GetUserResponse>(mockReqOpts, {});
-        if (promise instanceof GetUserResponse) {
-            console.log(true, typeof promise);
-        } else {
-            console.log(false, typeof promise);
-        }
 
         await expect(promise).resolves.toEqual(mockReply);
     }, 2000);
@@ -61,17 +56,21 @@ describe('FSHttpClient', () => {
     test('request fails with 401 should error', async () => {
         mockEndpoint().reply(401, 'Unauthorized');
 
-        const promise = client.request<any, any>(mockReqOpts, {});
-
-        // FS server response with 'Unauthorized', not parsable into FSError Obj
-        await expect(promise).rejects.toEqual({
-            name: FSErrorName.ERROR_PARSE_RESPONSE,
-            code: 'parse_error_response_failed',
-            headers: {},
-            httpCode: 401,
-            message: 'Unable to parse response body into error object',
-            resDataStr: 'Unauthorized'
-        });
+        try {
+            await client.request<any, any>(mockReqOpts, {});
+        }
+        catch (e) {
+            expect(e).toBeInstanceOf(FSErrorImpl);
+            if (e instanceof FSErrorImpl) {
+                expect(e.name).toBe(FSErrorName.ERROR_PARSE_RESPONSE);
+                expect(e.httpCode).toBe(401);
+                expect(e.code).toBe('parse_error_response_failed');
+                expect(e.message).toBe('Unable to parse response body into error object');
+                expect(e.resDataStr).toBe('Unauthorized');
+                expect(e.cause?.message).toBe('Unexpected token U in JSON at position 0');
+                expect(e.cause?.name).toBe('SyntaxError');
+            }
+        }
     }, 2000);
 
     test('request fails with 500 should error', async () => {
@@ -82,17 +81,19 @@ describe('FSHttpClient', () => {
         };
         mockEndpoint().reply(500, JSON.stringify(mockReply));
 
-        const promise = client.request<any, any>(mockReqOpts, {});
-
-        const errorObj: FSError = {
-            name: FSErrorName.ERROR_FULLSTORY,
-            code: 'internal',
-            headers: {},
-            httpCode: 500,
-            message: 'Internal Error Occurred',
-            details: 'Something went wrong...'
-        };
-
-        await expect(promise).rejects.toEqual(errorObj);
+        try {
+            await client.request<any, any>(mockReqOpts, {});
+        }
+        catch (e) {
+            expect(e).toBeInstanceOf(FSErrorImpl);
+            if (e instanceof FSErrorImpl) {
+                expect(e.name).toBe(FSErrorName.ERROR_FULLSTORY);
+                expect(e.httpCode).toBe(500);
+                expect(e.code).toBe('internal');
+                expect(e.message).toBe('Internal Error Occurred');
+                expect(e.details).toBe('Something went wrong...');
+                expect(e.cause).toBeUndefined();
+            }
+        }
     }, 2000);
 });
