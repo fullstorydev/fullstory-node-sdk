@@ -44,7 +44,8 @@ export class {{classname}} {
     */
     public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
         const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
-            .replace('{{{baseName}}}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
+            .replace('{' + '{{baseName}}' + '}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -74,7 +75,8 @@ export class {{classname}} {
         const requestOptions: RequestOptions = {
             method: '{{httpMethod}}',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions, options, {{#bodyParam}}body{{/bodyParam}}{{^bodyParam}}undefined{{/bodyParam}});

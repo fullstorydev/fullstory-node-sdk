@@ -34,6 +34,7 @@ export class UsersBatchImportApi {
     */
     public async createBatchUserImportJob(body: CreateBatchUserImportJobRequest, options?: FSRequestOptions): Promise<CreateBatchUserImportJobResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch`;
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -49,7 +50,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, options, body);
@@ -63,6 +65,7 @@ export class UsersBatchImportApi {
     */
     public async createBatchUserImportJob_1(body: CreateBatchUserImportJobRequest, options?: FSRequestOptions): Promise<CreateBatchUserImportJobResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch`;
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -78,7 +81,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, options, body);
@@ -93,7 +97,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportErrorsResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -104,7 +109,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, options, undefined);
@@ -119,7 +125,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImportErrors_2(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportErrorsResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -130,7 +137,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, options, undefined);
@@ -144,7 +152,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImportStatus(jobId: string, options?: FSRequestOptions): Promise<GetBatchUserImportStatusResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -152,7 +161,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, options, undefined);
@@ -166,7 +176,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImportStatus_3(jobId: string, options?: FSRequestOptions): Promise<GetBatchUserImportStatusResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -174,7 +185,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, options, undefined);
@@ -189,7 +201,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImports(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportsResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/imports`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -200,7 +213,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, options, undefined);
@@ -215,7 +229,8 @@ export class UsersBatchImportApi {
     */
     public async getBatchUserImports_4(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportsResponse> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/imports`
-            .replace('job_id', encodeURIComponent(String(jobId)));
+            .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -226,7 +241,8 @@ export class UsersBatchImportApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, options, undefined);

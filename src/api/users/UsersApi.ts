@@ -35,6 +35,7 @@ export class UsersApi {
     */
     public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<CreateUserResponse> {
         const apiPath = `${this.basePath}/v2beta/users`;
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -50,7 +51,8 @@ export class UsersApi {
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, options, body);
@@ -64,7 +66,8 @@ export class UsersApi {
     */
     public async deleteUser(id: string, options?: FSRequestOptions): Promise<void> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
-            .replace('id', encodeURIComponent(String(id)));
+            .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -72,7 +75,8 @@ export class UsersApi {
         const requestOptions: RequestOptions = {
             method: 'DELETE',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, void>(requestOptions, options, undefined);
@@ -86,7 +90,8 @@ export class UsersApi {
     */
     public async getUser(id: string, options?: FSRequestOptions): Promise<GetUserResponse> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
-            .replace('id', encodeURIComponent(String(id)));
+            .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -94,7 +99,8 @@ export class UsersApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, GetUserResponse>(requestOptions, options, undefined);
@@ -112,6 +118,7 @@ export class UsersApi {
     */
     public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: FSRequestOptions): Promise<ListUsersResponse> {
         const apiPath = `${this.basePath}/v2beta/users`;
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -134,7 +141,8 @@ export class UsersApi {
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<void, ListUsersResponse>(requestOptions, options, undefined);
@@ -149,7 +157,8 @@ export class UsersApi {
     */
     public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<UpdateUserResponse> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
-            .replace('id', encodeURIComponent(String(id)));
+            .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
+        const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
@@ -165,7 +174,8 @@ export class UsersApi {
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
-            path: apiPath + queryParams.toString(),
+            hostname: url.hostname,
+            path: url.pathname + queryParams.toString(),
         };
 
         const response = await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, options, body);
