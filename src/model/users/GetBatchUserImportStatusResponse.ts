@@ -16,29 +16,5 @@ export class GetBatchUserImportStatusResponse {
     */
     'errors'?: string = undefined;
     'job'?: JobMetadata = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'imports',
-            'baseName': 'imports',
-            'type': 'string'
-        },
-        {
-            'name': 'errors',
-            'baseName': 'errors',
-            'type': 'string'
-        },
-        {
-            'name': 'job',
-            'baseName': 'job',
-            'type': 'JobMetadata'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return GetBatchUserImportStatusResponse.attributeTypeMap;
-    }
 }
 

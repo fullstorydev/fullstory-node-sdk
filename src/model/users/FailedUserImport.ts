@@ -16,29 +16,5 @@ export class FailedUserImport {
     */
     'code'?: string = undefined;
     'user'?: BatchUserImportRequest = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'message',
-            'baseName': 'message',
-            'type': 'string'
-        },
-        {
-            'name': 'code',
-            'baseName': 'code',
-            'type': 'string'
-        },
-        {
-            'name': 'user',
-            'baseName': 'user',
-            'type': 'BatchUserImportRequest'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return FailedUserImport.attributeTypeMap;
-    }
 }
 

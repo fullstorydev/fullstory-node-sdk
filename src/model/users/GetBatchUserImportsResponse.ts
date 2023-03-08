@@ -19,29 +19,5 @@ export class GetBatchUserImportsResponse {
     * The token that can be used in a subsequent request to fetch the next page of import results
     */
     'next_page_token'?: string = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'results',
-            'baseName': 'results',
-            'type': 'Array<BatchUserImportResponse>'
-        },
-        {
-            'name': 'total_records',
-            'baseName': 'total_records',
-            'type': 'string'
-        },
-        {
-            'name': 'next_page_token',
-            'baseName': 'next_page_token',
-            'type': 'string'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return GetBatchUserImportsResponse.attributeTypeMap;
-    }
 }
 
