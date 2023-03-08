@@ -1,6 +1,3 @@
-
-
-
 import { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 
 import { ErrorResponse } from '@model/apierror/ErrorResponse';

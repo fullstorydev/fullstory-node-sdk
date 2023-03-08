@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "build:production": "tsc -p tsconfig.production.json"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
