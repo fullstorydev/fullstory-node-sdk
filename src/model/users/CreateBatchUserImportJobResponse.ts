@@ -8,19 +8,5 @@ import { JobMetadata } from '@model/job/JobMetadata';
 
 export class CreateBatchUserImportJobResponse {
     'job'?: JobMetadata = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'job',
-            'baseName': 'job',
-            'type': 'JobMetadata'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return CreateBatchUserImportJobResponse.attributeTypeMap;
-    }
 }
 

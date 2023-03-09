@@ -23,34 +23,5 @@ export class JobMetadata {
     * Time the job was finished, either successfully or unsuccessfully.
     */
     'finished'?: string = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'id',
-            'baseName': 'id',
-            'type': 'string'
-        },
-        {
-            'name': 'status',
-            'baseName': 'status',
-            'type': 'JobStatus'
-        },
-        {
-            'name': 'created',
-            'baseName': 'created',
-            'type': 'string'
-        },
-        {
-            'name': 'finished',
-            'baseName': 'finished',
-            'type': 'string'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return JobMetadata.attributeTypeMap;
-    }
 }
 

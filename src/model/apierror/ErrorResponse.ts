@@ -14,24 +14,5 @@ export class ErrorResponse {
     * A short snake-cased value that is safe to handle programmatically
     */
     'code'?: string = undefined;
-
-    static discriminator: string | undefined = undefined;
-
-    static attributeTypeMap: Array<{ name: string, baseName: string, type: string; }> = [
-        {
-            'name': 'message',
-            'baseName': 'message',
-            'type': 'string'
-        },
-        {
-            'name': 'code',
-            'baseName': 'code',
-            'type': 'string'
-        }
-    ];
-
-    static getAttributeTypeMap() {
-        return ErrorResponse.attributeTypeMap;
-    }
 }
 
