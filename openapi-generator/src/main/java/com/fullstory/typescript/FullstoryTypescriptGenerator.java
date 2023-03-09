@@ -239,11 +239,13 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
       Operation operation,
       CodegenOperation co,
       Map<String, List<CodegenOperation>> operations) {
-    // Operations are added to OperationsMap based on tags. If more than one tag is
-    // added for an operation, there will be duplicates in the group. Remove any
-    // duplicate operations and only process it once when seeing the first tag.
     if (co.tags.size() == 0) {
       super.addOperationToGroup(tag, resourcePath, operation, co, operations);
+      return;
+    } else if (!tag.equals(co.tags.get(0).getName())) {
+      // Operations are added to OperationsMap based on tags. If more than one tag is
+      // added for an operation, there will be duplicates in the group. Remove any
+      // duplicate operations and only process it once when seeing the first tag.
       return;
     }
 

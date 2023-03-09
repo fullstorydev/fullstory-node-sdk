@@ -15,7 +15,7 @@ import { {{key}} } from '@model/{{value}}';
 {{/entrySet}}
 {{/tsImports}}
 
-import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
 {{#operations}}
 
 {{#description}}
@@ -42,7 +42,7 @@ export class {{classname}} {
      {{/allParams}}
      {{! TODO(sabrina): @throws error }}
     */
-    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
             .replace('{{{baseName}}}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
 
