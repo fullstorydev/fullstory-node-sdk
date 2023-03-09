@@ -49,8 +49,12 @@ describe('FSHttpClient', () => {
         mockEndpoint().reply(200, JSON.stringify(mockReply));
 
         const promise = client.request<any, GetUserResponse>(mockReqOpts, {});
+        await expect(promise).resolves.toEqual({
+            httpStatusCode: 200,
+            httpHeaders: {},
+            body: mockReply
+        });
 
-        await expect(promise).resolves.toEqual(mockReply);
     }, 2000);
 
     test('request fails with 401 should error', async () => {
