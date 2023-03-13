@@ -5,6 +5,8 @@ import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import * as https from 'node:https';
 import { RequestOptions } from 'node:https';
 
+import { ErrorResponse } from '@model/index';
+
 import { FSErrorImpl } from './error';
 import { FSRequestOptions, FullStoryOptions } from './options';
 
@@ -16,7 +18,7 @@ export interface FSResponse<T> {
         'x-fullstory-data-realm:'?: string;
         // TODO(sabrina): any other custom headers from fullstory?
     };
-    body: T;
+    body?: T;
 }
 
 export class FSHttpClient {
@@ -25,14 +27,19 @@ export class FSHttpClient {
         private opts: FullStoryOptions,
     ) { }
 
-    request<REQ, RSP>(httpOpts: RequestOptions, fsOpts?: FSRequestOptions, body?: REQ): Promise<FSResponse<RSP>> {
-        return new Promise<FSResponse<RSP>>((resolve, reject) => {
-            if (!httpOpts.agent) {
-                httpOpts.agent = defaultHttpsAgent;
+    request<REQ, RSP>(
+        opts: RequestOptions,
+        response: FSResponse<RSP>,
+        body?: REQ,
+        fsReq?: FSRequestOptions,
+    ): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            // TODO(sabrina): add fsReq.integration_src to the request
+            if (!opts.agent) {
+                opts.agent = defaultHttpsAgent;
             }
-            // TODO(sabrina): add integration_src to the request
 
-            const req = https.request(httpOpts);
+            const req = https.request(opts);
             req.setHeader('Authorization', this.opts.apiKey);
 
             req.once('socket', (socket) => {
@@ -50,9 +57,16 @@ export class FSHttpClient {
                 }
             });
 
-            req.on('response', res => {
-                this.handleResponse<RSP>(res)
-                    .then(res => resolve(res))
+            req.on('response', inMsg => {
+                this.handleResponse<RSP>(inMsg)
+                    .then(rsp => {
+                        if (response) { // mutate the response object
+                            response.httpHeaders = inMsg.headers;
+                            response.httpStatusCode = inMsg.statusCode;
+                            response.body = rsp;
+                        }
+                        resolve();
+                    })
                     .catch(err => reject(err));
             });
 
@@ -67,14 +81,14 @@ export class FSHttpClient {
         });
     }
 
-    handleResponse<T>(
-        msg: IncomingMessage,
-    ): Promise<FSResponse<T>> {
-        return new Promise<FSResponse<T>>((resolve, reject) => {
-            let responseData = '';
+    async handleResponse<T>(
+        msg: IncomingMessage
+    ): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            let responseDataStr = '';
             msg.setEncoding('utf8');
             msg.on('data', (chunk) => {
-                responseData += chunk;
+                responseDataStr += chunk;
             });
 
             msg.once('end', () => {
@@ -84,32 +98,27 @@ export class FSHttpClient {
                     return;
                 }
 
-                let response: any = {};
-                if (responseData) {
+                let responseData;
+                if (responseDataStr) {
                     try {
-                        response = JSON.parse(responseData);
+                        responseData = JSON.parse(responseDataStr);
                     } catch (e) {
                         // It's possible that response is invalid json
                         // return parse error regardless of response code
-                        if (e instanceof Error) {
-                            reject(FSErrorImpl.newParserError(msg, responseData, e));
-                            return;
+                        if (e instanceof SyntaxError) {
+                            reject(FSErrorImpl.newParserError(msg, responseDataStr, e));
+                        } else {
+                            reject(FSErrorImpl.newParserError(msg, responseDataStr, new Error(`Unknown Error: ${e}`)));
                         }
-                        reject(FSErrorImpl.newParserError(msg, responseData, new Error(`Unknown Error: ${e}`)));
+                        return;
                     }
                 }
 
-                if (msg.statusCode >= 200 && msg.statusCode < 300) {
-                    const resolved: FSResponse<T> = {
-                        httpStatusCode: msg.statusCode,
-                        httpHeaders: msg.headers,
-                        body: response,
-                    };
-                    resolve(resolved);
+                if (msg.statusCode < 200 || msg.statusCode >= 300) {
+                    reject(FSErrorImpl.newFSError(msg, <ErrorResponse>responseData));
                     return;
-                } else {
-                    reject(FSErrorImpl.newFSError(msg, response));
                 }
+                resolve(<T>responseData);
             });
         });
     }

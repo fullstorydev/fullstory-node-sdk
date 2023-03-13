@@ -15,7 +15,8 @@ import { {{key}} } from '@model/{{value}}';
 {{/entrySet}}
 {{/tsImports}}
 
-import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { modelsMap } from '@model/index';
 {{#operations}}
 
 {{#description}}
@@ -42,7 +43,7 @@ export class {{classname}} {
      {{/allParams}}
      {{! TODO(sabrina): @throws error }}
     */
-    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
+    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
         const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
             .replace('{' + '{{baseName}}' + '}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
         const url = new URL(apiPath);
@@ -79,7 +80,9 @@ export class {{classname}} {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions, options, {{#bodyParam}}body{{/bodyParam}}{{^bodyParam}}undefined{{/bodyParam}});
+        // instantiate response object to be mutated.
+        const response: FSResponse<{{#returnType}}{{.}}{{/returnType}}{{^returnType}}void{{/returnType}}> = {{#returnType}}{ body: new modelsMap['{{.}}']() }{{/returnType}}{{^returnType}}{}{{/returnType}};
+        await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions, response{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
         return response;
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}

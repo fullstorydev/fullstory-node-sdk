@@ -39,8 +39,8 @@ export class FSErrorImpl extends Error implements FSError {
         this.httpCode = res?.statusCode;
         this.headers = res?.headers;
         this.cause = cause;
-        this.code = data.code || 'unknown';
-        this.message = data.message || 'unknown';
+        this.code = data?.code || 'unknown';
+        this.message = data?.message || 'unknown';
 
         // add all other data, ignore if already set.
         for (const key in data) {

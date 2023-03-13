@@ -17,7 +17,8 @@ import { CreateBatchUserImportJobResponse } from '@model/users/CreateBatchUserIm
 import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImportStatusResponse';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { modelsMap } from '@model/index';
 
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
@@ -32,7 +33,7 @@ export class UsersBatchImportApi {
      * @summary Create Batch Import
      * @param body
     */
-    public async createBatchUserImportJob(body: CreateBatchUserImportJobRequest, options?: FSRequestOptions): Promise<CreateBatchUserImportJobResponse> {
+    public async createBatchUserImportJob(body: CreateBatchUserImportJobRequest, options?: FSRequestOptions): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch`;
         const url = new URL(apiPath);
 
@@ -54,7 +55,9 @@ export class UsersBatchImportApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, options, body);
+        // instantiate response object to be mutated.
+        const response: FSResponse<CreateBatchUserImportJobResponse> = { body: new modelsMap['CreateBatchUserImportJobResponse']() };
+        await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, response, body, options);
         return response;
     }
 
@@ -64,7 +67,7 @@ export class UsersBatchImportApi {
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param nextPageToken The token that can be used in a request to fetch the next page of results
     */
-    public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportErrorsResponse> {
+    public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -82,7 +85,9 @@ export class UsersBatchImportApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<GetBatchUserImportErrorsResponse> = { body: new modelsMap['GetBatchUserImportErrorsResponse']() };
+        await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, response, undefined, options);
         return response;
     }
 
@@ -91,7 +96,7 @@ export class UsersBatchImportApi {
      * @summary Get Batch Import Job Details
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
     */
-    public async getBatchUserImportStatus(jobId: string, options?: FSRequestOptions): Promise<GetBatchUserImportStatusResponse> {
+    public async getBatchUserImportStatus(jobId: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportStatusResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -106,7 +111,9 @@ export class UsersBatchImportApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<GetBatchUserImportStatusResponse> = { body: new modelsMap['GetBatchUserImportStatusResponse']() };
+        await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, response, undefined, options);
         return response;
     }
 
@@ -116,7 +123,7 @@ export class UsersBatchImportApi {
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param nextPageToken The token that can be used in a request to fetch the next page of results
     */
-    public async getBatchUserImports(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<GetBatchUserImportsResponse> {
+    public async getBatchUserImports(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportsResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -134,7 +141,9 @@ export class UsersBatchImportApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<GetBatchUserImportsResponse> = { body: new modelsMap['GetBatchUserImportsResponse']() };
+        await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, response, undefined, options);
         return response;
     }
 }

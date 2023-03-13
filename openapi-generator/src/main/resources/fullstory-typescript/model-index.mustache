@@ -11,3 +11,19 @@ TODO(sabrina): change as neccessary for FullStory APIs.
 export * from '@model/{{importPath}}';
 {{/model}}
 {{/models}}
+
+{{#models}}
+{{#model}}
+import { {{classname}} } from '@model/{{importPath}}';
+{{/model}}
+{{/models}}
+
+export const modelsMap = {
+    {{#models}}
+        {{#model}}
+            {{^isEnum}}
+    '{{classname}}': {{classname}},
+            {{/isEnum}}
+        {{/model}}
+    {{/models}}
+}

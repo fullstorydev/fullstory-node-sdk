@@ -18,7 +18,8 @@ import { CreateUserRequest } from '@model/users/CreateUserRequest';
 import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { modelsMap } from '@model/index';
 
 export class UsersApi {
     protected readonly basePath = 'https://api.fullstory.com';
@@ -33,7 +34,7 @@ export class UsersApi {
      * @summary Create User
      * @param body
     */
-    public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<CreateUserResponse> {
+    public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users`;
         const url = new URL(apiPath);
 
@@ -55,7 +56,9 @@ export class UsersApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, options, body);
+        // instantiate response object to be mutated.
+        const response: FSResponse<CreateUserResponse> = { body: new modelsMap['CreateUserResponse']() };
+        await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, response, body, options);
         return response;
     }
 
@@ -64,7 +67,7 @@ export class UsersApi {
      * @summary Delete User
      * @param id The FullStory assigned user ID
     */
-    public async deleteUser(id: string, options?: FSRequestOptions): Promise<void> {
+    public async deleteUser(id: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
@@ -79,7 +82,9 @@ export class UsersApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, void>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<void> = {};
+        await this.httpClient.request<void, void>(requestOptions, response, undefined, options);
         return response;
     }
 
@@ -88,7 +93,7 @@ export class UsersApi {
      * @summary Get User
      * @param id The FullStory assigned user ID
     */
-    public async getUser(id: string, options?: FSRequestOptions): Promise<GetUserResponse> {
+    public async getUser(id: string, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
@@ -103,7 +108,9 @@ export class UsersApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, GetUserResponse>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<GetUserResponse> = { body: new modelsMap['GetUserResponse']() };
+        await this.httpClient.request<void, GetUserResponse>(requestOptions, response, undefined, options);
         return response;
     }
 
@@ -116,7 +123,7 @@ export class UsersApi {
      * @param isIdentified Whether or not a user is anonymous or identified
      * @param pageToken The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.
     */
-    public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: FSRequestOptions): Promise<ListUsersResponse> {
+    public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
         const apiPath = `${this.basePath}/v2beta/users`;
         const url = new URL(apiPath);
 
@@ -145,7 +152,9 @@ export class UsersApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<void, ListUsersResponse>(requestOptions, options, undefined);
+        // instantiate response object to be mutated.
+        const response: FSResponse<ListUsersResponse> = { body: new modelsMap['ListUsersResponse']() };
+        await this.httpClient.request<void, ListUsersResponse>(requestOptions, response, undefined, options);
         return response;
     }
 
@@ -155,7 +164,7 @@ export class UsersApi {
      * @param id The FullStory assigned user ID
      * @param body
     */
-    public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<UpdateUserResponse> {
+    public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
@@ -178,7 +187,9 @@ export class UsersApi {
             path: url.pathname + queryParams.toString(),
         };
 
-        const response = await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, options, body);
+        // instantiate response object to be mutated.
+        const response: FSResponse<UpdateUserResponse> = { body: new modelsMap['UpdateUserResponse']() };
+        await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, response, body, options);
         return response;
     }
 }

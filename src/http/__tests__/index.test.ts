@@ -5,7 +5,7 @@ import { GetUserResponse } from '@model/users/GetUserResponse';
 import { RequestOptions } from 'https';
 import nock from 'nock';
 
-import { FSErrorImpl, FSErrorName, FSHttpClient } from '../index';
+import { FSErrorImpl, FSErrorName, FSHttpClient, FSResponse } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const testHost = 'api.fullstory.test';
@@ -37,7 +37,7 @@ describe('FSHttpClient', () => {
     };
 
     test('request success with 200 should resolve', async () => {
-        const mockReply: GetUserResponse = {
+        const mockReply = {
             id: '12345',
             uid: 'test_user_1',
             display_name: 'Ada Lovelace',
@@ -48,13 +48,13 @@ describe('FSHttpClient', () => {
         };
         mockEndpoint().reply(200, JSON.stringify(mockReply));
 
-        const promise = client.request<any, GetUserResponse>(mockReqOpts, {});
-        await expect(promise).resolves.toEqual({
+        const response = {};
+        await client.request<any, GetUserResponse>(mockReqOpts, response);
+        await expect(response).toEqual({
             httpStatusCode: 200,
             httpHeaders: {},
             body: mockReply
         });
-
     }, 2000);
 
     test('request fails with 401 should error', async () => {
