@@ -5,7 +5,7 @@ import { init } from '../index';
 const MOCK_API_KEY = 'MOCK_API_KEY';
 
 describe('FullStory SDK', () => {
-    test('can initializes with an api key', () => {
+    test('can initialize with an api key', () => {
         const client = init({
             apiKey: MOCK_API_KEY,
         });
