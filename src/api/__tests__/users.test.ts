@@ -10,6 +10,7 @@ const MOCK_API_KEY = 'MOCK_API_KEY';
 const basePath = '/v2beta/users';
 const expectedHeaders = { accept: 'application/json' };
 
+// TODO(sabrina): create a better mock for the http client
 const MOCK_HTTP_CLIENT: any = {
     clearMockReply() {
         delete MOCK_HTTP_CLIENT.httpStatusCode;
@@ -46,9 +47,7 @@ describe('FullStory Users API', () => {
     const users = new UsersApi({
         apiKey: MOCK_API_KEY,
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    users['httpClient'] = MOCK_HTTP_CLIENT;
+    (users as any)['httpClient'] = MOCK_HTTP_CLIENT;
 
     test('get single', async () => {
         const mockUser: GetUserResponse = {
@@ -154,16 +153,11 @@ describe('FullStory Batch Users API', () => {
     const batchUsers = new UsersBatchImportApi({
         apiKey: MOCK_API_KEY,
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    batchUsers['httpClient'] = MOCK_HTTP_CLIENT;
+    (batchUsers as any)['httpClient'] = MOCK_HTTP_CLIENT;
 
     test('create job', async () => {
         const mockReq: CreateBatchUserImportJobRequest = {
-            requests: [
-                { uid: 'test_batch_1' },
-                { uid: 'test_batch_2' }
-            ]
+            requests: [{ uid: 'test_batch_1' }]
         };
         const mockJob: CreateBatchUserImportJobResponse = {
             job: {
@@ -247,7 +241,7 @@ describe('FullStory Batch Users API', () => {
 
         expect(MOCK_HTTP_CLIENT.reqBody).toBeUndefined();
         expect(MOCK_HTTP_CLIENT.reqOpts.method).toBe('GET');
-        expect(MOCK_HTTP_CLIENT.reqOpts.path).toBe(`${basePath}/batch/abcd1234/errorsnext_page_token=next_page_token`);
+        expect(MOCK_HTTP_CLIENT.reqOpts.path).toBe(`${basePath}/batch/abcd1234/errors?next_page_token=next_page_token`);
 
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,

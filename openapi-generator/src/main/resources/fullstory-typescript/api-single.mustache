@@ -17,8 +17,8 @@ import { {{key}} } from '@model/{{value}}';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
 {{#operations}}
-
 {{#description}}
+
 /**
  * {{.}}
 */
@@ -72,11 +72,12 @@ export class {{classname}} {
         }
         {{/hasConsumes}}
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: '{{httpMethod}}',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
