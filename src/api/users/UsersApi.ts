@@ -19,7 +19,6 @@ import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
-import { modelsMap } from '@model/index';
 
 export class UsersApi {
     protected readonly basePath = 'https://api.fullstory.com';
@@ -57,8 +56,7 @@ export class UsersApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<CreateUserResponse> = { body: new modelsMap['CreateUserResponse']() };
-        await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, response, body, options);
+        const response = await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
         return response;
     }
 
@@ -83,8 +81,7 @@ export class UsersApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<void> = {};
-        await this.httpClient.request<void, void>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, void>(requestOptions, undefined, options);
         return response;
     }
 
@@ -109,8 +106,7 @@ export class UsersApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<GetUserResponse> = { body: new modelsMap['GetUserResponse']() };
-        await this.httpClient.request<void, GetUserResponse>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
         return response;
     }
 
@@ -153,8 +149,7 @@ export class UsersApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<ListUsersResponse> = { body: new modelsMap['ListUsersResponse']() };
-        await this.httpClient.request<void, ListUsersResponse>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
         return response;
     }
 
@@ -188,8 +183,7 @@ export class UsersApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<UpdateUserResponse> = { body: new modelsMap['UpdateUserResponse']() };
-        await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, response, body, options);
+        const response = await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
         return response;
     }
 }

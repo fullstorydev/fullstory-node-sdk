@@ -6,18 +6,18 @@
 
 import { GetUserResponse } from '@model/users/GetUserResponse';
 
-export class ListUsersResponse {
+export interface ListUsersResponse {
     /**
     * The list of users that match the input filter criteria
     */
-    'results'?: Array<GetUserResponse> = undefined;
+    'results'?: Array<GetUserResponse>;
     /**
     * The total number of users that matched the filter criteria
     */
-    'total_records'?: string = undefined;
+    'total_records'?: string;
     /**
     * The token that can be used in a subsequent request with the same filter criteria to fetch the next page of users
     */
-    'next_page_token'?: string = undefined;
+    'next_page_token'?: string;
 }
 

@@ -6,15 +6,15 @@
 
 import { JobMetadata } from '@model/job/JobMetadata';
 
-export class GetBatchUserImportStatusResponse {
+export interface GetBatchUserImportStatusResponse {
     /**
     * The stats on the number of users imported successfully
     */
-    'imports'?: string = undefined;
+    'imports'?: string;
     /**
     * Only included for failed imports. The stats on the number of users that failed to be imported
     */
-    'errors'?: string = undefined;
-    'job'?: JobMetadata = undefined;
+    'errors'?: string;
+    'job'?: JobMetadata;
 }
 

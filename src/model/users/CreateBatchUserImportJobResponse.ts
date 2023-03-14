@@ -6,7 +6,7 @@
 
 import { JobMetadata } from '@model/job/JobMetadata';
 
-export class CreateBatchUserImportJobResponse {
-    'job'?: JobMetadata = undefined;
+export interface CreateBatchUserImportJobResponse {
+    'job'?: JobMetadata;
 }
 

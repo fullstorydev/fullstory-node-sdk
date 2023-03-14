@@ -6,15 +6,15 @@
 
 import { BatchUserImportRequest } from '@model/users/BatchUserImportRequest';
 
-export class FailedUserImport {
+export interface FailedUserImport {
     /**
     * Description of the failure encountered while importing the user
     */
-    'message'?: string = undefined;
+    'message'?: string;
     /**
     * Error code
     */
-    'code'?: string = undefined;
-    'user'?: BatchUserImportRequest = undefined;
+    'code'?: string;
+    'user'?: BatchUserImportRequest;
 }
 

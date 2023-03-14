@@ -18,7 +18,6 @@ import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImpor
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
-import { modelsMap } from '@model/index';
 
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
@@ -56,8 +55,7 @@ export class UsersBatchImportApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<CreateBatchUserImportJobResponse> = { body: new modelsMap['CreateBatchUserImportJobResponse']() };
-        await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, response, body, options);
+        const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
         return response;
     }
 
@@ -86,8 +84,7 @@ export class UsersBatchImportApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<GetBatchUserImportErrorsResponse> = { body: new modelsMap['GetBatchUserImportErrorsResponse']() };
-        await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
         return response;
     }
 
@@ -112,8 +109,7 @@ export class UsersBatchImportApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<GetBatchUserImportStatusResponse> = { body: new modelsMap['GetBatchUserImportStatusResponse']() };
-        await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
         return response;
     }
 
@@ -142,8 +138,7 @@ export class UsersBatchImportApi {
         };
 
         // instantiate response object to be mutated.
-        const response: FSResponse<GetBatchUserImportsResponse> = { body: new modelsMap['GetBatchUserImportsResponse']() };
-        await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, response, undefined, options);
+        const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
         return response;
     }
 }

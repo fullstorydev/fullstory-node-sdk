@@ -6,18 +6,18 @@
 
 import { FailedUserImport } from '@model/users/FailedUserImport';
 
-export class GetBatchUserImportErrorsResponse {
+export interface GetBatchUserImportErrorsResponse {
     /**
     * Page of user import failures for the batch import
     */
-    'results'?: Array<FailedUserImport> = undefined;
+    'results'?: Array<FailedUserImport>;
     /**
     * The total number of failures for the specified user import
     */
-    'total_records'?: string = undefined;
+    'total_records'?: string;
     /**
     * The token that can be used in a subsequent request to fetch the next page of import failures
     */
-    'next_page_token'?: string = undefined;
+    'next_page_token'?: string;
 }
 

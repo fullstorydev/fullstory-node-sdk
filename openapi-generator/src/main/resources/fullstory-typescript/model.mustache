@@ -14,14 +14,14 @@ import { {{classname}} } from '@model/{{filename}}';
 */
 {{/description}}
 {{^isEnum}}
-export class {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{
+export interface {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{
 {{#vars}}
 {{#description}}
     /**
     * {{{.}}}
     */
 {{/description}}
-    '{{name}}'{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{#defaultValue}} = {{#isEnum}}{{classname}}.{{/isEnum}}{{{.}}}{{/defaultValue}};
+    '{{name}}'{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
 {{/vars}}
 }
 
