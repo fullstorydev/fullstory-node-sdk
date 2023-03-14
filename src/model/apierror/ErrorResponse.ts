@@ -5,14 +5,14 @@
  */
 
 
-export class ErrorResponse {
+export interface ErrorResponse {
     /**
     * Long form description of what went wrong
     */
-    'message'?: string = undefined;
+    'message'?: string;
     /**
     * A short snake-cased value that is safe to handle programmatically
     */
-    'code'?: string = undefined;
+    'code'?: string;
 }
 

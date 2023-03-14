@@ -6,18 +6,18 @@
 
 import { BatchUserImportResponse } from '@model/users/BatchUserImportResponse';
 
-export class GetBatchUserImportsResponse {
+export interface GetBatchUserImportsResponse {
     /**
     * Page of user import responses for the batch import
     */
-    'results'?: Array<BatchUserImportResponse> = undefined;
+    'results'?: Array<BatchUserImportResponse>;
     /**
     * Total number of records in this batch import
     */
-    'total_records'?: string = undefined;
+    'total_records'?: string;
     /**
     * The token that can be used in a subsequent request to fetch the next page of import results
     */
-    'next_page_token'?: string = undefined;
+    'next_page_token'?: string;
 }
 

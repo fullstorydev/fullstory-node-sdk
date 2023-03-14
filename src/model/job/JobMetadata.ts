@@ -9,19 +9,19 @@ import { JobStatus } from '@model/job/JobStatus';
 /**
 * JobMetadata contains metadata about asynchronous jobs.
 */
-export class JobMetadata {
+export interface JobMetadata {
     /**
     * ID of the job.
     */
-    'id'?: string = undefined;
-    'status'?: JobStatus = undefined;
+    'id'?: string;
+    'status'?: JobStatus;
     /**
     * Time the job was accepted.
     */
-    'created'?: string = undefined;
+    'created'?: string;
     /**
     * Time the job was finished, either successfully or unsuccessfully.
     */
-    'finished'?: string = undefined;
+    'finished'?: string;
 }
 

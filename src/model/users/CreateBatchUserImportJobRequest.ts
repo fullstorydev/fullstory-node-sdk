@@ -6,10 +6,10 @@
 
 import { BatchUserImportRequest } from '@model/users/BatchUserImportRequest';
 
-export class CreateBatchUserImportJobRequest {
+export interface CreateBatchUserImportJobRequest {
     /**
     * The list of users and their information that should be imported in this batch request
     */
-    'requests'?: Array<BatchUserImportRequest> = undefined;
+    'requests'?: Array<BatchUserImportRequest>;
 }
 

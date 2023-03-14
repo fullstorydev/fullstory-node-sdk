@@ -1,26 +1,124 @@
-import { OutgoingHttpHeaders } from 'node:http';
+export * from './error';
+export * from './options';
+
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import * as https from 'node:https';
 import { RequestOptions } from 'node:https';
 
 import { ErrorResponse } from '@model/index';
 
+import { FSErrorImpl } from './error';
 import { FSRequestOptions, FullStoryOptions } from './options';
 
-export interface Response<T> {
-    getStatusCode: () => number;
-    getHeaders: () => OutgoingHttpHeaders;
-    getBody: () => T | ErrorResponse;
+const defaultHttpsAgent = new https.Agent({ keepAlive: true });
+
+export interface FSResponse<T> {
+    httpStatusCode?: number;
+    httpHeaders?: IncomingHttpHeaders & {
+        'x-fullstory-data-realm:'?: string;
+        // TODO(sabrina): any other custom headers from fullstory?
+    };
+    body?: T;
 }
 
 export class FSHttpClient {
-    constructor(private opts: FullStoryOptions) { }
+    // TODO(sabrina): allow passing in a node https agent?
+    constructor(
+        private opts: FullStoryOptions,
+    ) { }
 
-    request<REQ, RSP>(httpOpts: RequestOptions, fsOpts?: FSRequestOptions, body?: REQ): Promise<RSP> {
-        return new Promise<RSP>((resolve, reject) => {
-            // TODO(sabrina): actually make the http request
-            // TODO(sabrina): handle FSError
-            resolve({} as RSP);
+    request<REQ, RSP>(
+        opts: RequestOptions,
+        body?: REQ,
+        fsReq?: FSRequestOptions,
+    ): Promise<FSResponse<RSP>> {
+        return new Promise<FSResponse<RSP>>((resolve, reject) => {
+            // TODO(sabrina): add fsReq.integration_src to the request
+            if (!opts.agent) {
+                opts.agent = defaultHttpsAgent;
+            }
+
+            const req = https.request(opts);
+            req.setHeader('Authorization', this.opts.apiKey);
+
+            req.once('socket', (socket) => {
+                if (socket.connecting) {
+                    socket.once('secureConnect', //always use https
+                        () => {
+                            body && req.write(JSON.stringify(body));
+                            req.end();
+                        }
+                    );
+                } else {
+                    // already connected, send body
+                    body && req.write(JSON.stringify(body));
+                    req.end();
+                }
+            });
+
+            req.on('response', inMsg => {
+                this.handleResponse<RSP>(inMsg)
+                    .then(rsp => {
+                        resolve({
+                            httpHeaders: inMsg.headers,
+                            httpStatusCode: inMsg.statusCode,
+                            body: rsp
+                        });
+                    })
+                    .catch(err => reject(err));
+            });
+
+            req.on('error', (error) => {
+                reject(error);
+            });
+
+            req.on('timeout', () => {
+                const err = FSErrorImpl.newTimeoutError();
+                req.destroy(err);
+            });
+        });
+    }
+
+    async handleResponse<T>(
+        msg: IncomingMessage
+    ): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            let responseDataStr = '';
+            msg.setEncoding('utf8');
+            msg.on('data', (chunk) => {
+                responseDataStr += chunk;
+            });
+
+            msg.once('end', () => {
+                if (!msg.statusCode) {
+                    // TODO(sabrina): better handle unknown status code error
+                    reject(new Error('Unknown error occurred, did not receive HTTP status code.'));
+                    return;
+                }
+
+                let responseData;
+                if (responseDataStr) {
+                    try {
+                        responseData = JSON.parse(responseDataStr);
+                    } catch (e) {
+                        // It's possible that response is invalid json
+                        // return parse error regardless of response code
+                        if (e instanceof SyntaxError) {
+                            reject(FSErrorImpl.newParserError(msg, responseDataStr, e));
+                        } else {
+                            reject(FSErrorImpl.newParserError(msg, responseDataStr, new Error(`Unknown Error: ${e}`)));
+                        }
+                        return;
+                    }
+                }
+
+                if (msg.statusCode < 200 || msg.statusCode >= 300) {
+                    reject(FSErrorImpl.newFSError(msg, <ErrorResponse>responseData));
+                    return;
+                }
+
+                resolve(<T>responseData);
+            });
         });
     }
 }
-
-export * from './options';
