@@ -23,7 +23,7 @@ describe('FSHttpClient', () => {
 
     const mockEndpoint = (): nock.Interceptor => {
         return nock(testServer)
-            .get(testPath)
+            .post(testPath)
             .delayConnection(50)
             .delayBody(50)
             .matchHeader('Authorization', MOCK_API_KEY);
@@ -31,7 +31,7 @@ describe('FSHttpClient', () => {
 
     const mockReqOpts: RequestOptions = {
         hostname: testHost,
-        method: 'GET',
+        method: 'POST',
         path: testPath,
         timeout: 1000
     };
@@ -46,11 +46,15 @@ describe('FSHttpClient', () => {
                 signed_up: true,
             }
         };
-        mockEndpoint().reply(200, JSON.stringify(mockReply));
+        const mockBody = { requestData: 'test request data' };
+        mockEndpoint().reply(200, (_, body) => {
+            // make sure request body is received
+            expect(body).toBe(JSON.stringify(mockBody));
+            return JSON.stringify(mockReply);
+        });
 
-        const response = {};
-        await client.request<any, GetUserResponse>(mockReqOpts, response);
-        await expect(response).toEqual({
+        const promise = client.request<any, GetUserResponse>(mockReqOpts, mockBody);
+        await expect(promise).resolves.toEqual({
             httpStatusCode: 200,
             httpHeaders: {},
             body: mockReply
@@ -61,7 +65,7 @@ describe('FSHttpClient', () => {
         mockEndpoint().reply(401, 'Unauthorized');
 
         try {
-            await client.request<any, any>(mockReqOpts, {});
+            await client.request<any, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
             expect(e).toBeInstanceOf(FSErrorImpl);
@@ -86,7 +90,7 @@ describe('FSHttpClient', () => {
         mockEndpoint().reply(500, JSON.stringify(mockReply));
 
         try {
-            await client.request<any, any>(mockReqOpts, {});
+            await client.request<any, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
             expect(e).toBeInstanceOf(FSErrorImpl);

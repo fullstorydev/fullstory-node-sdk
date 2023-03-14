@@ -29,11 +29,10 @@ export class FSHttpClient {
 
     request<REQ, RSP>(
         opts: RequestOptions,
-        response: FSResponse<RSP>,
         body?: REQ,
         fsReq?: FSRequestOptions,
-    ): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    ): Promise<FSResponse<RSP>> {
+        return new Promise<FSResponse<RSP>>((resolve, reject) => {
             // TODO(sabrina): add fsReq.integration_src to the request
             if (!opts.agent) {
                 opts.agent = defaultHttpsAgent;
@@ -60,12 +59,11 @@ export class FSHttpClient {
             req.on('response', inMsg => {
                 this.handleResponse<RSP>(inMsg)
                     .then(rsp => {
-                        if (response) { // mutate the response object
-                            response.httpHeaders = inMsg.headers;
-                            response.httpStatusCode = inMsg.statusCode;
-                            response.body = rsp;
-                        }
-                        resolve();
+                        resolve({
+                            httpHeaders: inMsg.headers,
+                            httpStatusCode: inMsg.statusCode,
+                            body: rsp
+                        });
                     })
                     .catch(err => reject(err));
             });
@@ -118,6 +116,7 @@ export class FSHttpClient {
                     reject(FSErrorImpl.newFSError(msg, <ErrorResponse>responseData));
                     return;
                 }
+
                 resolve(<T>responseData);
             });
         });
