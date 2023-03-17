@@ -5,7 +5,7 @@ import { GetUserResponse } from '@model/users/GetUserResponse';
 import { RequestOptions } from 'https';
 import nock from 'nock';
 
-import { FSErrorImpl, FSErrorName, FSHttpClient, FSResponse } from '../index';
+import { FSErrorImpl, FSErrorName, FSHttpClient } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const testHost = 'api.fullstory.test';

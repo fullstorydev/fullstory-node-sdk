@@ -19,7 +19,6 @@ import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
-
 export class UsersApi {
     protected readonly basePath = 'https://api.fullstory.com';
     protected readonly httpClient: FSHttpClient;
@@ -48,11 +47,12 @@ export class UsersApi {
             headerParams.accept = consumes.join(',');
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -73,11 +73,12 @@ export class UsersApi {
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'DELETE',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -98,11 +99,12 @@ export class UsersApi {
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -141,11 +143,12 @@ export class UsersApi {
             queryParams.set('page_token', pageToken);
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -175,11 +178,12 @@ export class UsersApi {
             headerParams.accept = consumes.join(',');
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.

@@ -10,6 +10,6 @@ describe('FullStory SDK', () => {
             apiKey: MOCK_API_KEY,
         });
         expect(client).toHaveProperty('opts');
-        expect(client['opts']).toHaveProperty('apiKey', MOCK_API_KEY);
+        expect((client as any)['opts']).toHaveProperty('apiKey', MOCK_API_KEY);
     });
 });

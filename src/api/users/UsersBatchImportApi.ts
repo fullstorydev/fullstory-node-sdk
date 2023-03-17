@@ -18,7 +18,6 @@ import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImpor
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
-
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     protected readonly httpClient: FSHttpClient;
@@ -47,11 +46,12 @@ export class UsersBatchImportApi {
             headerParams.accept = consumes.join(',');
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'POST',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -76,11 +76,12 @@ export class UsersBatchImportApi {
             queryParams.set('next_page_token', nextPageToken);
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -101,11 +102,12 @@ export class UsersBatchImportApi {
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
@@ -130,11 +132,12 @@ export class UsersBatchImportApi {
             queryParams.set('next_page_token', nextPageToken);
         }
 
+        const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
-            path: url.pathname + queryParams.toString(),
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
         // instantiate response object to be mutated.
