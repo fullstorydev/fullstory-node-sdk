@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
-import exp from 'constants';
 import { IncomingMessage } from 'http';
 
 import { FSErrorImpl } from '../../http/error';
