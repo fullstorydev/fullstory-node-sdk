@@ -15,7 +15,7 @@ import { {{key}} } from '@model/{{value}}';
 {{/entrySet}}
 {{/tsImports}}
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
 {{#operations}}
 {{#description}}
 
@@ -25,7 +25,7 @@ import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '..
 {{/description}}
 export class {{classname}} {
     protected readonly basePath = '{{{basePath}}}';
-    protected readonly httpClient: FSHttpClient;
+    private httpClient: IFSHttpClient;
 
     constructor(opts: FullStoryOptions) {
         // TODO(sabrina): allow injecting http client dependency rather than instantiating here
@@ -84,7 +84,7 @@ export class {{classname}} {
         try {
             return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}

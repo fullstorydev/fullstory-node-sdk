@@ -18,10 +18,10 @@ import { CreateUserRequest } from '@model/users/CreateUserRequest';
 import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
 export class UsersApi {
     protected readonly basePath = 'https://api.fullstory.com';
-    protected readonly httpClient: FSHttpClient;
+    private httpClient: IFSHttpClient;
 
     constructor(opts: FullStoryOptions) {
         // TODO(sabrina): allow injecting http client dependency rather than instantiating here
@@ -59,7 +59,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -87,7 +87,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, void>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -115,7 +115,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -161,7 +161,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -198,7 +198,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 }
