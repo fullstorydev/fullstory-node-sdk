@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "jest",
+    "test": "jest --bail",
     "build": "tsc",
     "build:production": "tsc -p tsconfig.production.json"
   },
