@@ -26,3 +26,6 @@ lib/
 
 # mac OS files
 .DS_Store
+
+# env vars
+.env

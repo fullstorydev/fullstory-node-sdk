@@ -45,5 +45,8 @@
   "bugs": {
     "url": "https://github.com/fullstorydev/fullstory-node-sdk/issues"
   },
-  "homepage": "https://github.com/fullstorydev/fullstory-node-sdk#readme"
+  "homepage": "https://github.com/fullstorydev/fullstory-node-sdk#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
 }
