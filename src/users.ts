@@ -130,7 +130,7 @@ class BatchUsersJob implements IBatchUsersJob {
 
     constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: IBatchJobOptions = {}) {
         this.requests.push(...requests);
-        this.options = Object.assign(opts, BatchUsersJob.DefaultBatchJobOpts);
+        this.options = Object.assign({}, BatchUsersJob.DefaultBatchJobOpts, opts);
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
@@ -178,11 +178,9 @@ class BatchUsersJob implements IBatchUsersJob {
                 break;
             case 'done':
                 this._doneCallbacks.push(callback);
-                this.stopPolling();
                 break;
             case 'error':
                 this._errorCallbacks.push(callback);
-                this.stopPolling();
                 break;
             default:
                 throw new Error('Unknown event type');
@@ -220,7 +218,6 @@ class BatchUsersJob implements IBatchUsersJob {
                 metadata.id = this.getId();
 
                 this.setMetadata(metadata);
-
                 switch (metadata.status) {
                     case JobStatus.Processing:
                         this.handleProcessing();

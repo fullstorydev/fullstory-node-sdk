@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "jest --bail",
+    "test": "jest --detectOpenHandles --forceExit",
     "build": "tsc",
     "build:production": "tsc -p tsconfig.production.json"
   },
