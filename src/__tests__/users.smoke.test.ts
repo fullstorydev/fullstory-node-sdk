@@ -141,16 +141,26 @@ describe('FullStory Users API', () => {
             done(err);
         });
 
-        job.on('processing', () => console.log('processing', job.metadata));
+        job.on('processing', (job) => {
+            console.log('job processing', job.metadata);
+            expect(job.metadata?.status).toBe(JobStatus.Processing);
+        });
         job.on('done',
             (imported, failed) => {
-                console.log('done, imported', imported);
-                console.log('done, failed', failed);
+                expect(job.metadata?.status).toBe(JobStatus.Completed);
+                expect(imported).toHaveLength(3);
+                expect(failed).toHaveLength(0);
+                expect(imported).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ ...createReq1 }),
+                        expect.objectContaining({ ...createReq2 }),
+                        expect.objectContaining({ ...createReq3 })
+                    ])
+                );
                 done();
             });
-        job.on('error', errors => {
-            console.log('error, errors', errors);
-            done(errors[0]);
+        job.on('error', error => {
+            done(error);
         });
     }, BATCH_JOB_TIMEOUT);
 });
