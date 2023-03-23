@@ -17,7 +17,8 @@ import { CreateBatchUserImportJobResponse } from '@model/users/CreateBatchUserIm
 import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImportStatusResponse';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { FSErrorImpl } from '../../errors';
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
@@ -58,7 +59,9 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw FSErrorImpl.newAsyncError(e);
         }
     }
 
@@ -90,7 +93,9 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw FSErrorImpl.newAsyncError(e);
         }
     }
 
@@ -118,7 +123,9 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw FSErrorImpl.newAsyncError(e);
         }
     }
 
@@ -150,7 +157,9 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw FSErrorImpl.newAsyncError(e);
         }
     }
 }

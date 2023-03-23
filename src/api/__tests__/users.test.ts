@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
-import { IncomingMessage } from 'http';
 
-import { FSErrorImpl } from '../../http/error';
+import { FSErrorImpl, FSErrorName } from '../../errors';
 import { UsersApi, UsersBatchImportApi } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
@@ -10,7 +9,7 @@ const defaultHost = 'api.fullstory.com';
 const basePath = '/v2beta/users';
 const expectedHeaders = { accept: 'application/json' };
 
-const mockRequest = jest.fn();
+const mockRequest = jest.fn<any>();
 jest.mock('../../http', () => {
     return {
         ...jest.createMockFromModule<any>('../../http'),
@@ -164,21 +163,45 @@ describe('FullStory Users API', () => {
         await expect(user).resolves.not.toHaveProperty('body');
     });
 
-    // this test should be moved into the http client or error handlers
-    test.skip('throws when error', async () => {
-        const err = FSErrorImpl.newFSError(
-            <IncomingMessage>{ statusCode: 404 },
-            { code: 'user_not_found', message: 'User with that ID does not exist', }
-        );
-        mockRequest.mockImplementation(() => {
-            throw err;
+
+    describe('API throws nice looking error when needed', () => {
+        test('handle async error with unknown Error type', async () => {
+            const mockReq: CreateUserRequest = {
+                uid: 'test_user_2'
+            };
+            const rootError = new Error('test error');
+            mockRequest.mockRejectedValue(rootError);
+
+            try {
+                await users.createUser(mockReq);
+            } catch (error) {
+                // root error survives
+                expect(error).toBeInstanceOf(FSErrorImpl);
+                expect(error).toHaveProperty('name', FSErrorName.ERROR_UNKNOWN);
+                expect(error).toHaveProperty('message', rootError.message);
+                expect(error).toHaveProperty('cause', rootError);
+                // check that stack trace contains info on api method invoked
+                expect(error).toHaveProperty('stack', expect.stringContaining('createUser'));
+            }
+            expect.hasAssertions();
         });
 
-        // make sure mocked errors survive
-        await expect(users.getUser('12341234')).rejects.toThrow(err);
-        await expect(users.updateUser('12341234', {})).rejects.toThrow(err);
-        await expect(users.createUser({})).rejects.toThrow(err);
-        await expect(users.deleteUser('12341234')).rejects.toThrow(err);
+        test('handle async error with FSError type', async () => {
+            const rootError = new FSErrorImpl(FSErrorName.ERROR_FULLSTORY, 'test error');
+            mockRequest.mockRejectedValue(rootError);
+
+            try {
+                await users.getUser('1');
+            } catch (error) {
+                // root error survives
+                expect(error).toBeInstanceOf(FSErrorImpl);
+                expect(error).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
+                expect(error).toHaveProperty('message', rootError.message);
+                // check that stack trace contains info on api method invoked
+                expect(error).toHaveProperty('stack', expect.stringContaining('getUser'));
+            }
+            expect.hasAssertions();
+        });
     });
 });
 

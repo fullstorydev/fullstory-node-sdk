@@ -14,7 +14,8 @@ import { CreateEventsResponse } from '@model/events/CreateEventsResponse';
 import { CreateEventsRequest } from '@model/events/CreateEventsRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { FSErrorImpl } from '../../errors';
 export class EventsApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
@@ -55,7 +56,9 @@ export class EventsApi {
         try {
             return await this.httpClient.request<CreateEventsRequest, CreateEventsResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw FSErrorImpl.newAsyncError(e);
         }
     }
 }

@@ -5,7 +5,8 @@ import { GetUserResponse } from '@model/index';
 import { RequestOptions } from 'https';
 import nock from 'nock';
 
-import { FSErrorImpl, FSErrorName, FSHttpClient } from '../index';
+import { FSErrorImpl, FSErrorName, isFSError } from '../../errors';
+import { FSHttpClient } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const testHost = 'api.fullstory.test';
@@ -61,27 +62,23 @@ describe('FSHttpClient', () => {
         });
     }, 2000);
 
-    test('request fails with 401 should error', async () => {
-        mockEndpoint().reply(401, 'Unauthorized');
-
+    test('request fails with non-json body', async () => {
+        mockEndpoint().reply(401, 'Unauthorized\n');
         try {
             await client.request<any, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
-            expect(e).toBeInstanceOf(FSErrorImpl);
-            if (e instanceof FSErrorImpl) {
-                expect(e.name).toBe(FSErrorName.ERROR_PARSE_RESPONSE);
-                expect(e.httpCode).toBe(401);
-                expect(e.code).toBe('parse_error_response_failed');
-                expect(e.message).toBe('Unable to parse response body into error object');
-                expect(e.resDataStr).toBe('Unauthorized');
-                expect(e.cause?.message).toBe('Unexpected token U in JSON at position 0');
-                expect(e.cause?.name).toBe('SyntaxError');
+            if (isFSError(e)) {
+                expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
+                expect(e).toHaveProperty('message', 'HTTP error status 401 received');
+                expect(e).toHaveProperty('httpStatusCode', 401);
+                expect(e).toHaveProperty('fsErrorResponse', 'Unauthorized\n');
             }
         }
+        expect.hasAssertions();
     }, 2000);
 
-    test('request fails with 500 should error', async () => {
+    test('request fails with 500 and ErrorResponse body', async () => {
         const mockReply = {
             'code': 'internal',
             'message': 'Internal Error Occurred',
@@ -93,15 +90,34 @@ describe('FSHttpClient', () => {
             await client.request<any, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
-            expect(e).toBeInstanceOf(FSErrorImpl);
             if (e instanceof FSErrorImpl) {
-                expect(e.name).toBe(FSErrorName.ERROR_FULLSTORY);
-                expect(e.httpCode).toBe(500);
-                expect(e.code).toBe('internal');
-                expect(e.message).toBe('Internal Error Occurred');
-                expect(e.details).toBe('Something went wrong...');
-                expect(e.cause).toBeUndefined();
+                expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
+                expect(e).toHaveProperty('message', 'HTTP error status 500 received');
+                expect(e).toHaveProperty('httpStatusCode', 500);
+                expect(e).toHaveProperty('fsErrorResponse', { code: 'internal', message: 'Internal Error Occurred' });
+                expect(e).toHaveProperty('details', 'Something went wrong...');
             }
         }
+        expect.hasAssertions();
+    }, 2000);
+
+    test('request returns 200 but malformed response body', async () => {
+        const invalidRsp = 'invalid json response body';
+        mockEndpoint().reply(200, invalidRsp);
+
+        try {
+            await client.request<any, GetUserResponse>(mockReqOpts);
+        }
+        catch (e) {
+            if (e instanceof FSErrorImpl) {
+                expect(e).toHaveProperty('name', FSErrorName.ERROR_PARSE_RESPONSE);
+                expect(e).toHaveProperty('message', 'Invalid JSON response');
+                expect(e).toHaveProperty('httpStatusCode', 200);
+                expect(e).toHaveProperty('fsErrorResponse', invalidRsp);
+                expect(e.cause).toHaveProperty('name', 'SyntaxError');
+                expect(e.cause).toHaveProperty('message', expect.stringMatching(new RegExp('Unexpected token . in JSON at position')));
+            }
+        }
+        expect.hasAssertions();
     }, 2000);
 });

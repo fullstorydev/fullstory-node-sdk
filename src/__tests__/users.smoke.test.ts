@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
 
-import { FSErrorImpl } from '../http/error';
+import { FSErrorImpl } from '../errors';
 import { Users } from '../users';
 
 dotenv.config();

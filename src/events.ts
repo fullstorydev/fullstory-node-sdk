@@ -117,7 +117,6 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
         return this;
     }
 
-
     private setMetadata(job?: JobMetadata) {
         if (this.getId() && this.getId() != job?.id) {
             throw new Error(`can not set existing job metadata ${this.getId()} to a different job ${job?.id}`);
@@ -163,7 +162,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
                     default:
                         throw new Error('Unknown job stats received: ' + this.metadata?.status);
                 }
-            } catch (e: any) {
+            } catch (e) {
                 this.handleError(e);
             } finally {
                 // clean up the current promise
@@ -224,7 +223,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
             });
     }
 
-    private handleError(err: Error) {
+    private handleError(err: any) {
         // TODO(sabrina): check for FSError
         for (const cb of this._errorCallbacks) {
             cb(err);
