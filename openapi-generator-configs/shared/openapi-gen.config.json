@@ -1,7 +1,6 @@
 {
     "generatorName": "fullstory-typescript",
     "outputDir": ".",
-    "inputSpec": "users.swagger.json",
     "schemaMappings": {
         "google.protobuf.NullValue": "null"
     }

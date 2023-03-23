@@ -1,0 +1,1137 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Introduction",
+    "description": "The Events API provides access to create custom events.",
+    "version": "v2"
+  },
+  "tags": [
+    {
+      "name": "Events"
+    }
+  ],
+  "host": "api.fullstory.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2beta/events": {
+      "post": {
+        "summary": "Create Events",
+        "description": "Creates one or more events with the specified details",
+        "operationId": "CreateEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/events/batch": {
+      "post": {
+        "summary": "Create Events Import",
+        "description": "Creates a batch events import job with the given list of event information.\n\nThe number of request objects that can be included in a single batch request is `50,000`.",
+        "operationId": "CreateBatchEventsImportJob",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/events/batch/{job_id}": {
+      "get": {
+        "summary": "Get Batch Import Job Details",
+        "description": "Get the status for a batch events import job with job details.",
+        "operationId": "GetBatchEventsImportStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 20
+      }
+    },
+    "/v2beta/events/batch/{job_id}/errors": {
+      "get": {
+        "summary": "Get Batch Import Errors",
+        "description": "Get the error message and code for any events that failed from an events import job.",
+        "operationId": "GetBatchEventsImportErrors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportErrorsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 40
+      }
+    },
+    "/v2beta/events/batch/{job_id}/imports": {
+      "get": {
+        "summary": "Get Batch Imported Events",
+        "description": "Get the event details for successful events imported from a batch events import job.",
+        "operationId": "GetBatchEventsImports",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "next_page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 30
+      }
+    }
+  },
+  "definitions": {
+    "fullstory.v2.apierror.ErrorResponse": {
+      "type": "object",
+      "example": {
+        "message": "User with that ID does not exist",
+        "code": "user_not_found"
+      },
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Long form description of what went wrong"
+        },
+        "code": {
+          "type": "string",
+          "description": "A short snake-cased value that is safe to handle programmatically"
+        }
+      }
+    },
+    "fullstory.v2.events.Context": {
+      "type": "object",
+      "properties": {
+        "integration": {
+          "type": "string"
+        },
+        "custom_annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "web": {
+          "$ref": "#/definitions/fullstory.v2.events.WebContext"
+        },
+        "mobile": {
+          "$ref": "#/definitions/fullstory.v2.events.MobileContext"
+        },
+        "device": {
+          "$ref": "#/definitions/fullstory.v2.events.DeviceContext"
+        },
+        "location": {
+          "$ref": "#/definitions/fullstory.v2.events.LocationContext"
+        }
+      }
+    },
+    "fullstory.v2.events.CreateBatchEventsImportJobRequest": {
+      "type": "object",
+      "example": {
+        "requests": [
+          {
+            "user": {
+              "uid": "xyz123",
+              "id": "123456789"
+            },
+            "session": {
+              "use_latest_session": true
+            },
+            "context": {
+              "integration": "segment",
+              "custom_annotations": { },
+              "web": {
+                "url": "https://store.mondaymorning.com",
+                "user_agent": "square/pos",
+                "referrer_url": ""
+              }
+            },
+            "events": [
+              {
+                "name": "Support Ticket",
+                "timestamp": "2022-03-15T14:23:23Z",
+                "properties": {
+                  "id": 424242,
+                  "priority": "Normal",
+                  "source": "Email",
+                  "title": "Account locked out"
+                }
+              }
+            ]
+          },
+          {
+            "user": {
+              "uid": "xyz1234",
+              "id": "1234567890"
+            },
+            "session": {
+              "use_latest_session": true
+            },
+            "context": {
+              "integration": "segment",
+              "custom_annotations": { },
+              "web": {
+                "url": "https://store.mondaymorning.com",
+                "user_agent": "square/pos",
+                "referrer_url": ""
+              }
+            },
+            "events": [
+              {
+                "name": "Support Ticket",
+                "timestamp": "2022-03-15T14:24:23Z",
+                "properties": {
+                  "id": 424243,
+                  "priority": "Normal",
+                  "source": "Email",
+                  "title": "Account locked out"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+          },
+          "description": "The list of event requests that should be imported"
+        }
+      }
+    },
+    "fullstory.v2.events.CreateBatchEventsImportJobResponse": {
+      "type": "object",
+      "example": {
+        "job": {
+          "id": "abc123=",
+          "status": "PROCESSING",
+          "created": "2019-04-18T14:36:11.123Z",
+          "finished": null
+        }
+      },
+      "properties": {
+        "job": {
+          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
+          "description": "Information about the job that was initiated to import the list of events submitted"
+        }
+      }
+    },
+    "fullstory.v2.events.CreateEventsRequest": {
+      "type": "object",
+      "example": {
+        "user ": {
+          "uid": "xyz123 ",
+          "id ": "123456789 "
+        },
+        "session ": {
+          "use_latest_session ": true
+        },
+        "context ": {
+          "integration ": "segment ",
+          "custom_annotations ": { },
+          "web ": {
+            "url ": "https://store.mondaymorning.com ",
+            "user_agent ": "square/pos ",
+            "referrer_url ": " "
+          }
+        },
+        "events ": [
+          {
+            "name ": "Support Ticket ",
+            "timestamp ": "2022-03-15T14:23:23Z ",
+            "properties ": {
+              "id ": 424242,
+              "priority ": "Normal ",
+              "source ": "Email ",
+              "title ": "Account locked out "
+            }
+          }
+        ]
+      },
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/fullstory.v2.events.UserIdRequest"
+        },
+        "session": {
+          "$ref": "#/definitions/fullstory.v2.events.SessionIdRequest"
+        },
+        "context": {
+          "$ref": "#/definitions/fullstory.v2.events.Context"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.Event"
+          }
+        },
+        "include_schema": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fullstory.v2.events.CreateEventsResponse": {
+      "type": "object",
+      "example": {
+        "user": {
+          "uid": "xyz123",
+          "id": "123456789"
+        },
+        "session": {
+          "id": "123456"
+        },
+        "context": {
+          "integration": "segment",
+          "custom_annotations": { },
+          "web": {
+            "url": "https://store.mondaymorning.com",
+            "user_agent": "square/pos",
+            "referrer_url": ""
+          }
+        },
+        "events": [
+          {
+            "name": "Support Ticket",
+            "timestamp": "2022-03-15T14:23:23Z",
+            "properties": {
+              "id": 424242,
+              "priority": "Normal",
+              "source": "Email",
+              "title": "Account locked out"
+            }
+          }
+        ]
+      },
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/fullstory.v2.events.UserResponse"
+        },
+        "session": {
+          "$ref": "#/definitions/fullstory.v2.events.SessionResponse"
+        },
+        "context": {
+          "$ref": "#/definitions/fullstory.v2.events.Context"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.Event"
+          }
+        }
+      }
+    },
+    "fullstory.v2.events.DeviceContext": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        },
+        "os_version": {
+          "type": "string"
+        },
+        "manufacturer": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "serial_number": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "screen_width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "screen_height": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "viewport_width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "viewport_height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "fullstory.v2.events.Event": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The event name."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional event timestamp, defaults to current time."
+        },
+        "properties": {
+          "type": "object",
+          "description": "The custom event payload."
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
+        }
+      }
+    },
+    "fullstory.v2.events.GetBatchEventsImportErrorsResponse": {
+      "type": "object",
+      "example": {
+        "results": [
+          {
+            "message": "time stamp out of range",
+            "code": "event_validation_failed",
+            "events": {
+              "user": {
+                "uid": "xyz123",
+                "id": "123456789"
+              },
+              "session": {
+                "use_latest_session": true
+              },
+              "context": {
+                "integration": "segment",
+                "custom_annotations": { },
+                "web": {
+                  "url": "https://store.mondaymorning.com",
+                  "user_agent": "square/pos",
+                  "referrer_url": ""
+                }
+              },
+              "events": [
+                {
+                  "name": "Support Ticket",
+                  "timestamp": "2012-03-15T14:23:23Z",
+                  "properties": {
+                    "id": 424242,
+                    "priority": "Normal",
+                    "source": "Email",
+                    "title": "Account locked out"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "total_records": 98,
+        "next_page_token": "asd543"
+      },
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportErrorsResponse.FailedEventsImport"
+          },
+          "description": "Page of events import failures for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "The total number of failures for the specified events import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
+        }
+      }
+    },
+    "fullstory.v2.events.GetBatchEventsImportErrorsResponse.FailedEventsImport": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Description of the failure encountered while importing the events"
+        },
+        "code": {
+          "type": "string",
+          "description": "Error code"
+        },
+        "events": {
+          "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest",
+          "description": "Corresponding events import request that resulted in failure"
+        }
+      }
+    },
+    "fullstory.v2.events.GetBatchEventsImportStatusResponse": {
+      "type": "object",
+      "example": {
+        "imports": 42,
+        "errors": 2,
+        "job": {
+          "id": "abd123=",
+          "status": "FAILED",
+          "created": "2019-04-18T14:36:11.123Z",
+          "finished": "2019-04-18T15:36:11.123Z"
+        }
+      },
+      "properties": {
+        "imports": {
+          "type": "string",
+          "format": "int64",
+          "description": "The stats on the number of events imported successfully"
+        },
+        "errors": {
+          "type": "string",
+          "format": "int64",
+          "description": "Only included for failed imports. The stats on the number of events that failed to be imported"
+        },
+        "job": {
+          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
+          "description": "Information about the current state of the job that was initiated to import the list of events"
+        }
+      }
+    },
+    "fullstory.v2.events.GetBatchEventsImportsResponse": {
+      "type": "object",
+      "example": {
+        "results": [
+          {
+            "user": {
+              "uid": "xyz123",
+              "id": "123456789"
+            },
+            "session": {
+              "id": "123456"
+            },
+            "context": {
+              "integration": "segment",
+              "custom_annotations": { },
+              "web": {
+                "url": "https://store.mondaymorning.com",
+                "user_agent": "square/pos",
+                "referrer_url": ""
+              }
+            },
+            "events": [
+              {
+                "name": "Support Ticket",
+                "timestamp": "2022-03-15T14:23:23Z",
+                "properties": {
+                  "id": 424242,
+                  "priority": "Normal",
+                  "source": "Email",
+                  "title": "Account locked out"
+                }
+              }
+            ]
+          }
+        ],
+        "total_records": 98,
+        "next_page_token": "asd543"
+      },
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+          },
+          "description": "Page of events import responses for the batch import"
+        },
+        "total_records": {
+          "type": "string",
+          "format": "int64",
+          "description": "Total number of records in this batch import"
+        },
+        "next_page_token": {
+          "type": "string",
+          "description": "The token that can be used in a subsequent request to fetch the next page of import results"
+        }
+      }
+    },
+    "fullstory.v2.events.LocationContext": {
+      "type": "object",
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "region_code": {
+          "type": "string"
+        },
+        "city_name": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "fullstory.v2.events.MobileContext": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string"
+        },
+        "app_version": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "build_variant": {
+          "type": "string"
+        }
+      }
+    },
+    "fullstory.v2.events.SessionIdRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "use_most_recent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fullstory.v2.events.SessionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "fullstory.v2.events.UserIdRequest": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The application-specific ID you've given to the user",
+          "maxLength": 256
+        },
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
+        }
+      }
+    },
+    "fullstory.v2.events.UserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
+    },
+    "fullstory.v2.events.WebContext": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "user_agent": {
+          "type": "string"
+        },
+        "referrer_url": {
+          "type": "string"
+        }
+      }
+    },
+    "fullstory.v2.job.JobMetadata": {
+      "type": "object",
+      "example": {
+        "id": "abc123",
+        "status": "PROCESSING",
+        "created": "2017-01-15T01:30:15.01Z",
+        "finished": "2017-01-15T02:30:15.01Z"
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the job."
+        },
+        "status": {
+          "$ref": "#/definitions/fullstory.v2.job.JobStatus",
+          "description": "Status of the job."
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the job was accepted."
+        },
+        "finished": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time the job was finished, either successfully or unsuccessfully."
+        }
+      },
+      "description": "JobMetadata contains metadata about asynchronous jobs.",
+      "title": "JobMetadata"
+    },
+    "fullstory.v2.job.JobStatus": {
+      "type": "string",
+      "enum": [
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED"
+      ],
+      "default": "UNKNOWN",
+      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being\nprocessed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+    },
+    "fullstory.v2.varsapi.Schema": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "A mapping of field names to their corresponding types."
+        }
+      }
+    },
+    "google.protobuf.NullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    }
+  },
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\"",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": [ ]
+    }
+  ]
+}

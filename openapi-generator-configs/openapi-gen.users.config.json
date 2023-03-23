@@ -1,0 +1,4 @@
+{
+    "!include": "shared/openapi-gen.config.json",
+    "inputSpec": "specs/users.swagger.json"
+}
