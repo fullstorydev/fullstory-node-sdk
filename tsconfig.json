@@ -16,11 +16,9 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "strictFunctionTypes": true,
-
-        "baseUrl": "./src",
         "paths": {
-            "@model/*": [ "model/*" ],
-            "@api/*": [ "api/*" ],
+            "@model/*": [ "./src/model/*" ],
+            "@api/*": [ "./src/api/*" ],
         }
     },
     "include": [ "./src/**/*" ],
