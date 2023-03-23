@@ -29,11 +29,15 @@ public class FullstoryTypescriptGeneratorTest {
     Map<String, String> sm = new HashMap<>();
     sm.put("google.protobuf.NullValue", "null");
 
+    Map<String, Object> ap = new HashMap<>();
+    ap.put(FullstoryTypescriptGenerator.RESOURCE_NAME, "users");
+
     final CodegenConfigurator configurator = new CodegenConfigurator()
         .setGeneratorName("fullstory-typescript")
-        .setInputSpec("../users.swagger.json")
+        .setInputSpec("../specs/users.swagger.json")
         .setOutputDir("out")
-        .setSchemaMappings(sm);
+        .setSchemaMappings(sm)
+        .setAdditionalProperties(ap);
 
     final ClientOptInput clientOptInput = configurator.toClientOptInput();
     DefaultGenerator generator = new DefaultGenerator();
@@ -84,9 +88,11 @@ public class FullstoryTypescriptGeneratorTest {
   @Test
   public void modelFilenameTest() {
     FullstoryTypescriptGenerator codegen = new FullstoryTypescriptGenerator();
+    // codegen.writePropertyBack(FullstoryTypescriptGenerator.RESOURCE_NAME, "any");
+
     codegen.processOpts();
     codegen.modelTemplateFiles();
-    String templateName = "model.mustache";
+    String templateName = "model-single.mustache";
 
     // put into sub folders base on resource name
     String modelName = "fullstory.v2.users.UserRequest";

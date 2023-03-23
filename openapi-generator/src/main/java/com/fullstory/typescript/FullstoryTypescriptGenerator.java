@@ -14,9 +14,13 @@ import java.io.File;
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodegen {
+  // the server API resource name
+  public static final String RESOURCE_NAME = "resourceName";
+
   // source folder where to write the files, relative to root
   protected String sourceFolder = "src";
   protected String fsPrefix = "fullstory.v2";
+  protected String resourceName = "unkown";
 
   /**
    * Configures the type of generator.
@@ -57,23 +61,30 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     templateDir = "fullstory-typescript";
     apiPackage = "api";
     modelPackage = "model";
+
+    this.cliOptions.add(new CliOption(RESOURCE_NAME,
+        "The resource name for the FullStory server API."));
   }
 
   @Override
   public void processOpts() {
     super.processOpts();
 
-    modelTemplateFiles.put("model.mustache", ".ts");
+    modelTemplateFiles.put("model-single.mustache", ".ts");
     apiTemplateFiles.put("api-single.mustache", ".ts");
+
+    if (additionalProperties.containsKey(RESOURCE_NAME)) {
+      this.resourceName = String.valueOf(additionalProperties.get(RESOURCE_NAME)) + ".";
+    }
 
     supportingFiles
         .add(new SupportingFile("model-index.mustache",
             getSourceFolder() + File.separator + modelDir(),
-            "index.ts"));
+            this.resourceName + "index.ts"));
     supportingFiles
         .add(new SupportingFile("api-index.mustache",
             getSourceFolder() + File.separator + apiDir(),
-            "index.ts"));
+            this.resourceName + "index.ts"));
   }
 
   /**
