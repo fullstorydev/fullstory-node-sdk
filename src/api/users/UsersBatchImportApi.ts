@@ -55,9 +55,14 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
+        } catch (e) {
+            // add the current stack to the async error if any
+            const newErrorWithStack = new Error('failed to make request: ' + e);
+            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
+            throw e;
+        }
     }
 
     /**
@@ -85,9 +90,14 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            // add the current stack to the async error if any
+            const newErrorWithStack = new Error('failed to make request: ' + e);
+            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
+            throw e;
+        }
     }
 
     /**
@@ -111,9 +121,14 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            // add the current stack to the async error if any
+            const newErrorWithStack = new Error('failed to make request: ' + e);
+            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
+            throw e;
+        }
     }
 
     /**
@@ -141,9 +156,14 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            // add the current stack to the async error if any
+            const newErrorWithStack = new Error('failed to make request: ' + e);
+            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
+            throw e;
+        }
     }
 }
 
