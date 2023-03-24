@@ -67,7 +67,7 @@ describe('FullStory Users API', () => {
             })
         );
 
-        // update user
+        // Update user
         const updateReq: UpdateUserRequest = {
             display_name: 'NodeJS Smoke Test Updated',
             properties: {
@@ -101,8 +101,6 @@ describe('FullStory Users API', () => {
         }
     });
 
-
-
     test('Batch Users Job handling', done => {
         const createReq1: CreateUserRequest = {
             uid: 'nodejs_sdk_smoke_test_batch_1',
@@ -129,22 +127,18 @@ describe('FullStory Users API', () => {
 
         // Create A Job
         const job = users
-            .batchCreate([createReq1])
+            .batchCreate([createReq1], { pullInterval: 10 })
             .add([createReq2, createReq3]);
 
-        job.execute().then(_ => {
-            expect(job.getId()).toBeTruthy();
-            expect(job.getStatus()).toEqual(JobStatus.Processing);
-            expect(job.getImports()).toBeUndefined();
-            expect(job.getImportErrors()).toBeUndefined();
-        }).catch((err: Error) => {
-            done(err);
-        });
+        job.execute();
 
         job.on('processing', (job) => {
-            console.log('job processing', job.metadata);
+            expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
+            expect(job.getImports()).toBeUndefined();
+            expect(job.getImportErrors()).toBeUndefined();
         });
+
         job.on('done',
             (imported, failed) => {
                 expect(job.metadata?.status).toBe(JobStatus.Completed);
@@ -159,8 +153,10 @@ describe('FullStory Users API', () => {
                 );
                 done();
             });
+
         job.on('error', error => {
             done(error);
         });
+
     }, BATCH_JOB_TIMEOUT);
 });

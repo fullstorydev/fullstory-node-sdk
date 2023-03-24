@@ -44,7 +44,7 @@ export interface IBatchUsersJob {
 
     // start to execute the job by invoking the create batch import API
     // resolves API responses
-    execute(): Promise<void>;
+    execute(): void;
 
     // get the job ID anytime, undefined if not yet executed
     getId(): string | undefined;
@@ -155,17 +155,22 @@ class BatchUsersJob implements IBatchUsersJob {
         return this.errors;
     }
 
-    async execute(): Promise<void> {
+    execute(): void {
         // only excute once
         if (this._executedAt) return;
         this._executedAt = new Date();
-        const response = await this.batchUsersImpl.createBatchUserImportJob(this);
-        // make sure job id presents
-        if (!response.body?.job?.id) {
-            throw new Error(`Unable to get job ID after creating job, server status: ${response.httpStatusCode}`);
-        }
-        this.setMetadata(response.body?.job);
-        this.startPolling();
+
+        this.batchUsersImpl.createBatchUserImportJob(this)
+            .then(response => {
+                // make sure job id exist
+                if (!response.body?.job?.id) {
+                    throw new Error(`Unable to get job ID after creating job, server status: ${response.httpStatusCode}`);
+                }
+                this.setMetadata(response.body?.job);
+                this.startPolling();
+            }).catch(err => {
+                this.handleError(err);
+            });
     }
 
     on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
