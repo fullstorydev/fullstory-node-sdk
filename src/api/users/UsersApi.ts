@@ -24,6 +24,7 @@ export class UsersApi {
     protected readonly httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 

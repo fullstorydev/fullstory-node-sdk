@@ -21,7 +21,17 @@ export interface FSResponse<T> {
     body?: T;
 }
 
-export class FSHttpClient {
+export interface IFSHttpClient {
+    request: <REQ, RSP> (
+        opts: RequestOptions,
+        body?: REQ,
+        // TODO(sabrina): wrap this to allow injecting more generic request function
+        fsReq?: FSRequestOptions,
+    ) => Promise<FSResponse<RSP>>;
+}
+
+// TODO(sabrina): separate out the error handling stuff out from the http client
+export class FSHttpClient implements IFSHttpClient {
     // TODO(sabrina): allow passing in a node https agent?
     constructor(
         private opts: FullStoryOptions,
