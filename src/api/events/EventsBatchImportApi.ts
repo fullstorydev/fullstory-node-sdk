@@ -17,12 +17,13 @@ import { CreateBatchEventsImportJobResponse } from '@model/events/CreateBatchEve
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 import { GetBatchEventsImportStatusResponse } from '@model/events/GetBatchEventsImportStatusResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
 export class EventsBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 
@@ -54,9 +55,11 @@ export class EventsBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse>(requestOptions, body, options);
+        } catch (e) {
+            rethrowChainedError(e);
+        }
     }
 
     /**
@@ -84,9 +87,11 @@ export class EventsBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchEventsImportErrorsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchEventsImportErrorsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e);
+        }
     }
 
     /**
@@ -110,9 +115,11 @@ export class EventsBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchEventsImportStatusResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchEventsImportStatusResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e);
+        }
     }
 
     /**
@@ -140,9 +147,11 @@ export class EventsBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchEventsImportsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchEventsImportsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e);
+        }
     }
 }
 

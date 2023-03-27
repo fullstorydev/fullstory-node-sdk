@@ -14,12 +14,13 @@ import { CreateEventsResponse } from '@model/events/CreateEventsResponse';
 import { CreateEventsRequest } from '@model/events/CreateEventsRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
 export class EventsApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 
@@ -51,9 +52,11 @@ export class EventsApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<CreateEventsRequest, CreateEventsResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<CreateEventsRequest, CreateEventsResponse>(requestOptions, body, options);
+        } catch (e) {
+            rethrowChainedError(e);
+        }
     }
 }
 
