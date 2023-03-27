@@ -135,8 +135,8 @@ describe('FullStory Users API', () => {
         job.on('processing', (job) => {
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
-            expect(job.getImports()).toBeUndefined();
-            expect(job.getImportErrors()).toBeUndefined();
+            expect(job.getImports()).toEqual([]);
+            expect(job.getImportErrors()).toEqual([]);
         });
 
         job.on('done',

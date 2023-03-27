@@ -17,10 +17,10 @@ import { CreateBatchUserImportJobResponse } from '@model/users/CreateBatchUserIm
 import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImportStatusResponse';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
-    protected readonly httpClient: FSHttpClient;
+    private httpClient: IFSHttpClient;
 
     constructor(opts: FullStoryOptions) {
         // TODO(sabrina): allow injecting http client dependency rather than instantiating here
@@ -58,7 +58,7 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -90,7 +90,7 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -118,7 +118,7 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 
@@ -150,7 +150,7 @@ export class UsersBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e)
+            rethrowChainedError(e);
         }
     }
 }
