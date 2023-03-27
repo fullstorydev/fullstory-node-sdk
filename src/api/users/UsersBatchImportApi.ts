@@ -23,6 +23,7 @@ export class UsersBatchImportApi {
     protected readonly httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 
@@ -54,9 +55,11 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -84,9 +87,11 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -110,9 +115,11 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportStatusResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -140,9 +147,11 @@ export class UsersBatchImportApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 }
 

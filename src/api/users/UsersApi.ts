@@ -24,6 +24,7 @@ export class UsersApi {
     protected readonly httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 
@@ -55,9 +56,11 @@ export class UsersApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -81,9 +84,11 @@ export class UsersApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, void>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, void>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -107,9 +112,11 @@ export class UsersApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -151,9 +158,11 @@ export class UsersApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
-        return response;
+        try {
+            return await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 
     /**
@@ -186,9 +195,11 @@ export class UsersApi {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
-        return response;
+        try {
+            return await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
     }
 }
 

@@ -28,6 +28,7 @@ export class {{classname}} {
     protected readonly httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
+        // TODO(sabrina): allow injecting http client dependency rather than instantiating here
         this.httpClient = new FSHttpClient(opts);
     }
 {{#operation}}
@@ -80,9 +81,11 @@ export class {{classname}} {
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
-        // instantiate response object to be mutated.
-        const response = await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
-        return response;
+        try {
+            return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
+        } catch (e) {
+            rethrowChainedError(e)
+        }
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}
     }

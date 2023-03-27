@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
-import exp from 'constants';
 import { IncomingMessage } from 'http';
 
 import { FSErrorImpl } from '../../http/error';
@@ -26,16 +25,18 @@ const MOCK_HTTP_CLIENT: any = {
         MOCK_HTTP_CLIENT.throwError = err;
     },
     request: (opts: any, body: any, fsopts: any) => {
-        MOCK_HTTP_CLIENT.reqOpts = opts;
-        MOCK_HTTP_CLIENT.reqBody = body;
-        MOCK_HTTP_CLIENT.reqFsOpts = fsopts;
-        if (MOCK_HTTP_CLIENT.throwError) {
-            throw MOCK_HTTP_CLIENT.throwError;
-        }
-        return {
-            httpStatusCode: MOCK_HTTP_CLIENT.httpStatusCode,
-            body: MOCK_HTTP_CLIENT.body,
-        };
+        return new Promise((res, rej) => {
+            MOCK_HTTP_CLIENT.reqOpts = opts;
+            MOCK_HTTP_CLIENT.reqBody = body;
+            MOCK_HTTP_CLIENT.reqFsOpts = fsopts;
+            if (MOCK_HTTP_CLIENT.throwError) {
+                rej(MOCK_HTTP_CLIENT.throwError);
+            }
+            res({
+                httpStatusCode: MOCK_HTTP_CLIENT.httpStatusCode,
+                body: MOCK_HTTP_CLIENT.body,
+            });
+        });
     }
 };
 
@@ -144,7 +145,8 @@ describe('FullStory Users API', () => {
         MOCK_HTTP_CLIENT.setThrowError(err);
 
         const user = users.getUser('12341234');
-        await expect(user).rejects.toThrow(err);
+        // error is passed on
+        await expect(user).rejects.toThrow(expect.stringContaining(err));
     });
 });
 

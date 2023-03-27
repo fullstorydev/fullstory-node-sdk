@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "test": "jest",
+    "test": "jest --detectOpenHandles --forceExit",
     "build": "tsc",
     "build:production": "tsc -p tsconfig.production.json"
   },
@@ -21,6 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "babel-jest": "^29.4.3",
+    "dotenv": "^16.0.3",
     "eslint": "^8.34.0",
     "eslint-import-resolver-typescript": "^3.5.3",
     "eslint-plugin-import": "^2.27.5",

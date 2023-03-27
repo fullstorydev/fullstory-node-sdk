@@ -10,5 +10,6 @@
   },
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
-  }
+  },
+  "jest.jestCommandLine": "npm test --"
 }

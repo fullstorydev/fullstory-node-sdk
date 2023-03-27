@@ -1,7 +1,7 @@
-import { BatchUserImportRequest, BatchUserImportResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetUserResponse, JobMetadata, JobStatus, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { BatchUserImportRequest, BatchUserImportResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchUserImportStatusResponse, GetUserResponse, JobMetadata, JobStatus, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
-import { UsersApi as FSUsersApi } from './api';
-import { FSError, FSRequestOptions, FSResponse, FullStoryOptions } from './http';
+import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from './api';
+import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -24,51 +24,80 @@ export interface IUsersApi {
 ////////////////////////////////////
 
 export interface IBatchJobOptions {
-    pullInterval?: number; // ms, defaults to 10 seconds
+    pullInterval?: number; // ms, defaults to every 2 seconds
+    // TODO(sabrina): add a timeout and onTimeout to clean up everything
 }
 
 export interface IBatchUsersJob {
-    options: IBatchJobOptions;
-    requests: Array<BatchUserImportRequest>;
+    readonly options: Required<IBatchJobOptions>;
+    requests: BatchUserImportRequest[];
 
-    // when the job had been created
-    readonly job?: JobMetadata;
-    readonly imports?: number;
-    readonly errors?: number;
+    readonly metadata?: JobMetadata;
+    readonly imports?: BatchUserImportResponse[];
+    readonly errors?: FailedUserImport[];
 
-    // add more users in the request before the job executes
-    // throws error if job is already executed, or max number of users reached
+    /*
+    * Add more users in the request before the job executes.
+    * @throws An error if job is already executed, or max number of users reached.
+    */
     add(requests: Array<BatchUserImportRequest>): IBatchUsersJob;
 
-    // start to execute the job by invoking the create batch import api
+    // TODO(sabrina): allow removal of a specific request?
+
+    /*
+    * Starts to execute the job by invoking the create batch import API.
+    * Listen to the "error" event to be notified if any error occurs while creating the job.
+    */
     execute(): void;
 
-    // get the ID anytime, undefined if not yet executed
+    /*
+    * Get the current job Id.
+    * @returns The string job Id, or undefined if not yet executed.
+    */
     getId(): string | undefined;
 
-    // callback is called at each pull interval while the job is still processing (job status == PROCESSING)
-    on(type: 'processing', callback: () => void): IBatchUsersJob;
+    /*
+    * Get the current job status.
+    * @returns The current JobStatus, or undefined if not yet executed.
+    */
+    getStatus(): JobStatus | undefined;
 
-    // when job status becomes COMPLETED or FAILED
-    // automatically call /users/batch/{job_id}/imports and
-    // /users/batch/{job_id}/errors
-    // to get importedUsers and failedUsers
-    on(type: 'done',
-        importedCB: (imported: BatchUserImportResponse[]) => void,
-        failedCB: (failed: FailedUserImport[]) => void
-    ): IBatchUsersJob;
+    /*
+    * Retrieve successful imports if the job is done.
+    * @returns An array of batch users successfully imported.
+    */
+    getImports(): BatchUserImportResponse[];
 
-    // Any other errors, may include but not limit to:
-    // - failures when making API requests, i.e. network, http errors
-    // - when job status is COMPLETED or FAILED, but unable to retrieve imported/failed users, etc.
-    on(type: 'error', callback: (errors: FSError[]) => void): IBatchUsersJob;
+    /*
+    * Retrieve failed user imports if the job has errors.
+    * @returns An array of batch users failed to be imported.
+    */
+    getImportErrors(): FailedUserImport[];
 
-    // get the current job status, undefined if not yet executed
-    getStatus(): Promise<JobStatus> | undefined;
+    /*
+    * Fires when a poll to get latest job status is completed after each poll interval,
+    * while the job is still processing (job status == PROCESSING).
+    * @param job The current job.
+    */
+    on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
 
-    // retrieve imports or errors, undefined if job not done yet
-    getImports(): Promise<BatchUserImportResponse[]> | undefined;
-    getImportErrors(): Promise<FailedUserImport[]> | undefined;
+    /*
+    * Fires when job status becomes COMPLETED or FAILED.
+    * It will automatically call /users/batch/{job_id}/imports and
+    * /users/batch/{job_id}/errors endpoints,
+    * to get importedUsers and failedUsers.
+    * @param imported An array of batch users successfully imported.
+    * @returns failed An array of batch users failed to be imported.
+    */
+    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): IBatchUsersJob;
+
+    /*
+    * Fires when any errors during the import jobs, may be called more than once.
+    * - Failures when making API requests, including any network, http errors, etc.
+    * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed users.
+    * @param error The error encountered.
+    */
+    on(type: 'error', callback: (error: Error) => void): IBatchUsersJob;
 }
 
 export interface IBatchUsersApi {
@@ -81,7 +110,7 @@ export interface IBatchUsersApi {
 export class Users implements IUsersApi, IBatchUsersApi {
     protected readonly usersImpl: FSUsersApi;
 
-    constructor(opts: FullStoryOptions) {
+    constructor(private opts: FullStoryOptions) {
         this.usersImpl = new FSUsersApi(opts);
     }
 
@@ -102,58 +131,208 @@ export class Users implements IUsersApi, IBatchUsersApi {
         return this.usersImpl.updateUser(id, body, options);
     }
 
-    batchCreate(requests: BatchUserImportRequest[], jobOptions: IBatchJobOptions): IBatchUsersJob {
-        return new BatchUsersJob(requests, jobOptions);
+    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: IBatchJobOptions): IBatchUsersJob {
+        return new BatchUsersJob(this.opts, requests, jobOptions);
     }
 }
 
 class BatchUsersJob implements IBatchUsersJob {
-    defaultOpts: IBatchJobOptions = {
-        pullInterval: 20000
+    static readonly DefaultBatchJobOpts: Required<IBatchJobOptions> = {
+        pullInterval: 2000,
     };
 
-    options: IBatchJobOptions = {};
     requests: BatchUserImportRequest[] = [];
-    job?: JobMetadata | undefined;
-    imports?: number | undefined;
-    errors?: number | undefined;
+    readonly options: Required<IBatchJobOptions>;
 
-    constructor(requests?: BatchUserImportRequest[], opts?: IBatchJobOptions) {
-        if (requests) {
-            this.requests.push(...requests);
-        }
-        if (opts) {
-            Object.assign(this.options, opts);
-        }
+    metadata?: JobMetadata | undefined;
+    imports: BatchUserImportResponse[] = [];
+    errors: FailedUserImport[] = [];
+
+    protected readonly batchUsersImpl: FSUsersBatchApi;
+
+    private _executedAt: Date | undefined;
+    private _interval: NodeJS.Timer | undefined;
+    private _currentPromise: Promise<FSResponse<GetBatchUserImportStatusResponse>> | undefined;
+    private _processingCallbacks: ((job: BatchUsersJob) => void)[] = [];
+    private _doneCallbacks: ((imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void)[] = [];
+    private _errorCallbacks: ((error: Error) => void)[] = [];
+
+    constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: IBatchJobOptions = {}) {
+        this.requests.push(...requests);
+        this.options = Object.assign({}, BatchUsersJob.DefaultBatchJobOpts, opts);
+        this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
+
     getId(): string | undefined {
-        return this.job?.id;
+        return this.metadata?.id;
     }
 
-    on(type: 'processing', callback: () => void): IBatchUsersJob;
-    on(type: 'done', importedCB: (imported: BatchUserImportResponse[]) => void, failedCB: (failed: FailedUserImport[]) => void): IBatchUsersJob;
-    on(type: 'error', callback: (errors: FSError[]) => void): IBatchUsersJob;
-    on(type: unknown, importedCB: unknown, failedCB?: unknown): IBatchUsersJob {
-        throw new Error('Method not implemented.');
-    }
-
-    getStatus(): Promise<JobStatus> | undefined {
-        throw new Error('Method not implemented.');
+    getStatus() {
+        return this.metadata?.status;
     }
 
     add(requests: BatchUserImportRequest[]): IBatchUsersJob {
+        // TODO(sabrina): throw if job is already executed, or max number of users reached
         this.requests.push(...requests);
         return this;
     }
 
-    execute(): void {
-        throw new Error('Method not implemented.');
+    getImports(): BatchUserImportResponse[] {
+        return this.imports;
     }
 
-    getImports(): Promise<BatchUserImportResponse[]> | undefined {
-        throw new Error('Method not implemented.');
+    getImportErrors(): FailedUserImport[] {
+        return this.errors;
     }
-    getImportErrors(): Promise<FailedUserImport[]> | undefined {
-        throw new Error('Method not implemented.');
+
+    execute(): void {
+        // only excute once
+        if (this._executedAt) return;
+        this._executedAt = new Date();
+
+        this.batchUsersImpl.createBatchUserImportJob(this)
+            .then(response => {
+                // make sure job id exist
+                if (!response.body?.job?.id) {
+                    throw new Error(`Unable to get job ID after creating job, server status: ${response.httpStatusCode}`);
+                }
+                this.setMetadata(response.body?.job);
+                this.startPolling();
+            }).catch(err => {
+                this.handleError(err);
+            });
+    }
+
+    on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
+    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): IBatchUsersJob;
+    on(type: 'error', callback: (error: Error) => void): IBatchUsersJob;
+    on(type: string, callback: any) {
+        switch (type) {
+            case 'processing':
+                this._processingCallbacks.push(callback);
+                break;
+            case 'done':
+                this._doneCallbacks.push(callback);
+                break;
+            case 'error':
+                this._errorCallbacks.push(callback);
+                break;
+            default:
+                throw new Error('Unknown event type');
+        }
+        return this;
+    }
+
+    private setMetadata(job?: JobMetadata) {
+        if (this.getId() && this.getId() != job?.id) {
+            throw new Error(`can not set existing job metadata ${this.getId()} to a different job ${job?.id}`);
+        }
+        this.metadata = job;
+    }
+
+    private startPolling() {
+        const id = this.getId();
+        if (!id) {
+            throw new Error('Current job ID is unknown, make sure the job had been executed');
+        }
+
+        this._interval = setInterval(async () => {
+            // if last poll is not resolved before next pull, ignore
+            // TODO(sabrina): resolve lingering promises/ races properly
+            if (this._currentPromise) {
+                return;
+            }
+
+            // start a new poll and set the new promise
+            this._currentPromise = this.batchUsersImpl.getBatchUserImportStatus(id);
+            try {
+                const pollResult = await this._currentPromise;
+                // TODO(sabrina): maybe dispatch this as events rather than mutating/calling sync handlers
+                // work around for https://fullstory.atlassian.net/browse/ECO-8192
+                const metadata = pollResult.body?.job || {};
+                metadata.id = this.getId();
+
+                this.setMetadata(metadata);
+                switch (metadata.status) {
+                    case JobStatus.Processing:
+                        this.handleProcessing();
+                        break;
+                    case JobStatus.Completed:
+                        this.stopPolling();
+                        this.handleCompleted();
+                        break;
+                    case JobStatus.Failed:
+                        this.stopPolling();
+                        this.handleFailed();
+                        break;
+                    default:
+                        throw new Error('Unknown job stats received: ' + this.metadata?.status);
+                }
+            } catch (e: any) {
+                this.handleError(e);
+            } finally {
+                // clean up the current promise
+                delete this._currentPromise;
+            }
+        }, this.options.pullInterval);
+    }
+
+    private stopPolling() {
+        clearInterval(this._interval);
+    }
+
+    private handleProcessing() {
+        for (const cb of this._processingCallbacks) {
+            cb(this);
+        }
+    }
+
+    private handleCompleted() {
+        // TODO(sabrina): start poll on /users/batch/{job_id}/imports
+        // with handling next_page_token
+        const jobId = this.getId();
+        if (!jobId) {
+            throw new Error('unable to retrieve job ID');
+        }
+        this.batchUsersImpl.getBatchUserImports(jobId)
+            .then(res => {
+                const results = res.body?.results;
+                if (!results) {
+                    throw new Error('API did not response with any results');
+                }
+                for (const cb of this._doneCallbacks) {
+                    cb(results, []);
+                }
+            }).catch((e: Error) => {
+                throw e;
+            });
+    }
+
+    private handleFailed() {
+        // TODO(sabrina): start polling on /users/batch/{job_id}/errors
+        // with handling next_page_token
+        const jobId = this.getId();
+        if (!jobId) {
+            throw new Error('unable to retrieve job ID');
+        }
+        this.batchUsersImpl.getBatchUserImportErrors(jobId)
+            .then(res => {
+                const results = res.body?.results;
+                if (!results) {
+                    throw new Error('API did not response with any results');
+                }
+                for (const cb of this._doneCallbacks) {
+                    cb([], results);
+                }
+            }).catch((e: Error) => {
+                throw e;
+            });
+    }
+
+    private handleError(err: Error) {
+        // TODO(sabrina): check for FSError
+        for (const cb of this._errorCallbacks) {
+            cb(err);
+        }
     }
 }
