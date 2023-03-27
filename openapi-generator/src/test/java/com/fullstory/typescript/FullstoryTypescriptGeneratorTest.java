@@ -88,7 +88,6 @@ public class FullstoryTypescriptGeneratorTest {
   @Test
   public void modelFilenameTest() {
     FullstoryTypescriptGenerator codegen = new FullstoryTypescriptGenerator();
-    // codegen.writePropertyBack(FullstoryTypescriptGenerator.RESOURCE_NAME, "any");
 
     codegen.processOpts();
     codegen.modelTemplateFiles();
