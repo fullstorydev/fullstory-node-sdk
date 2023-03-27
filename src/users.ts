@@ -36,38 +36,67 @@ export interface IBatchUsersJob {
     readonly imports?: BatchUserImportResponse[];
     readonly errors?: FailedUserImport[];
 
-    // add more users in the request before the job executes
-    // throws error if job is already executed, or max number of users reached
+    /*
+    * Add more users in the request before the job executes.
+    * @throws An error if job is already executed, or max number of users reached.
+    */
     add(requests: Array<BatchUserImportRequest>): IBatchUsersJob;
 
     // TODO(sabrina): allow removal of a specific request?
 
-    // start to execute the job by invoking the create batch import API
-    // resolves API responses
+    /*
+    * Starts to execute the job by invoking the create batch import API.
+    * Listen to the "error" event to be notified if any error occurs while creating the job.
+    */
     execute(): void;
 
-    // get the job ID anytime, undefined if not yet executed
+    /*
+    * Get the current job Id.
+    * @returns The string job Id, or undefined if not yet executed.
+    */
     getId(): string | undefined;
 
-    // get the current job status, undefined if not yet executed
+    /*
+    * Get the current job status.
+    * @returns The current JobStatus, or undefined if not yet executed.
+    */
     getStatus(): JobStatus | undefined;
 
-    // retrieve imports or errors if the job is done, undefined if job is not done yet
-    getImports(): BatchUserImportResponse[] | undefined;
-    getImportErrors(): FailedUserImport[] | undefined;
+    /*
+    * Retrieve successful imports if the job is done.
+    * @returns An array of batch users successfully imported.
+    */
+    getImports(): BatchUserImportResponse[];
 
-    // callback is invoked at each pull interval while the job is still processing (job status == PROCESSING)
+    /*
+    * Retrieve failed user imports if the job has errors.
+    * @returns An array of batch users failed to be imported.
+    */
+    getImportErrors(): FailedUserImport[];
+
+    /*
+    * Fires when a poll to get latest job status is completed after each poll interval,
+    * while the job is still processing (job status == PROCESSING).
+    * @param job The current job.
+    */
     on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
 
-    // when job status becomes COMPLETED or FAILED
-    // automatically call /users/batch/{job_id}/imports and
-    // /users/batch/{job_id}/errors
-    // to get importedUsers and failedUsers, then the callback is invoked
+    /*
+    * Fires when job status becomes COMPLETED or FAILED.
+    * It will automatically call /users/batch/{job_id}/imports and
+    * /users/batch/{job_id}/errors endpoints,
+    * to get importedUsers and failedUsers.
+    * @param imported An array of batch users successfully imported.
+    * @returns failed An array of batch users failed to be imported.
+    */
     on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): IBatchUsersJob;
 
-    // Any errors during the import jobs, may be called more than once
-    // - failures when making API requests, including any network, http errors, etc.
-    // - when job status is COMPLETED or FAILED, but unable to retrieve imported/failed users, etc.
+    /*
+    * Fires when any errors during the import jobs, may be called more than once.
+    * - Failures when making API requests, including any network, http errors, etc.
+    * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed users.
+    * @param error The error encountered.
+    */
     on(type: 'error', callback: (error: Error) => void): IBatchUsersJob;
 }
 
@@ -116,8 +145,8 @@ class BatchUsersJob implements IBatchUsersJob {
     readonly options: Required<IBatchJobOptions>;
 
     metadata?: JobMetadata | undefined;
-    imports?: BatchUserImportResponse[] | undefined;
-    errors?: FailedUserImport[] | undefined;
+    imports: BatchUserImportResponse[] = [];
+    errors: FailedUserImport[] = [];
 
     protected readonly batchUsersImpl: FSUsersBatchApi;
 
@@ -143,15 +172,16 @@ class BatchUsersJob implements IBatchUsersJob {
     }
 
     add(requests: BatchUserImportRequest[]): IBatchUsersJob {
+        // TODO(sabrina): throw if job is already executed, or max number of users reached
         this.requests.push(...requests);
         return this;
     }
 
-    getImports(): BatchUserImportResponse[] | undefined {
+    getImports(): BatchUserImportResponse[] {
         return this.imports;
     }
 
-    getImportErrors(): FailedUserImport[] | undefined {
+    getImportErrors(): FailedUserImport[] {
         return this.errors;
     }
 
