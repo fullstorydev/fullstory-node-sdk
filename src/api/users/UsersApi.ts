@@ -59,10 +59,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
     }
 
@@ -90,10 +87,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, void>(requestOptions, undefined, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
     }
 
@@ -121,10 +115,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
     }
 
@@ -170,10 +161,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
     }
 
@@ -210,10 +198,7 @@ export class UsersApi {
         try {
             return await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
     }
 }

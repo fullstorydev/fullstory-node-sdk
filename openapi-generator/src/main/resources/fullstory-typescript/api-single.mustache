@@ -84,10 +84,7 @@ export class {{classname}} {
         try {
             return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
         } catch (e) {
-            // add the current stack to the async error if any
-            const newErrorWithStack = new Error('failed to make request: ' + e);
-            e.stack = newErrorWithStack.stack + '\nFrom previous:\n' + e.stack;
-            throw e;
+            rethrowChainedError(e)
         }
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}

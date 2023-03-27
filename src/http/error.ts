@@ -77,3 +77,10 @@ export class FSErrorImpl extends Error implements FSError {
         );
     }
 }
+
+export function rethrowChainedError(err: any) {
+    // add the current stack to the async error if any
+    const newErrorWithStack = new Error('failed to make request: ' + err);
+    err.stack = newErrorWithStack.stack + '\nFrom previous:\n' + err.stack;
+    throw err;
+}
