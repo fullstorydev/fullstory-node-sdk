@@ -1,0 +1,23 @@
+# This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
+version: 2.1
+
+# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
+# See: https://circleci.com/docs/2.0/orb-intro/
+orbs:
+  node: circleci/node@5.1.0
+  maven: circleci/maven@1.3
+
+workflows:
+  run-tests:
+    jobs:
+      - node/run:
+          name: "Run lint"
+          npm-run: lint
+      - node/test:
+          name: "Run npm test"
+          pkg-manager: npm
+          test-results-for: jest
+      - maven/test:
+          name: "Run maven test"
+          app_src_directory: openapi-generator
+          test_results_path: openapi-generator/target/surefire-reports
