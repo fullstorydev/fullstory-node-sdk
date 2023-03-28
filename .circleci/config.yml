@@ -10,8 +10,9 @@ orbs:
 workflows:
   run-tests:
     jobs:
+      - node/run:
+          npm-run: lint
       - node/test:
-          version: '16.17'
           pkg-manager: npm
           test-results-for: jest
       - maven/test:
