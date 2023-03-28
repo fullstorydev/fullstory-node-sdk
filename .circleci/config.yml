@@ -11,6 +11,7 @@ workflows:
   run-tests:
     jobs:
       - node/run:
+          name: "Run Lint"
           npm-run: lint
       - node/test:
           pkg-manager: npm
