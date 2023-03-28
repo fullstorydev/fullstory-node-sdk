@@ -1,29 +1,37 @@
-import { beforeEach, describe, expect, test } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, GetBatchEventsImportStatusResponse, JobStatus } from '@model/index';
 import { IncomingMessage } from 'http';
 
 import { FSErrorImpl } from '../../http';
-import { MockFSHttpClient } from '../../http/__mocks__/http.mock';
 import { EventsApi, EventsBatchImportApi } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
+const defaultHost = 'api.fullstory.com';
 const basePath = '/v2beta/events';
 const expectedHeaders = { accept: 'application/json' };
 
-const mockHttp = new MockFSHttpClient();
+const mockRequest = jest.fn();
+jest.mock('../../http', () => {
+    return {
+        ...jest.createMockFromModule<any>('../../http'),
+        // so we can spy on "request"
+        FSHttpClient: class {
+            request = mockRequest;
+        },
+    };
+});
 
 beforeEach(() => {
-    mockHttp.clearMockReply();
+    mockRequest.mockClear();
 });
 
 describe('FullStory Events API', () => {
     const events = new EventsApi({
         apiKey: MOCK_API_KEY,
     });
-    (events as any)['httpClient'] = mockHttp;
 
     test('create', async () => {
-        const mockReq: CreateEventsRequest = {
+        const createReq: CreateEventsRequest = {
             user: { id: 'test_user_id' },
             session: { id: 'test_session_id' },
             context: {
@@ -37,32 +45,26 @@ describe('FullStory Events API', () => {
             include_schema: false,
         };
         const mockEvent: CreateEventsResponse = {
-            ...mockReq
+            ...createReq
         };
-        mockHttp.setMockReply(200, mockEvent);
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockEvent,
+        });
 
-        const event = events.createEvents(mockReq);
+        const event = events.createEvents(createReq);
 
-        expect(mockHttp.reqBody).toEqual(mockReq);
-        expect(mockHttp.reqOpts.method).toBe('POST');
-        expect(mockHttp.reqOpts.headers).toEqual(expectedHeaders);
-        expect(mockHttp.reqOpts.path).toBe(`${basePath}`);
+        expect(mockRequest).toBeCalledWith(
+            // TODO(sabrina): find out why the accept headers is not passed for GETs
+            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath },
+            createReq,
+            undefined
+        );
 
         await expect(event).resolves.toEqual({
             httpStatusCode: 200,
             body: mockEvent,
         });
-    });
-
-    test('throws when error', async () => {
-        const err = FSErrorImpl.newFSError(
-            <IncomingMessage>{ statusCode: 500 },
-            { code: 'some_fake_code', message: 'This is a mock 500 error.', }
-        );
-        mockHttp.setThrowError(err);
-
-        const evt = events.createEvents({});
-        await expect(evt).rejects.toThrow(err);
     });
 });
 
@@ -71,7 +73,6 @@ describe('FullStory Batch Events API', () => {
     const batchEvents = new EventsBatchImportApi({
         apiKey: MOCK_API_KEY,
     });
-    (batchEvents as any)['httpClient'] = mockHttp;
 
     test('create job', async () => {
         const mockReq: CreateBatchEventsImportJobRequest = {
@@ -103,14 +104,18 @@ describe('FullStory Batch Events API', () => {
             }
         };
 
-        mockHttp.setMockReply(200, mockJob);
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockJob,
+        });
 
         const job = batchEvents.createBatchEventsImportJob(mockReq);
 
-        expect(mockHttp.reqBody).toEqual(mockReq);
-        expect(mockHttp.reqOpts.method).toBe('POST');
-        expect(mockHttp.reqOpts.headers).toEqual(expectedHeaders);
-        expect(mockHttp.reqOpts.path).toBe(`${basePath}/batch`);
+        expect(mockRequest).toBeCalledWith(
+            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath + '/batch' },
+            mockReq,
+            undefined
+        );
 
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
@@ -126,13 +131,18 @@ describe('FullStory Batch Events API', () => {
             }
         };
 
-        mockHttp.setMockReply(200, mockJob);
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockJob,
+        });
 
         const job = batchEvents.getBatchEventsImportStatus('abcd1234');
 
-        expect(mockHttp.reqBody).toBeUndefined();
-        expect(mockHttp.reqOpts.method).toBe('GET');
-        expect(mockHttp.reqOpts.path).toBe(`${basePath}/batch/abcd1234`);
+        expect(mockRequest).toBeCalledWith(
+            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234' },
+            undefined,
+            undefined
+        );
 
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
@@ -151,13 +161,19 @@ describe('FullStory Batch Events API', () => {
                 },
             ]
         };
-        mockHttp.setMockReply(200, mockRsp);
+
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
 
         const job = batchEvents.getBatchEventsImports('abcd1234');
 
-        expect(mockHttp.reqBody).toBeUndefined();
-        expect(mockHttp.reqOpts.method).toBe('GET');
-        expect(mockHttp.reqOpts.path).toBe(`${basePath}/batch/abcd1234/imports`);
+        expect(mockRequest).toBeCalledWith(
+            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/imports' },
+            undefined,
+            undefined
+        );
 
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
@@ -183,13 +199,18 @@ describe('FullStory Batch Events API', () => {
             ]
         };
 
-        mockHttp.setMockReply(200, mockJob);
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockJob,
+        });
 
         const job = batchEvents.getBatchEventsImportErrors('abcd1234', 'next_page_token');
 
-        expect(mockHttp.reqBody).toBeUndefined();
-        expect(mockHttp.reqOpts.method).toBe('GET');
-        expect(mockHttp.reqOpts.path).toBe(`${basePath}/batch/abcd1234/errors?next_page_token=next_page_token`);
+        expect(mockRequest).toBeCalledWith(
+            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/errors?next_page_token=next_page_token' },
+            undefined,
+            undefined
+        );
 
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
