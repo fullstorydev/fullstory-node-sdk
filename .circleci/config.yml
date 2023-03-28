@@ -19,6 +19,13 @@ workflows:
           version: '16.17'
           pkg-manager: npm
           test-results-for: jest
+          test-results-path: test-results/junit.xml
       - maven/test:
           app_src_directory: openapi-generator
-          test_results_path: openapi-generator/out/test-results
+          test_results_path: test-results/openapi-generator.xml
+      - store_test_results:
+          path: test-results/openapi-generator.xml
+          require: node/test
+      - store_test_results:
+          path: test-results/junit.xml
+          require: maven/test
