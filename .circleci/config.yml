@@ -11,11 +11,13 @@ workflows:
   run-tests:
     jobs:
       - node/run:
-          name: "Run Lint"
+          name: "Run lint"
           npm-run: lint
       - node/test:
+          name: "Run npm test"
           pkg-manager: npm
           test-results-for: jest
       - maven/test:
+          name: "Run maven test"
           app_src_directory: openapi-generator
           test_results_path: openapi-generator/target/surefire-reports
