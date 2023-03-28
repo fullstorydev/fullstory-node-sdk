@@ -1,7 +1,7 @@
 
 
 import { beforeEach, describe, expect, test } from '@jest/globals';
-import { GetUserResponse } from '@model/users/GetUserResponse';
+import { GetUserResponse } from '@model/index';
 import { RequestOptions } from 'https';
 import nock from 'nock';
 

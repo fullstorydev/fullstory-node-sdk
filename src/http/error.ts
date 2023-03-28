@@ -1,6 +1,6 @@
 import { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 
-import { ErrorResponse } from '@model/apierror/ErrorResponse';
+import { ErrorResponse } from '@model/index';
 
 export interface FSError extends Error {
     httpCode?: number;
