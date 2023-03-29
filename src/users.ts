@@ -1,13 +1,14 @@
 import { BatchUserImportRequest, BatchUserImportResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchUserImportStatusResponse, GetUserResponse, JobMetadata, JobStatus, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from './api';
+import { DefaultBatchJobOpts, IBatchJob, IBatchJobOptions } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
 ////////////////////////////////////
 
-export interface IUsersApi {
+interface IUsersApi {
     get(...req: Parameters<typeof FSUsersApi.prototype.getUser>): Promise<FSResponse<GetUserResponse>>;
 
     create(...req: Parameters<typeof FSUsersApi.prototype.createUser>): Promise<FSResponse<CreateUserResponse>>;
@@ -23,124 +24,14 @@ export interface IUsersApi {
 //  Batch Imports
 ////////////////////////////////////
 
-export interface IBatchJobOptions {
-    pullInterval?: number; // ms, defaults to every 2 seconds
-    // TODO(sabrina): add a timeout and onTimeout to clean up everything
-}
-
-export interface IBatchUsersJob {
-    readonly options: Required<IBatchJobOptions>;
-    requests: BatchUserImportRequest[];
-
-    readonly metadata?: JobMetadata;
-    readonly imports?: BatchUserImportResponse[];
-    readonly errors?: FailedUserImport[];
-
-    /*
-    * Add more users in the request before the job executes.
-    * @throws An error if job is already executed, or max number of users reached.
-    */
-    add(requests: Array<BatchUserImportRequest>): IBatchUsersJob;
-
-    // TODO(sabrina): allow removal of a specific request?
-
-    /*
-    * Starts to execute the job by invoking the create batch import API.
-    * Listen to the "error" event to be notified if any error occurs while creating the job.
-    */
-    execute(): void;
-
-    /*
-    * Get the current job Id.
-    * @returns The string job Id, or undefined if not yet executed.
-    */
-    getId(): string | undefined;
-
-    /*
-    * Get the current job status.
-    * @returns The current JobStatus, or undefined if not yet executed.
-    */
-    getStatus(): JobStatus | undefined;
-
-    /*
-    * Retrieve successful imports if the job is done.
-    * @returns An array of batch users successfully imported.
-    */
-    getImports(): BatchUserImportResponse[];
-
-    /*
-    * Retrieve failed user imports if the job has errors.
-    * @returns An array of batch users failed to be imported.
-    */
-    getImportErrors(): FailedUserImport[];
-
-    /*
-    * Fires when a poll to get latest job status is completed after each poll interval,
-    * while the job is still processing (job status == PROCESSING).
-    * @param job The current job.
-    */
-    on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
-
-    /*
-    * Fires when job status becomes COMPLETED or FAILED.
-    * It will automatically call /users/batch/{job_id}/imports and
-    * /users/batch/{job_id}/errors endpoints,
-    * to get importedUsers and failedUsers.
-    * @param imported An array of batch users successfully imported.
-    * @returns failed An array of batch users failed to be imported.
-    */
-    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): IBatchUsersJob;
-
-    /*
-    * Fires when any errors during the import jobs, may be called more than once.
-    * - Failures when making API requests, including any network, http errors, etc.
-    * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed users.
-    * @param error The error encountered.
-    */
-    on(type: 'error', callback: (error: Error) => void): IBatchUsersJob;
-}
-
-export interface IBatchUsersApi {
+interface IBatchUsersApi {
     batchCreate(
         requests?: Array<BatchUserImportRequest>,
         jobOptions?: IBatchJobOptions
-    ): IBatchUsersJob;
+    ): BatchUsersJob;
 }
 
-export class Users implements IUsersApi, IBatchUsersApi {
-    protected readonly usersImpl: FSUsersApi;
-
-    constructor(private opts: FullStoryOptions) {
-        this.usersImpl = new FSUsersApi(opts);
-    }
-
-    async get(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(id, options);
-    }
-
-    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(body, options);
-    }
-    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, options);
-    }
-    async delete(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
-        return this.usersImpl.deleteUser(id, options);
-    }
-    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(id, body, options);
-    }
-
-    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: IBatchJobOptions): IBatchUsersJob {
-        return new BatchUsersJob(this.opts, requests, jobOptions);
-    }
-}
-
-class BatchUsersJob implements IBatchUsersJob {
-    static readonly DefaultBatchJobOpts: Required<IBatchJobOptions> = {
-        pullInterval: 2000,
-    };
-
+class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchUserImportResponse, FailedUserImport> {
     requests: BatchUserImportRequest[] = [];
     readonly options: Required<IBatchJobOptions>;
 
@@ -159,7 +50,7 @@ class BatchUsersJob implements IBatchUsersJob {
 
     constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: IBatchJobOptions = {}) {
         this.requests.push(...requests);
-        this.options = Object.assign({}, BatchUsersJob.DefaultBatchJobOpts, opts);
+        this.options = Object.assign({}, DefaultBatchJobOpts, opts);
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
@@ -171,7 +62,7 @@ class BatchUsersJob implements IBatchUsersJob {
         return this.metadata?.status;
     }
 
-    add(requests: BatchUserImportRequest[]): IBatchUsersJob {
+    add(requests: BatchUserImportRequest[]): BatchUsersJob {
         // TODO(sabrina): throw if job is already executed, or max number of users reached
         this.requests.push(...requests);
         return this;
@@ -203,9 +94,9 @@ class BatchUsersJob implements IBatchUsersJob {
             });
     }
 
-    on(type: 'processing', callback: (job: IBatchUsersJob) => void): IBatchUsersJob;
-    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): IBatchUsersJob;
-    on(type: 'error', callback: (error: Error) => void): IBatchUsersJob;
+    on(type: 'processing', callback: (job: BatchUsersJob) => void): BatchUsersJob;
+    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): BatchUsersJob;
+    on(type: 'error', callback: (error: Error) => void): BatchUsersJob;
     on(type: string, callback: any) {
         switch (type) {
             case 'processing':
@@ -334,5 +225,37 @@ class BatchUsersJob implements IBatchUsersJob {
         for (const cb of this._errorCallbacks) {
             cb(err);
         }
+    }
+}
+
+////////////////////////////////////
+//  Exported User Interface
+////////////////////////////////////
+export class Users implements IUsersApi, IBatchUsersApi {
+    protected readonly usersImpl: FSUsersApi;
+
+    constructor(private opts: FullStoryOptions) {
+        this.usersImpl = new FSUsersApi(opts);
+    }
+
+    async get(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
+        return this.usersImpl.getUser(id, options);
+    }
+
+    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(body, options);
+    }
+    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
+        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, options);
+    }
+    async delete(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
+        return this.usersImpl.deleteUser(id, options);
+    }
+    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(id, body, options);
+    }
+
+    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: IBatchJobOptions): BatchUsersJob {
+        return new BatchUsersJob(this.opts, requests, jobOptions);
     }
 }

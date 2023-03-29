@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, GetBatchEventsImportStatusResponse, JobStatus } from '@model/index';
-import { IncomingMessage } from 'http';
 
-import { FSErrorImpl } from '../../http';
-import { EventsApi, EventsBatchImportApi } from '../index';
+import { EventsApi, EventsBatchImportApi } from '..';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const defaultHost = 'api.fullstory.com';
