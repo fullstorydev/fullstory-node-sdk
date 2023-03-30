@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "node --version && eslint .",
     "lint:fix": "eslint --fix .",
     "test": "jest --detectOpenHandles --forceExit",
     "build": "tsc",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
     "@jest/globals": "^29.4.3",
