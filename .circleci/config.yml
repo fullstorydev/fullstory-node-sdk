@@ -16,10 +16,9 @@ workflows:
       - node/test:
           matrix:
             parameters:
-              version: ["12.22.12","14.21.3","16.19.1","18.15.0"]
+              version: ["14.21.3","16.19.1","18.15.0"]
           pkg-manager: npm
           test-results-for: jest
-          # name: Run npm test node <<parameters.version>>
       - maven/test:
           name: "Run maven test"
           app_src_directory: openapi-generator
