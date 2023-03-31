@@ -77,7 +77,8 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     }
 
     execute(): void {
-        // only excute once
+        // only execute once
+        // TODO(sabrina): allow retry execution i.e. if transient error
         if (this._executedAt) return;
         this._executedAt = new Date();
 
@@ -85,9 +86,10 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
             .then(response => {
                 // make sure job id exist
                 if (!response.body?.job?.id) {
-                    throw new Error(`Unable to get job ID after creating job, server status: ${response.httpStatusCode}`);
+                    throw new Error(`Unable to get job ID after creating the job, server status: ${response.httpStatusCode}`);
                 }
                 this.setMetadata(response.body?.job);
+
                 this.startPolling();
             }).catch(err => {
                 this.handleError(err);
@@ -179,8 +181,8 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     }
 
     private handleCompleted() {
-        // TODO(sabrina): start poll on /users/batch/{job_id}/imports
-        // with handling next_page_token
+        // TODO(sabrina): if next_page_token
+        // we'd have to invoke /users/batch/{job_id}/imports more than once
         const jobId = this.getId();
         if (!jobId) {
             throw new Error('unable to retrieve job ID');
@@ -200,8 +202,8 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     }
 
     private handleFailed() {
-        // TODO(sabrina): start polling on /users/batch/{job_id}/errors
-        // with handling next_page_token
+        // TODO(sabrina): if result has next_page_token
+        // we'd have to invoke /users/batch/{job_id}/errors more than once
         const jobId = this.getId();
         if (!jobId) {
             throw new Error('unable to retrieve job ID');
