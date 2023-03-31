@@ -29,9 +29,10 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
     requests: CreateEventsRequest[] = [];
     readonly options: Required<IBatchJobOptions>;
 
-    metadata?: JobMetadata | undefined;
+    metadata?: JobMetadata;
     imports: CreateEventsResponse[] = [];
-    errors: FailedEventsImport[] = [];
+    failedImports: FailedEventsImport[] = [];
+    errors: Error[] = [];
 
     protected readonly batchEventsImpl: FSBatchEventsApi;
 
@@ -66,7 +67,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
         return this.imports;
     }
 
-    getImportErrors(): FailedEventsImport[] {
+    getFailedImports(): FailedEventsImport[] {
         return this.errors;
     }
 
@@ -92,14 +93,22 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
     on(type: 'done', callback: (imported: CreateEventsResponse[], failed: FailedEventsImport[]) => void): BatchEventsJob;
     on(type: 'error', callback: (error: Error) => void): BatchEventsJob;
     on(type: string, callback: any) {
+        // TODO(sabrina): move these shared logic into batch.ts
         switch (type) {
             case 'processing':
                 this._processingCallbacks.push(callback);
                 break;
             case 'done':
+                if (this.imports.length || this.failedImports.length) {
+                    callback(this.imports, this.failedImports);
+                }
                 this._doneCallbacks.push(callback);
                 break;
             case 'error':
+                // if there's already errors, immediately invoke with current values
+                if (this.errors.length) {
+                    callback(this.errors);
+                }
                 this._errorCallbacks.push(callback);
                 break;
             default:
@@ -107,6 +116,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
         }
         return this;
     }
+
 
     private setMetadata(job?: JobMetadata) {
         if (this.getId() && this.getId() != job?.id) {

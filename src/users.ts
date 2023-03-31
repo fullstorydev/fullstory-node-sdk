@@ -35,9 +35,10 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     requests: BatchUserImportRequest[] = [];
     readonly options: Required<IBatchJobOptions>;
 
-    metadata?: JobMetadata | undefined;
+    metadata?: JobMetadata;
     imports: BatchUserImportResponse[] = [];
-    errors: FailedUserImport[] = [];
+    failedImports: FailedUserImport[] = [];
+    errors: Error[] = [];
 
     protected readonly batchUsersImpl: FSUsersBatchApi;
 
@@ -72,8 +73,8 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
         return this.imports;
     }
 
-    getImportErrors(): FailedUserImport[] {
-        return this.errors;
+    getFailedImports(): FailedUserImport[] {
+        return this.failedImports;
     }
 
     execute(): void {
@@ -100,14 +101,23 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): BatchUsersJob;
     on(type: 'error', callback: (error: Error) => void): BatchUsersJob;
     on(type: string, callback: any) {
+        // TODO(sabrina): move these shared logic into batch.ts
         switch (type) {
             case 'processing':
                 this._processingCallbacks.push(callback);
                 break;
             case 'done':
+                // if the job is already done, immediately invoke with current values
+                if (this.imports.length || this.failedImports.length) {
+                    callback(this.imports, this.failedImports);
+                }
                 this._doneCallbacks.push(callback);
                 break;
             case 'error':
+                // if there's already errors, immediately invoke with current values
+                if (this.errors.length) {
+                    callback(this.errors);
+                }
                 this._errorCallbacks.push(callback);
                 break;
             default:
@@ -161,7 +171,7 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
                     default:
                         throw new Error('Unknown job stats received: ' + this.metadata?.status);
                 }
-            } catch (e: any) {
+            } catch (e) {
                 this.handleError(e);
             } finally {
                 // clean up the current promise
@@ -193,8 +203,9 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
                 if (!results) {
                     throw new Error('API did not response with any results');
                 }
+                this.imports.push(...results);
                 for (const cb of this._doneCallbacks) {
-                    cb(results, []);
+                    cb(this.imports, this.failedImports);
                 }
             }).catch((e: Error) => {
                 throw e;
@@ -214,6 +225,7 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
                 if (!results) {
                     throw new Error('API did not response with any results');
                 }
+                this.failedImports.push(...results);
                 for (const cb of this._doneCallbacks) {
                     cb([], results);
                 }
@@ -222,8 +234,10 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
             });
     }
 
-    private handleError(err: Error) {
+    private handleError(err: any) {
+        if (!err) return;
         // TODO(sabrina): check for FSError
+        this.errors.push(err);
         for (const cb of this._errorCallbacks) {
             cb(err);
         }

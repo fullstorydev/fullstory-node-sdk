@@ -17,19 +17,20 @@ export const DefaultBatchJobOpts: Required<IBatchJobOptions> = {
 
 type BatchTypeNames = 'users' | 'events';
 
-export interface IBatchJob<K extends BatchTypeNames, R, I, E> {
+export interface IBatchJob<K extends BatchTypeNames, R, I, F> {
     readonly options: Required<IBatchJobOptions>;
     requests: R[];
 
     readonly metadata?: JobMetadata;
-    readonly imports?: I[];
-    readonly errors?: E[];
+    readonly imports: I[];
+    readonly failedImports: F[];
+    errors: Error[];
 
     /*
     * Add more request objects in the requests before the job executes.
     * @throws An error if job is already executed, or max number of items reached.
     */
-    add(requests: R[]): IBatchJob<K, R, I, E>;
+    add(requests: R[]): IBatchJob<K, R, I, F>;
 
     // TODO(sabrina): allow removal of a specific request?
 
@@ -61,14 +62,14 @@ export interface IBatchJob<K extends BatchTypeNames, R, I, E> {
     * Retrieve failed items imports if the job has errors.
     * @returns An array of batch items failed to be imported.
     */
-    getImportErrors(): E[];
+    getFailedImports(): F[];
 
     /*
     * Fires when a poll to get latest job status is completed after each poll interval,
     * while the job is still processing (job status == PROCESSING).
     * @param job The current job.
     */
-    on(type: 'processing', callback: (job: IBatchJob<K, R, I, E>) => void): IBatchJob<K, R, I, E>;
+    on(type: 'processing', callback: (job: IBatchJob<K, R, I, F>) => void): IBatchJob<K, R, I, F>;
 
     /*
     * Fires when job status becomes COMPLETED or FAILED.
@@ -78,7 +79,7 @@ export interface IBatchJob<K extends BatchTypeNames, R, I, E> {
     * @param imported An array of batch items successfully imported.
     * @returns failed An array of batch items failed to be imported.
     */
-    on(type: 'done', callback: (imported: I[], failed: E[]) => void): IBatchJob<K, R, I, E>;
+    on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, R, I, F>;
 
     /*
     * Fires when any errors during the import jobs, may be called more than once.
@@ -86,5 +87,5 @@ export interface IBatchJob<K extends BatchTypeNames, R, I, E> {
     * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed items.
     * @param error The error encountered.
     */
-    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, R, I, E>;
+    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, R, I, F>;
 }
