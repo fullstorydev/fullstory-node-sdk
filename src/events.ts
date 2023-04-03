@@ -1,6 +1,6 @@
-import { BatchUserImportRequest, BatchUserImportResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchUserImportStatusResponse, GetUserResponse, JobMetadata, JobStatus, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportStatusResponse, JobMetadata, JobStatus } from '@model/index';
 
-import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from './api';
+import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from './api';
 import { DefaultBatchJobOpts, IBatchJob, IBatchJobOptions } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
@@ -8,51 +8,45 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 //  CRUD operations
 ////////////////////////////////////
 
-export interface IUsersApi {
-    get(...req: Parameters<typeof FSUsersApi.prototype.getUser>): Promise<FSResponse<GetUserResponse>>;
-
-    create(...req: Parameters<typeof FSUsersApi.prototype.createUser>): Promise<FSResponse<CreateUserResponse>>;
-
-    list(...req: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>>;
-
-    delete(...req: Parameters<typeof FSUsersApi.prototype.deleteUser>): Promise<FSResponse<void>>;
-
-    update(...req: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>>;
+export interface IEventsApi {
+    create(...req: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<CreateEventsResponse>>;
 }
+
 
 ////////////////////////////////////
 //  Batch Imports
 ////////////////////////////////////
 
-export interface IBatchUsersApi {
+interface IBatchEventsApi {
     batchCreate(
-        requests?: Array<BatchUserImportRequest>,
+        requests?: CreateEventsRequest[],
         jobOptions?: IBatchJobOptions
-    ): BatchUsersJob;
+    ): BatchEventsJob;
 }
 
-class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchUserImportResponse, FailedUserImport> {
-    requests: BatchUserImportRequest[] = [];
+// TODO(sabrina): move the common polling logic betwee users and events into a base batch class
+class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateEventsResponse, FailedEventsImport> {
+    requests: CreateEventsRequest[] = [];
     readonly options: Required<IBatchJobOptions>;
 
     metadata?: JobMetadata;
-    imports: BatchUserImportResponse[] = [];
-    failedImports: FailedUserImport[] = [];
+    imports: CreateEventsResponse[] = [];
+    failedImports: FailedEventsImport[] = [];
     errors: Error[] = [];
 
-    protected readonly batchUsersImpl: FSUsersBatchApi;
+    protected readonly batchEventsImpl: FSBatchEventsApi;
 
     private _executedAt: Date | undefined;
     private _interval: NodeJS.Timer | undefined;
-    private _currentPromise: Promise<FSResponse<GetBatchUserImportStatusResponse>> | undefined;
-    private _processingCallbacks: ((job: BatchUsersJob) => void)[] = [];
-    private _doneCallbacks: ((imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void)[] = [];
+    private _currentPromise: Promise<FSResponse<GetBatchEventsImportStatusResponse>> | undefined;
+    private _processingCallbacks: ((job: BatchEventsJob) => void)[] = [];
+    private _doneCallbacks: ((imported: CreateEventsResponse[], failed: FailedEventsImport[]) => void)[] = [];
     private _errorCallbacks: ((error: Error) => void)[] = [];
 
-    constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: IBatchJobOptions = {}) {
+    constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: IBatchJobOptions = {}) {
         this.requests.push(...requests);
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
-        this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
+        this.batchEventsImpl = new FSBatchEventsApi(fsOpts);
     }
 
     getId(): string | undefined {
@@ -63,43 +57,41 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
         return this.metadata?.status;
     }
 
-    add(requests: BatchUserImportRequest[]): BatchUsersJob {
+    add(requests: CreateEventsRequest[]): BatchEventsJob {
         // TODO(sabrina): throw if job is already executed, or max number of users reached
         this.requests.push(...requests);
         return this;
     }
 
-    getImports(): BatchUserImportResponse[] {
+    getImports(): CreateEventsResponse[] {
         return this.imports;
     }
 
-    getFailedImports(): FailedUserImport[] {
-        return this.failedImports;
+    getFailedImports(): FailedEventsImport[] {
+        return this.errors;
     }
 
     execute(): void {
-        // only execute once
-        // TODO(sabrina): allow retry execution i.e. if transient error
+        // only excute once
         if (this._executedAt) return;
         this._executedAt = new Date();
 
-        this.batchUsersImpl.createBatchUserImportJob(this)
+        this.batchEventsImpl.createBatchEventsImportJob(this)
             .then(response => {
                 // make sure job id exist
                 if (!response.body?.job?.id) {
-                    throw new Error(`Unable to get job ID after creating the job, server status: ${response.httpStatusCode}`);
+                    throw new Error(`Unable to get job ID after creating job, server status: ${response.httpStatusCode}`);
                 }
                 this.setMetadata(response.body?.job);
-
                 this.startPolling();
             }).catch(err => {
                 this.handleError(err);
             });
     }
 
-    on(type: 'processing', callback: (job: BatchUsersJob) => void): BatchUsersJob;
-    on(type: 'done', callback: (imported: BatchUserImportResponse[], failed: FailedUserImport[]) => void): BatchUsersJob;
-    on(type: 'error', callback: (error: Error) => void): BatchUsersJob;
+    on(type: 'processing', callback: (job: BatchEventsJob) => void): BatchEventsJob;
+    on(type: 'done', callback: (imported: CreateEventsResponse[], failed: FailedEventsImport[]) => void): BatchEventsJob;
+    on(type: 'error', callback: (error: Error) => void): BatchEventsJob;
     on(type: string, callback: any) {
         // TODO(sabrina): move these shared logic into batch.ts
         switch (type) {
@@ -107,7 +99,6 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
                 this._processingCallbacks.push(callback);
                 break;
             case 'done':
-                // if the job is already done, immediately invoke with current values
                 if (this.imports.length || this.failedImports.length) {
                     callback(this.imports, this.failedImports);
                 }
@@ -125,6 +116,7 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
         }
         return this;
     }
+
 
     private setMetadata(job?: JobMetadata) {
         if (this.getId() && this.getId() != job?.id) {
@@ -147,7 +139,7 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
             }
 
             // start a new poll and set the new promise
-            this._currentPromise = this.batchUsersImpl.getBatchUserImportStatus(id);
+            this._currentPromise = this.batchEventsImpl.getBatchEventsImportStatus(id);
             try {
                 const pollResult = await this._currentPromise;
                 // TODO(sabrina): maybe dispatch this as events rather than mutating/calling sync handlers
@@ -171,7 +163,7 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
                     default:
                         throw new Error('Unknown job stats received: ' + this.metadata?.status);
                 }
-            } catch (e) {
+            } catch (e: any) {
                 this.handleError(e);
             } finally {
                 // clean up the current promise
@@ -191,21 +183,20 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     }
 
     private handleCompleted() {
-        // TODO(sabrina): if next_page_token
-        // we'd have to invoke /users/batch/{job_id}/imports more than once
+        // TODO(sabrina): start poll on /users/batch/{job_id}/imports
+        // with handling next_page_token
         const jobId = this.getId();
         if (!jobId) {
             throw new Error('unable to retrieve job ID');
         }
-        this.batchUsersImpl.getBatchUserImports(jobId)
+        this.batchEventsImpl.getBatchEventsImports(jobId)
             .then(res => {
                 const results = res.body?.results;
                 if (!results) {
                     throw new Error('API did not response with any results');
                 }
-                this.imports.push(...results);
                 for (const cb of this._doneCallbacks) {
-                    cb(this.imports, this.failedImports);
+                    cb(results, []);
                 }
             }).catch((e: Error) => {
                 throw e;
@@ -213,19 +204,18 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
     }
 
     private handleFailed() {
-        // TODO(sabrina): if result has next_page_token
-        // we'd have to invoke /users/batch/{job_id}/errors more than once
+        // TODO(sabrina): start polling on /users/batch/{job_id}/errors
+        // with handling next_page_token
         const jobId = this.getId();
         if (!jobId) {
             throw new Error('unable to retrieve job ID');
         }
-        this.batchUsersImpl.getBatchUserImportErrors(jobId)
+        this.batchEventsImpl.getBatchEventsImportErrors(jobId)
             .then(res => {
                 const results = res.body?.results;
                 if (!results) {
                     throw new Error('API did not response with any results');
                 }
-                this.failedImports.push(...results);
                 for (const cb of this._doneCallbacks) {
                     cb([], results);
                 }
@@ -234,10 +224,8 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
             });
     }
 
-    private handleError(err: any) {
-        if (!err) return;
+    private handleError(err: Error) {
         // TODO(sabrina): check for FSError
-        this.errors.push(err);
         for (const cb of this._errorCallbacks) {
             cb(err);
         }
@@ -247,31 +235,18 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
 ////////////////////////////////////
 //  Exported User Interface
 ////////////////////////////////////
-export class Users implements IUsersApi, IBatchUsersApi {
-    protected readonly usersImpl: FSUsersApi;
+export class Events implements IEventsApi, IBatchEventsApi {
+    protected readonly eventsImpl: FSEventsApi;
 
     constructor(private opts: FullStoryOptions) {
-        this.usersImpl = new FSUsersApi(opts);
+        this.eventsImpl = new FSEventsApi(opts);
     }
 
-    async get(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(id, options);
+    async create(body: CreateEventsRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateEventsResponse>> {
+        return this.eventsImpl.createEvents(body, options);
     }
 
-    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(body, options);
-    }
-    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, options);
-    }
-    async delete(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
-        return this.usersImpl.deleteUser(id, options);
-    }
-    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(id, body, options);
-    }
-
-    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: IBatchJobOptions): BatchUsersJob {
-        return new BatchUsersJob(this.opts, requests, jobOptions);
+    batchCreate(requests?: CreateEventsRequest[] | undefined, jobOptions?: IBatchJobOptions | undefined): BatchEventsJob {
+        return new BatchEventsJob(this.opts, requests, jobOptions);
     }
 }

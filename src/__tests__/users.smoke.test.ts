@@ -127,7 +127,7 @@ describe('FullStory Users API', () => {
 
         // Create A Job
         const job = users
-            .batchCreate([createReq1], { pullInterval: 10 })
+            .batchCreate([createReq1], { pullInterval: 1000 })
             .add([createReq2, createReq3]);
 
         job.execute();
@@ -136,7 +136,7 @@ describe('FullStory Users API', () => {
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);
-            expect(job.getImportErrors()).toEqual([]);
+            expect(job.getFailedImports()).toEqual([]);
         });
 
         job.on('done',
