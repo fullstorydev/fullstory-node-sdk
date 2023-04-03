@@ -4,7 +4,9 @@ import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import * as https from 'node:https';
 import { RequestOptions } from 'node:https';
 
-import { FSErrorImpl } from '../errors';
+import { FSApiError } from '../errors/api';
+import { FSParserError } from '../errors/parser';
+import { FSTimeoutError } from '../errors/timeout';
 import { FSRequestOptions, FullStoryOptions } from './options';
 
 const defaultHttpsAgent = new https.Agent({ keepAlive: true });
@@ -80,7 +82,7 @@ export class FSHttpClient implements IFSHttpClient {
             });
 
             req.on('timeout', () => {
-                const err = FSErrorImpl.newTimeoutError(`Request ${req.path} timed out.`);
+                const err = new FSTimeoutError(`Request ${req.path} timed out.`);
                 req.destroy(err);
             });
         });
@@ -104,7 +106,7 @@ export class FSHttpClient implements IFSHttpClient {
                 }
 
                 if (msg.statusCode < 200 || msg.statusCode >= 300) {
-                    reject(FSErrorImpl.newApiError(`HTTP error status ${msg.statusCode} received`, msg.statusCode, responseDataStr));
+                    reject(new FSApiError(`HTTP error status ${msg.statusCode} received`, msg.statusCode, responseDataStr));
                     return;
                 }
 
@@ -116,9 +118,9 @@ export class FSHttpClient implements IFSHttpClient {
                         // It's possible that response is invalid json
                         // return parse error regardless of response status
                         if (e instanceof SyntaxError) {
-                            reject(FSErrorImpl.newParseResponseError('Invalid JSON response', msg.statusCode, responseDataStr, e));
+                            reject(new FSParserError('Invalid JSON response', msg.statusCode, responseDataStr, e));
                         } else {
-                            reject(FSErrorImpl.newParseResponseError('Unknown error while parsing JSON response', msg.statusCode, responseDataStr, e));
+                            reject(new FSParserError('Unknown error while parsing JSON response', msg.statusCode, responseDataStr, e));
                         }
                         return;
                     }

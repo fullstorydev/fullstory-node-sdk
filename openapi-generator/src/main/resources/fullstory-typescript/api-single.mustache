@@ -16,7 +16,7 @@ import { {{key}} } from '@model/{{value}}';
 {{/tsImports}}
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
-import { FSErrorImpl } from '../../errors';
+import { newAsyncError } from '../../errors';
 {{#operations}}
 {{#description}}
 
@@ -87,7 +87,7 @@ export class {{classname}} {
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
-            throw FSErrorImpl.newAsyncError(e);
+            throw newAsyncError(e);
         }
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}

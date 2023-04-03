@@ -3,9 +3,12 @@
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { GetUserResponse } from '@model/index';
 import { RequestOptions } from 'https';
-import nock from 'nock';
+import nock, { cleanAll } from 'nock';
 
-import { FSErrorImpl, FSErrorName, isFSError } from '../../errors';
+import { isFSError } from '../../errors';
+import { FSApiError } from '../../errors/api';
+import { FSErrorName } from '../../errors/base';
+import { FSParserError } from '../../errors/parser';
 import { FSHttpClient } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
@@ -14,7 +17,7 @@ const testServer = 'https://' + testHost;
 const testPath = '/test';
 
 beforeEach(() => {
-    nock.cleanAll();
+    cleanAll();
 });
 
 describe('FSHttpClient', () => {
@@ -62,17 +65,17 @@ describe('FSHttpClient', () => {
         });
     }, 2000);
 
-    test('request fails non 2xx code', async () => {
+    test('request fails with non 2xx code', async () => {
         mockEndpoint().reply(401, '{"code":"unauthorized", "message":"Unauthorized"}');
         try {
-            await client.request<any, GetUserResponse>(mockReqOpts);
+            await client.request<string, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
             if (isFSError(e)) {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
                 expect(e).toHaveProperty('message', 'HTTP error status 401 received');
                 expect(e).toHaveProperty('httpStatusCode', 401);
-                expect(e).toHaveProperty('fsErrorResponse', { 'code': 'unauthorized', 'message': 'Unauthorized' });
+                expect(e).toHaveProperty('fsErrorPayload', { 'code': 'unauthorized', 'message': 'Unauthorized' });
             }
         }
         expect.hasAssertions();
@@ -90,11 +93,11 @@ describe('FSHttpClient', () => {
             await client.request<any, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
-            if (e instanceof FSErrorImpl) {
+            if (e instanceof FSApiError) {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
                 expect(e).toHaveProperty('message', 'HTTP error status 500 received');
                 expect(e).toHaveProperty('httpStatusCode', 500);
-                expect(e).toHaveProperty('fsErrorResponse', { code: 'internal', message: 'Internal Error Occurred' });
+                expect(e).toHaveProperty('fsErrorPayload', { code: 'internal', message: 'Internal Error Occurred' });
                 expect(e).toHaveProperty('details', 'Something went wrong...');
             }
         }
@@ -106,14 +109,14 @@ describe('FSHttpClient', () => {
         mockEndpoint().reply(200, invalidRsp);
 
         try {
-            await client.request<any, GetUserResponse>(mockReqOpts);
+            await client.request<string, GetUserResponse>(mockReqOpts);
         }
         catch (e) {
-            if (e instanceof FSErrorImpl) {
+            if (e instanceof FSParserError) {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_PARSE_RESPONSE);
                 expect(e).toHaveProperty('message', 'Invalid JSON response');
                 expect(e).toHaveProperty('httpStatusCode', 200);
-                expect(e).toHaveProperty('fsErrorResponse', invalidRsp);
+                expect(e).toHaveProperty('fsErrorPayload', invalidRsp);
                 expect(e.cause).toHaveProperty('name', 'SyntaxError');
                 expect(e.cause).toHaveProperty('message', expect.stringMatching(new RegExp('Unexpected token . in JSON at position')));
             }

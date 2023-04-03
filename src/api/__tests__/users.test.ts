@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
-import { FSErrorImpl, FSErrorName } from '../../errors';
+import { FSApiError } from '../../errors/api';
+import { FSErrorName } from '../../errors/base';
+import { FSUnknownError } from '../../errors/unknown';
 import { UsersApi, UsersBatchImportApi } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
@@ -176,7 +178,7 @@ describe('FullStory Users API', () => {
                 await users.createUser(mockReq);
             } catch (error) {
                 // root error survives
-                expect(error).toBeInstanceOf(FSErrorImpl);
+                expect(error).toBeInstanceOf(FSUnknownError);
                 expect(error).toHaveProperty('name', FSErrorName.ERROR_UNKNOWN);
                 expect(error).toHaveProperty('message', rootError.message);
                 expect(error).toHaveProperty('cause', rootError);
@@ -187,14 +189,14 @@ describe('FullStory Users API', () => {
         });
 
         test('handle async error with FSError type', async () => {
-            const rootError = new FSErrorImpl(FSErrorName.ERROR_FULLSTORY, 'test error');
+            const rootError = new FSApiError('test error', 401);
             mockRequest.mockRejectedValue(rootError);
 
             try {
                 await users.getUser('1');
             } catch (error) {
                 // root error survives
-                expect(error).toBeInstanceOf(FSErrorImpl);
+                expect(error).toBeInstanceOf(FSApiError);
                 expect(error).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
                 expect(error).toHaveProperty('message', rootError.message);
                 // check that stack trace contains info on api method invoked

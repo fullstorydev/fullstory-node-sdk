@@ -19,9 +19,3 @@ src/model/users/GetUserResponse.ts
 src/model/users/ListUsersResponse.ts
 src/model/users/UpdateUserRequest.ts
 src/model/users/UpdateUserResponse.ts
-est.ts
-src/model/events/UserResponse.ts
-src/model/events/WebContext.ts
-src/model/job/JobMetadata.ts
-src/model/job/JobStatus.ts
-src/model/varsapi/Schema.ts

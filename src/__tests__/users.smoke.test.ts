@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
 
-import { FSErrorImpl } from '../errors';
+import { FSApiError } from '../errors/api';
 import { Users } from '../users';
 
 dotenv.config();
@@ -96,7 +96,7 @@ describe('FullStory Users API', () => {
             expect(gotAfterDelete.body).toHaveProperty('is_being_deleted', true);
         } catch (err) {
             // Or user may be already gone
-            expect(err).toBeInstanceOf(FSErrorImpl);
+            expect(err).toBeInstanceOf(FSApiError);
             expect(err).toHaveProperty('httpCode', 404);
         }
     });
