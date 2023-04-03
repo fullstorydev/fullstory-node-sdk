@@ -62,8 +62,8 @@ describe('FSHttpClient', () => {
         });
     }, 2000);
 
-    test('request fails with non-json body', async () => {
-        mockEndpoint().reply(401, 'Unauthorized\n');
+    test('request fails non 2xx code', async () => {
+        mockEndpoint().reply(401, '{"code":"unauthorized", "message":"Unauthorized"}');
         try {
             await client.request<any, GetUserResponse>(mockReqOpts);
         }
@@ -72,7 +72,7 @@ describe('FSHttpClient', () => {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
                 expect(e).toHaveProperty('message', 'HTTP error status 401 received');
                 expect(e).toHaveProperty('httpStatusCode', 401);
-                expect(e).toHaveProperty('fsErrorResponse', 'Unauthorized\n');
+                expect(e).toHaveProperty('fsErrorResponse', { 'code': 'unauthorized', 'message': 'Unauthorized' });
             }
         }
         expect.hasAssertions();
