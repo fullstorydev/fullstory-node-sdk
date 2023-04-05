@@ -5,7 +5,9 @@ import { FSError } from '.';
 export enum FSErrorName {
     ERROR_UNKNOWN = 'FS_UNKNOWN',
     ERROR_TIMEOUT = 'FS_TIMEOUT',
-    // for non-2xx responses
+    // for 429 rate limited
+    ERROR_RATE_LIMITED = 'FS_RATE_LIMITED',
+    // for non-2xx responses, except 429
     ERROR_FULLSTORY = 'FS_FULLSTORY_API',
     // for 2xx responses but unable to parse body into response object
     ERROR_PARSE_RESPONSE = 'FS_ERROR_PARSE_RESPONSE'
@@ -14,26 +16,20 @@ export enum FSErrorName {
 export class FSBaseError extends Error implements FSError {
     discriminator: 'FSError';
     public readonly name: FSErrorName;
-    public readonly httpStatusCode?: number;
     public readonly cause?: Error;
-    // if server responded with ErrorResponse, fallback to raw string response
-    public fsErrorPayload?: ErrorResponse | string;
     [key: string]: any;
 
     constructor(
         name: FSErrorName,
         message: string,
         cause?: any,
-        httpStatusCode?: number,
-        fsErrorPayload?: ErrorResponse | string,
     ) {
         super(message);
         this.discriminator = 'FSError';
+
         this.name = name;
         this.message = message;
-        this.httpStatusCode = httpStatusCode;
         this.cause = toError(cause);
-        this.fsErrorPayload = fsErrorPayload;
     }
 
     public chain(err: Error) {

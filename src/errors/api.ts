@@ -1,15 +1,30 @@
+import { IncomingHttpHeaders } from 'node:http';
+
 import { ErrorResponse } from '@model/events.index';
 
 import { FSBaseError, FSErrorName } from './base';
 
+/*
+    FSApiError returned when server API returns a non-2xx code.
+    Except 429 rate limited.
+*/
 export class FSApiError extends FSBaseError {
-    constructor(errMsg: string, httpStatusCode: number, rawResponse?: string, cause?: any) {
+    // if received a http status code
+    httpStatusCode?: number;
+    // if received a http headers
+    headers?: IncomingHttpHeaders;
+    // API response body
+    fsErrorPayload?: ErrorResponse | string;
+
+    constructor(errMsg: string, httpStatusCode: number, headers?: IncomingHttpHeaders, rawResponse?: string, cause?: any) {
+        const name = httpStatusCode === 429 ? FSErrorName.ERROR_RATE_LIMITED : FSErrorName.ERROR_FULLSTORY;
         super(
-            FSErrorName.ERROR_FULLSTORY,
+            name,
             errMsg,
             cause,
-            httpStatusCode,
         );
+        this.httpStatusCode = httpStatusCode;
+        this.headers = headers;
 
         const maybeRspObj = this.maybeParseObject(rawResponse);
         if (maybeRspObj) {
