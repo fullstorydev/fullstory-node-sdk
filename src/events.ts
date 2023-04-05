@@ -17,7 +17,7 @@ export interface IEventsApi {
 //  Batch Imports
 ////////////////////////////////////
 
-interface IBatchEventsApi {
+export interface IBatchEventsApi {
     batchCreate(
         requests?: CreateEventsRequest[],
         jobOptions?: IBatchJobOptions
