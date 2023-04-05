@@ -4,9 +4,7 @@ import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import * as https from 'node:https';
 import { RequestOptions } from 'node:https';
 
-import { FSApiError } from '../errors/api';
-import { FSParserError } from '../errors/parser';
-import { FSTimeoutError } from '../errors/timeout';
+import { FSApiError, FSParserError, FSTimeoutError } from '../errors';
 import { FSRequestOptions, FullStoryOptions } from './options';
 
 const defaultHttpsAgent = new https.Agent({ keepAlive: true });
@@ -105,8 +103,13 @@ export class FSHttpClient implements IFSHttpClient {
                     return;
                 }
 
+                if (msg.statusCode === 204) {
+                    resolve({} as T);
+                    return;
+                }
+
                 if (msg.statusCode < 200 || msg.statusCode >= 300) {
-                    reject(new FSApiError(`HTTP error status ${msg.statusCode} received`, msg.statusCode, responseDataStr));
+                    reject(new FSApiError(`HTTP error status ${msg.statusCode} received`, msg.statusCode, msg.headers, responseDataStr));
                     return;
                 }
 
@@ -118,9 +121,9 @@ export class FSHttpClient implements IFSHttpClient {
                         // It's possible that response is invalid json
                         // return parse error regardless of response status
                         if (e instanceof SyntaxError) {
-                            reject(new FSParserError('Invalid JSON response', msg.statusCode, responseDataStr, e));
+                            reject(new FSParserError('Invalid JSON response', msg.statusCode, msg.headers, responseDataStr, e));
                         } else {
-                            reject(new FSParserError('Unknown error while parsing JSON response', msg.statusCode, responseDataStr, e));
+                            reject(new FSParserError('Unknown error while parsing JSON response', msg.statusCode, msg.headers, responseDataStr, e));
                         }
                         return;
                     }

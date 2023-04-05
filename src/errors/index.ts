@@ -1,20 +1,18 @@
-import { ErrorResponse } from '@model/index';
+export * from './api';
+export { FSErrorName } from './base';
+export * from './parser';
+export * from './timeout';
+export * from './unknown';
 
 import { FSErrorName } from './base';
 import { FSUnknownError } from './unknown';
 
-
 export interface FSError extends Error {
     discriminator: 'FSError';
     name: FSErrorName;
-    // if recieved a http status code
-    httpStatusCode?: number;
-    // API response body
-    fsErrorPayload?: ErrorResponse | string;
+    [key: string]: any;
 
     chain: (newError: Error) => FSError;
-    // Any additional payload
-    [key: string]: any;
 }
 
 export function isFSError(o: any): o is FSError {
