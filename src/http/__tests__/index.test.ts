@@ -5,10 +5,7 @@ import { GetUserResponse } from '@model/index';
 import { RequestOptions } from 'https';
 import nock, { cleanAll } from 'nock';
 
-import { isFSError } from '../../errors';
-import { FSApiError } from '../../errors/api';
-import { FSErrorName } from '../../errors/base';
-import { FSParserError } from '../../errors/parser';
+import { FSApiError, FSErrorName, FSParserError, isFSError } from '../../errors';
 import { FSHttpClient } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';

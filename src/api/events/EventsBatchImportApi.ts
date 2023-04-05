@@ -19,6 +19,7 @@ import { GetBatchEventsImportStatusResponse } from '@model/events/GetBatchEvents
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
 import { newAsyncError } from '../../errors';
+
 export class EventsBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;

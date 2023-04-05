@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
-import { FSApiError } from '../../errors/api';
-import { FSErrorName } from '../../errors/base';
-import { FSUnknownError } from '../../errors/unknown';
+import { FSApiError, FSErrorName, FSUnknownError } from '../../errors';
 import { UsersApi, UsersBatchImportApi } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';

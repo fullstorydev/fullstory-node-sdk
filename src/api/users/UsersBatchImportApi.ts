@@ -19,6 +19,7 @@ import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
 import { newAsyncError } from '../../errors';
+
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
