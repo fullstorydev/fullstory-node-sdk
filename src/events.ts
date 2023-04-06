@@ -2,6 +2,7 @@ import { CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatch
 
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from './api';
 import { DefaultBatchJobOpts, IBatchJob, IBatchJobOptions } from './batch';
+import { toError } from './errors/base';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -223,10 +224,13 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
             });
     }
 
-    private handleError(err: any) {
+    private handleError(err: unknown) {
+        const error = toError(err);
+        if (!error) return;
         // TODO(sabrina): check for FSError
+        this.errors.push(error);
         for (const cb of this._errorCallbacks) {
-            cb(err);
+            cb(error);
         }
     }
 }

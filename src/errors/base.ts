@@ -61,7 +61,7 @@ export class FSBaseError extends Error implements FSError {
     }
 }
 
-export function toError(e: any): Error | undefined {
+export function toError(e: unknown): Error | undefined {
     if (!e) return;
-    return e instanceof Error ? e : new Error(`${e}`);
+    return e instanceof Error ? e : new Error(String(e));
 }
