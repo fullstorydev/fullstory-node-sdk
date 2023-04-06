@@ -70,7 +70,7 @@ describe('FSHttpClient', () => {
         catch (e) {
             if (isFSError(e)) {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
-                expect(e).toHaveProperty('message', 'HTTP error status 401 received');
+                expect(e).toHaveProperty('message', 'HTTP error status 401 received. Error message: Unauthorized');
                 expect(e).toHaveProperty('httpStatusCode', 401);
                 expect(e).toHaveProperty('fsErrorPayload', { 'code': 'unauthorized', 'message': 'Unauthorized' });
             }
@@ -92,7 +92,7 @@ describe('FSHttpClient', () => {
         catch (e) {
             if (e instanceof FSApiError) {
                 expect(e).toHaveProperty('name', FSErrorName.ERROR_FULLSTORY);
-                expect(e).toHaveProperty('message', 'HTTP error status 500 received');
+                expect(e).toHaveProperty('message', 'HTTP error status 500 received. Error message: Internal Error Occurred');
                 expect(e).toHaveProperty('httpStatusCode', 500);
                 expect(e).toHaveProperty('fsErrorPayload', { code: 'internal', message: 'Internal Error Occurred' });
                 expect(e).toHaveProperty('details', 'Something went wrong...');

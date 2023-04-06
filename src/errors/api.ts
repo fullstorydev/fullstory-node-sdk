@@ -29,7 +29,7 @@ export class FSApiError extends FSBaseError {
         if (maybeRspObj) {
             const fsTypedResponse = this.getErrorResponse(maybeRspObj);
             this.fsErrorPayload = fsTypedResponse;
-            this.message += `Error message: ${fsTypedResponse?.message}`;
+            this.message += ` Error message: ${fsTypedResponse?.message}`;
         }
 
         // couldn't parse the response, just pass on the string value
