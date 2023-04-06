@@ -20,7 +20,7 @@ export function isFSError(o: any): o is FSError {
 }
 
 // helper function to create a new error with chained stacktrace
-export function newAsyncError(e: any): FSError {
+export function chainedFSError(e: any): FSError {
     if (isFSError(e)) {
         // chain the stack trace if is already FSError
         return e.chain(new Error());

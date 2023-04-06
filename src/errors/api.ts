@@ -5,8 +5,7 @@ import { ErrorResponse } from '@model/events.index';
 import { FSBaseError, FSErrorName } from './base';
 
 /*
-    FSApiError returned when server API returns a non-2xx code.
-    Except 429 rate limited.
+    FSApiError represents when server API returns a non-2xx code.
 */
 export class FSApiError extends FSBaseError {
     // if received a http status code
@@ -30,6 +29,7 @@ export class FSApiError extends FSBaseError {
         if (maybeRspObj) {
             const fsTypedResponse = this.getErrorResponse(maybeRspObj);
             this.fsErrorPayload = fsTypedResponse;
+            this.message += `Error message: ${fsTypedResponse?.message}`;
         }
 
         // couldn't parse the response, just pass on the string value

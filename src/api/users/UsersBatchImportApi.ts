@@ -18,7 +18,7 @@ import { GetBatchUserImportStatusResponse } from '@model/users/GetBatchUserImpor
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
-import { newAsyncError } from '../../errors';
+import { chainedFSError } from '../../errors';
 
 export class UsersBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
@@ -62,7 +62,7 @@ export class UsersBatchImportApi {
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
-            throw newAsyncError(e);
+            throw chainedFSError(e);
         }
     }
 
@@ -96,7 +96,7 @@ export class UsersBatchImportApi {
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
-            throw newAsyncError(e);
+            throw chainedFSError(e);
         }
     }
 
@@ -126,7 +126,7 @@ export class UsersBatchImportApi {
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
-            throw newAsyncError(e);
+            throw chainedFSError(e);
         }
     }
 
@@ -160,7 +160,7 @@ export class UsersBatchImportApi {
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
-            throw newAsyncError(e);
+            throw chainedFSError(e);
         }
     }
 }

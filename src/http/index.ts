@@ -109,7 +109,7 @@ export class FSHttpClient implements IFSHttpClient {
                 }
 
                 if (msg.statusCode < 200 || msg.statusCode >= 300) {
-                    reject(new FSApiError(`HTTP error status ${msg.statusCode} received`, msg.statusCode, msg.headers, responseDataStr));
+                    reject(new FSApiError(`HTTP error status ${msg.statusCode} received.`, msg.statusCode, msg.headers, responseDataStr));
                     return;
                 }
 
