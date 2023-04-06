@@ -19,6 +19,7 @@ module.exports = {
     semi: ['error', 'always'],
     quotes: ['error', 'single'],
     'no-trailing-spaces': 'error',
+    'eol-last': 'error'
   },
   settings: {
     'import/resolver': {
