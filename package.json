@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "lint": "node --version && eslint .",
+    "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "test": "jest --detectOpenHandles --forceExit",
     "build": "tsc",
