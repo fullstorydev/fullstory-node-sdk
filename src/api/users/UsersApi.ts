@@ -18,7 +18,9 @@ import { CreateUserRequest } from '@model/users/CreateUserRequest';
 import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { chainedFSError } from '../../errors';
+
 export class UsersApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
@@ -59,7 +61,9 @@ export class UsersApi {
         try {
             return await this.httpClient.request<CreateUserRequest, CreateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -87,7 +91,9 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, void>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -115,7 +121,9 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, GetUserResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -161,7 +169,9 @@ export class UsersApi {
         try {
             return await this.httpClient.request<void, ListUsersResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -198,9 +208,10 @@ export class UsersApi {
         try {
             return await this.httpClient.request<UpdateUserRequest, UpdateUserResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 }
-
 

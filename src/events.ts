@@ -2,6 +2,7 @@ import { CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatch
 
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from './api';
 import { DefaultBatchJobOpts, IBatchJob, IBatchJobOptions } from './batch';
+import { toError } from './errors/base';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -11,7 +12,6 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 export interface IEventsApi {
     create(...req: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<CreateEventsResponse>>;
 }
-
 
 ////////////////////////////////////
 //  Batch Imports
@@ -72,7 +72,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
     }
 
     execute(): void {
-        // only excute once
+        // only execute once
         if (this._executedAt) return;
         this._executedAt = new Date();
 
@@ -84,8 +84,8 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
                 }
                 this.setMetadata(response.body?.job);
                 this.startPolling();
-            }).catch(err => {
-                this.handleError(err);
+            }).catch(e => {
+                this.handleError(e);
             });
     }
 
@@ -116,7 +116,6 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
         }
         return this;
     }
-
 
     private setMetadata(job?: JobMetadata) {
         if (this.getId() && this.getId() != job?.id) {
@@ -163,7 +162,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
                     default:
                         throw new Error('Unknown job stats received: ' + this.metadata?.status);
                 }
-            } catch (e: any) {
+            } catch (e) {
                 this.handleError(e);
             } finally {
                 // clean up the current promise
@@ -198,7 +197,7 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
                 for (const cb of this._doneCallbacks) {
                     cb(results, []);
                 }
-            }).catch((e: Error) => {
+            }).catch(e => {
                 throw e;
             });
     }
@@ -219,15 +218,18 @@ class BatchEventsJob implements IBatchJob<'events', CreateEventsRequest, CreateE
                 for (const cb of this._doneCallbacks) {
                     cb([], results);
                 }
-            }).catch((e: Error) => {
+            }).catch(e => {
                 throw e;
             });
     }
 
-    private handleError(err: Error) {
+    private handleError(err: unknown) {
+        const error = toError(err);
+        if (!error) return;
         // TODO(sabrina): check for FSError
+        this.errors.push(error);
         for (const cb of this._errorCallbacks) {
-            cb(err);
+            cb(error);
         }
     }
 }

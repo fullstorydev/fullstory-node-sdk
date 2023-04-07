@@ -17,7 +17,9 @@ import { CreateBatchEventsImportJobResponse } from '@model/events/CreateBatchEve
 import { ErrorResponse } from '@model/apierror/ErrorResponse';
 import { GetBatchEventsImportStatusResponse } from '@model/events/GetBatchEventsImportStatusResponse';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { chainedFSError } from '../../errors';
+
 export class EventsBatchImportApi {
     protected readonly basePath = 'https://api.fullstory.com';
     private httpClient: IFSHttpClient;
@@ -58,7 +60,9 @@ export class EventsBatchImportApi {
         try {
             return await this.httpClient.request<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse>(requestOptions, body, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -90,7 +94,9 @@ export class EventsBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchEventsImportErrorsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -118,7 +124,9 @@ export class EventsBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchEventsImportStatusResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 
@@ -150,9 +158,10 @@ export class EventsBatchImportApi {
         try {
             return await this.httpClient.request<void, GetBatchEventsImportsResponse>(requestOptions, undefined, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
     }
 }
-
 

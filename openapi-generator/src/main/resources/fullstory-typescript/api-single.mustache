@@ -15,10 +15,11 @@ import { {{key}} } from '@model/{{value}}';
 {{/entrySet}}
 {{/tsImports}}
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient, rethrowChainedError } from '../../http';
+import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { chainedFSError } from '../../errors';
+
 {{#operations}}
 {{#description}}
-
 /**
  * {{.}}
 */
@@ -84,7 +85,9 @@ export class {{classname}} {
         try {
             return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
         } catch (e) {
-            rethrowChainedError(e);
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
         }
         {{! TODO(Sabrina): Check for AuthMethods.
         server APIs only support api key auth at the moment, no need to optimize prematurely atm. }}
@@ -93,4 +96,3 @@ export class {{classname}} {
 }
 
 {{/operations}}
-

@@ -93,7 +93,6 @@ describe('FullStory Events API', () => {
                 name: 'NodeJS Smoke Test Batch - Event - 3',
             }],
         };
-
         const createReq3: CreateEventsRequest = {
             events: [{
                 name: 'NodeJS Smoke Test Batch - Event - 4',
@@ -105,8 +104,6 @@ describe('FullStory Events API', () => {
             .batchCreate([createReq1], { pullInterval: 1000 })
             .add([createReq2, createReq3]);
 
-        job.execute();
-
         job.on('processing', (job) => {
             console.log('on processing...', job.getId());
             expect(job.getId()).toBeTruthy();
@@ -115,13 +112,11 @@ describe('FullStory Events API', () => {
             expect(job.getFailedImports()).toEqual([]);
         });
 
-
         job.on('done',
             (imported, failed) => {
                 expect(job.metadata?.status).toBe(JobStatus.Completed);
                 expect(imported).toHaveLength(3);
                 expect(failed).toHaveLength(0);
-                expect(imported).toHaveLength(3);
                 expect(imported).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
@@ -142,5 +137,6 @@ describe('FullStory Events API', () => {
             done(error);
         });
 
+        job.execute();
     }, BATCH_JOB_TIMEOUT);
 });

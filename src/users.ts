@@ -2,6 +2,7 @@ import { BatchUserImportRequest, BatchUserImportResponse, CreateUserRequest, Cre
 
 import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from './api';
 import { DefaultBatchJobOpts, IBatchJob, IBatchJobOptions } from './batch';
+import { toError } from './errors/base';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -234,12 +235,13 @@ class BatchUsersJob implements IBatchJob<'users', BatchUserImportRequest, BatchU
             });
     }
 
-    private handleError(err: any) {
-        if (!err) return;
+    private handleError(err: unknown) {
+        const error = toError(err);
+        if (!error) return;
         // TODO(sabrina): check for FSError
-        this.errors.push(err);
+        this.errors.push(error);
         for (const cb of this._errorCallbacks) {
-            cb(err);
+            cb(error);
         }
     }
 }
