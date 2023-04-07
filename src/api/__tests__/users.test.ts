@@ -172,6 +172,7 @@ describe('FullStory Users API', () => {
             const rootError = new Error('test error');
             mockRequest.mockRejectedValue(rootError);
 
+            expect.hasAssertions();
             try {
                 await users.createUser(mockReq);
             } catch (error) {
@@ -183,13 +184,13 @@ describe('FullStory Users API', () => {
                 // check that stack trace contains info on api method invoked
                 expect(error).toHaveProperty('stack', expect.stringContaining('createUser'));
             }
-            expect.hasAssertions();
         });
 
         test('handle async error with FSError type', async () => {
             const rootError = new FSApiError('test error', 401);
             mockRequest.mockRejectedValue(rootError);
 
+            expect.hasAssertions();
             try {
                 await users.getUser('1');
             } catch (error) {
@@ -200,7 +201,6 @@ describe('FullStory Users API', () => {
                 // check that stack trace contains info on api method invoked
                 expect(error).toHaveProperty('stack', expect.stringContaining('getUser'));
             }
-            expect.hasAssertions();
         });
     });
 });

@@ -64,6 +64,8 @@ describe('FSHttpClient', () => {
 
     test('request fails with non 2xx code', async () => {
         mockEndpoint().reply(401, '{"code":"unauthorized", "message":"Unauthorized"}');
+        expect.hasAssertions();
+
         try {
             await client.request<string, GetUserResponse>(mockReqOpts);
         }
@@ -75,7 +77,6 @@ describe('FSHttpClient', () => {
                 expect(e).toHaveProperty('fsErrorPayload', { 'code': 'unauthorized', 'message': 'Unauthorized' });
             }
         }
-        expect.hasAssertions();
     }, 2000);
 
     test('request fails with 500 and ErrorResponse body', async () => {
@@ -86,6 +87,7 @@ describe('FSHttpClient', () => {
         };
         mockEndpoint().reply(500, JSON.stringify(mockReply));
 
+        expect.hasAssertions();
         try {
             await client.request<any, GetUserResponse>(mockReqOpts);
         }
@@ -98,13 +100,13 @@ describe('FSHttpClient', () => {
                 expect(e).toHaveProperty('details', 'Something went wrong...');
             }
         }
-        expect.hasAssertions();
     }, 2000);
 
     test('request returns 200 but malformed response body', async () => {
         const invalidRsp = 'invalid json response body';
         mockEndpoint().reply(200, invalidRsp);
 
+        expect.hasAssertions();
         try {
             await client.request<string, GetUserResponse>(mockReqOpts);
         }
@@ -118,6 +120,5 @@ describe('FSHttpClient', () => {
                 expect(e.cause).toHaveProperty('message', expect.stringMatching(new RegExp('Unexpected token . in JSON at position')));
             }
         }
-        expect.hasAssertions();
     }, 2000);
 });
