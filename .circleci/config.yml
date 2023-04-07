@@ -14,7 +14,9 @@ workflows:
           name: "Run lint"
           npm-run: lint
       - node/test:
-          name: "Run npm test"
+          matrix:
+            parameters:
+              version: ["14.21.3","16.19.1","18.15.0"]
           pkg-manager: npm
           test-results-for: jest
       - maven/test:

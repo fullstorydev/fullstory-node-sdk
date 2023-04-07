@@ -12,7 +12,7 @@
     "build:production": "tsc -p tsconfig.production.json"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
+    "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
     "@jest/globals": "^29.4.3",
@@ -32,7 +32,7 @@
     "typescript": "^4.9.5"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "repository": {
     "type": "git",
