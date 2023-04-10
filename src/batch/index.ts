@@ -4,7 +4,7 @@
 ////////////////////////////////////
 import { JobMetadata, JobStatus } from '@model/index';
 
-import { FSParserError, FSUnknownError } from '../errors';
+import { FSUnknownError } from '../errors';
 import { toError } from '../errors/base';
 
 export interface IBatchRequester<S, R, I, F> {
@@ -124,7 +124,6 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     */
     on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
 }
-
 export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }, R, I, F> implements IBatchJob<K, S, R, I, F>{
     readonly options: Required<BatchJobOptions>;
     requests: R[] = [];
@@ -182,8 +181,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         if (this.getId()) {
             return;
         }
-        // if the job had been aborted without a job ID ever being created, allow retry.
-        if (this._executionStatus !== 'aborted') {
+        // don't execute again if the job is still executing
+        if (this._executionStatus === 'pending' || this._executionStatus === 'completed') {
             return;
         }
 
@@ -351,5 +350,3 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
     }
 }
-
-

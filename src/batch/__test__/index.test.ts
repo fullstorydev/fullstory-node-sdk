@@ -74,7 +74,7 @@ describe('BatchJob', () => {
         mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Failed } }; });
         mockRequester.requestImportErrors = jest.fn(async _ => { return [rsp, rsp, rsp]; });
 
-        const baseJob = new BatchJob<'users', any, any, any, any>([], mockRequester, {});
+        const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('done', (i, f) => {
             expect(i).toHaveLength(0);
             expect(f).toHaveLength(3);
