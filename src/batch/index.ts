@@ -4,6 +4,7 @@
 ////////////////////////////////////
 import { JobMetadata, JobStatus } from '@model/index';
 
+import { FSParserError, FSUnknownError } from '../errors';
 import { toError } from '../errors/base';
 
 export interface IBatchRequester<S, R, I, F> {
@@ -177,25 +178,29 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
     execute(): void {
-        // don't execute again if the job had already been created, or waiting for creation
+        // don't execute again if the job had already been created.
         if (this.getId()) {
             return;
         }
-        if (this._executionStatus == 'pending') {
+        // if the job had been aborted without a job ID ever being created, allow retry.
+        if (this._executionStatus !== 'aborted') {
             return;
         }
 
         this._executionStatus = 'pending';
         this.requester.requestCreateJob(this)
             .then(response => {
-                // make sure job id exist
+                // Successful response should always have ID.
+                // If not, something wrong had happened in calling server API
                 if (!response.id) {
-                    throw new Error(`Unable to get job ID after creating job, job metadata received: ${response}`);
+                    throw new FSUnknownError(`Unable to get job ID after creating a job, job metadata received: ${response}`);
                 }
                 this.setMetadata(response);
                 this.startPolling();
             }).catch(e => {
                 this.handleError(e);
+                // TODO: retry on transient error to create job before aborting
+                this.handleAbort();
             });
     }
 
@@ -281,6 +286,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 }
             } catch (e) {
                 this.handleError(e);
+                // TODO(sabrina): retry on transient error to maxRetry before aborting
+                this.handleAbort();
             } finally {
                 // clean up the current promise
                 delete this._statusPromise;
@@ -327,15 +334,20 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
     private handleError(err: unknown) {
-        // TODO(sabrina): don't immediately abort, allow retry
-        this._executionStatus = 'aborted';
-        this.stopPolling();
         const error = toError(err);
         if (!error) return;
         // TODO(sabrina): check for FSError
         this.errors.push(error);
         for (const cb of this._errorCallbacks) {
             cb(error);
+        }
+    }
+
+    private handleAbort() {
+        this._executionStatus = 'aborted';
+        this.stopPolling();
+        for (const cb of this._abortCallbacks) {
+            cb(this.errors);
         }
     }
 }
