@@ -24,14 +24,18 @@ describe('BatchJob', () => {
         expect(baseJob.requests).toHaveLength(3);
     });
 
-    test('can execute', () => {
+    test('can execute', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => { return { id: 'test' }; });
         const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.on('created', job => {
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
+            expect(job.getId()).toEqual('test');
+            done();
+        });
         baseJob.execute();
-        expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
     });
 
-    test('on processing should be called', (done) => {
+    test('on processing should be called', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => { return { id: 'test' }; });
         mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Processing } }; });
 
