@@ -1,3 +1,4 @@
+import { UsersBatchImportApi } from '@api/users.index';
 import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
@@ -158,5 +159,53 @@ describe('FullStory Users API', () => {
             done(error);
         });
 
+    }, BATCH_JOB_TIMEOUT);
+
+    test('Batch Users Job handling with rate limited', done => {
+        const req: CreateUserRequest = {
+            display_name: 'NodeJS Smoke Test User 1',
+        };
+
+        let hasError = false;
+        // Create A Job
+        const job = users
+            .batchCreate([req, req, req], {
+                pollInterval: 1 // should trigger at least one rate limited error
+            });
+
+        job.on('processing', (job) => {
+            expect(job.getId()).toBeTruthy();
+            expect(job.metadata?.status).toBe(JobStatus.Processing);
+            expect(job.getImports()).toEqual([]);
+            expect(job.getFailedImports()).toEqual([]);
+        });
+
+        job.on('done',
+            (imported, failed) => {
+                expect(job.metadata?.status).toBe(JobStatus.Completed);
+                expect(imported).toHaveLength(3);
+                expect(failed).toHaveLength(0);
+                expect(imported).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ ...req }),
+                    ])
+                );
+                // make sure at least one error had been encountered
+                expect(hasError).toBeTruthy();
+                done();
+            });
+
+        job.on('abort', errors => {
+            console.error('job', job.getId(), 'aborted with errors:');
+            console.error(errors);
+            done(errors.pop());
+        });
+
+        job.on('error', e => {
+            hasError = true;
+            console.log(`error ${e} encountered`);
+        });
+
+        job.execute();
     }, BATCH_JOB_TIMEOUT);
 });
