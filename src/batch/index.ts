@@ -148,6 +148,7 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     private _interval?: NodeJS.Timer;
     private _statusPromise?: Promise<S>;
     private _nextPollDelay = 0;
+    private _numRetries = 0;
 
     constructor(
         requests: R[] = [],
@@ -281,8 +282,9 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 const metadata = statusRsp.job || {};
                 metadata.id = this.getId();
 
-                // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 this.setMetadata(metadata);
+                this._numRetries = 0;
+                // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 switch (metadata.status) {
                     case JobStatus.Processing:
                         this.handleProcessing();
@@ -298,7 +300,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 }
             } catch (e) {
                 this.handleError(e);
-                if (!isFSError(e) || !e.canRetry()) {
+                this._numRetries++;
+                if (this._numRetries >= this.options.maxRetry || !isFSError(e) || !e.canRetry()) {
                     this.handleAbort();
                 } else {
                     this._nextPollDelay = e.getRetryAfter() + this._nextPollDelay * 2;
@@ -370,5 +373,9 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         for (const cb of this._abortCallbacks) {
             cb(this.errors);
         }
+    }
+
+    private resetRetries() {
+        this._numRetries = 0;
     }
 }

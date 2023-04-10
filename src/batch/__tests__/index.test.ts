@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { JobStatus } from '@model/events.index';
 import { BatchUserImportRequest, BatchUserImportResponse, CreateUserResponse, FailedUserImport, GetBatchUserImportStatusResponse } from '@model/users.index';
 
+import { FSApiError } from '../../errors';
 import { BatchJob, IBatchRequester } from '..';
 
 const mockRequester: jest.Mocked<IBatchRequester<GetBatchUserImportStatusResponse, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>> = {
@@ -46,7 +47,7 @@ describe('BatchJob', () => {
         baseJob.execute();
     });
 
-    test('on error should be called', (done) => {
+    test('on error should be called', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => { return { id: 'test' }; });
         mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('test'); });
 
@@ -57,7 +58,7 @@ describe('BatchJob', () => {
         baseJob.execute();
     });
 
-    test('on done should be called on job complete', (done) => {
+    test('on done should be called on job complete', done => {
         const rsp: CreateUserResponse = {};
         mockRequester.requestCreateJob = jest.fn(async _ => { return { id: 'test' }; });
         mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Completed } }; });
@@ -82,6 +83,44 @@ describe('BatchJob', () => {
         baseJob.on('done', (i, f) => {
             expect(i).toHaveLength(0);
             expect(f).toHaveLength(3);
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('abort on error', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => { throw new Error('something unrecoverable'); });
+        const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.on('abort', (errors) => {
+            expect(errors).toHaveLength(1);
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('abort on max number of retry-able retries', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => { throw new FSApiError('rate limited', 429); });
+        const baseJob = new BatchJob([], mockRequester, { pollInterval: 1, maxRetry: 4 });
+        baseJob.on('abort', (errors) => {
+            expect(errors).toHaveLength(4);
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(4);
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('abort on max number of retry-able poll errors', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => { return { id: 'test' }; });
+        mockRequester.requestJobStatus = jest.fn(async _ => {
+            throw new FSApiError('rate limited', 429);
+        });
+
+        const baseJob = new BatchJob([], mockRequester, { pollInterval: 1, maxRetry: 4 });
+        baseJob.on('abort', (errors) => {
+            expect(errors).toHaveLength(4);
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
+            expect(mockRequester.requestJobStatus).toHaveBeenCalledTimes(4);
             done();
         });
         baseJob.execute();
