@@ -1,5 +1,5 @@
 import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from '@api/index';
-import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchUserImportStatusResponse, GetUserResponse, JobMetadata, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
@@ -36,36 +36,37 @@ class BatchUsersJob extends BatchJob<'users', GetBatchUserImportStatusResponse, 
         super(requests, new BatchUsersRequester(fsOpts), opts);
     }
 }
+export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, GetBatchUserImportStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
 
-class BatchUsersRequester implements IBatchRequester<GetBatchUserImportStatusResponse, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>{
+class BatchUsersRequester implements IBatchUsersRequester {
     protected readonly batchUsersImpl: FSUsersBatchApi;
 
     constructor(fsOpts: FullStoryOptions) {
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
-    async requestCreateJob(request: CreateBatchUserImportJobRequest): Promise<JobMetadata> {
+    async requestCreateJob(request: CreateBatchUserImportJobRequest): Promise<CreateBatchUserImportJobResponse> {
         const rsp = await this.batchUsersImpl.createBatchUserImportJob(request);
-        // make sure job metadata exist
-        const job = rsp.body?.job;
-        if (!job) {
+        // make sure job metadata and id exist
+        const job = rsp.body;
+        if (!job?.job?.id) {
             throw new Error(`Unable to get job ID after creating job, server status: ${rsp.httpStatusCode}`);
         }
         return job;
     }
 
-    async requestImports(id: string): Promise<BatchUserImportResponse[]> {
-        const res = await this.batchUsersImpl.getBatchUserImports(id);
-        const results = res.body?.results;
+    async requestImports(id: string, nextPageToken?: string): Promise<GetBatchUserImportsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImports(id, nextPageToken);
+        const results = res.body;
         if (!results) {
-            throw new Error('API did not response with any results');
+            throw new Error('API did not response with any expected body');
         }
         return results;
     }
 
-    async requestImportErrors(id: string): Promise<FailedUserImport[]> {
-        const res = await this.batchUsersImpl.getBatchUserImportErrors(id);
-        const results = res.body?.results;
+    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImportErrors(id, nextPageToken);
+        const results = res.body;
         if (!results) {
             throw new Error('API did not response with any results');
         }

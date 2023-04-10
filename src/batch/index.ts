@@ -8,12 +8,12 @@ import { FSUnknownError, isFSError } from '../errors';
 import { toError } from '../errors/base';
 import { withDelay, withRetry } from '../utils/retry';
 
-export interface IBatchRequester<S, R, I, F> {
-    requestCreateJob(req: { requests: R[]; }): Promise<JobMetadata>;
+export interface IBatchRequester<REQ, RSP, S, I, F> {
+    requestCreateJob(req: REQ): Promise<RSP>;
 
-    requestImports(id: string): Promise<I[]>;
+    requestImports(id: string, nextPageToken?: string): Promise<I>;
 
-    requestImportErrors(id: string): Promise<F[]>;
+    requestImportErrors(id: string, nextPageToken?: string): Promise<F>;
 
     requestJobStatus(id: string): Promise<S>;
 }
@@ -152,7 +152,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
 
     constructor(
         requests: R[] = [],
-        private requester: IBatchRequester<S, R, I, F>,
+        // TODO(sabrina):these could be better typed
+        private requester: IBatchRequester<{ requests: R[]; }, S, S, { results?: I[], next_page_token?: string; }, { results?: F[], next_page_token?: string; }>,
         opts: BatchJobOptions = {},
     ) {
         this.requests.push(...requests);
@@ -199,10 +200,10 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
             .then(response => {
                 // Successful response should always have ID.
                 // If not, something wrong had happened in calling server API
-                if (!response.id) {
+                if (!response.job?.id) {
                     throw new FSUnknownError(`Unable to get job ID after creating a job, job metadata received: ${response}`);
                 }
-                this.setMetadata(response);
+                this.setMetadata(response.job);
                 this.startPolling();
                 this.handleJobCreated();
             }).catch(_ => { // all errors should have already been handled
@@ -283,7 +284,6 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 metadata.id = this.getId();
 
                 this.setMetadata(metadata);
-                this._numRetries = 0;
                 // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 switch (metadata.status) {
                     case JobStatus.Processing:
@@ -329,32 +329,27 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
     }
 
-    private handleCompleted(id: string) {
+    private async handleCompleted(id: string) {
         this.stopPolling();
         this._executionStatus = 'completed';
-        this.requester.requestImports(id)
-            .then(results => {
-                this.imports.push(...results);
-                for (const cb of this._doneCallbacks) {
-                    cb(this.imports, this.failedImports);
-                }
-            }).catch((e: Error) => {
-                throw e;
-            });
+
+        const imports = await this.requestImportsWithPaging(id);
+        this.imports.push(...imports);
+        for (const cb of this._doneCallbacks) {
+            cb(this.imports, this.failedImports);
+        }
     }
 
-    private handleCompletedWithFailure(id: string) {
+    private async handleCompletedWithFailure(id: string) {
+        console.log('handle handleCompletedWithFailure');
         this.stopPolling();
         this._executionStatus = 'completed';
-        this.requester.requestImportErrors(id)
-            .then(results => {
-                this.failedImports.push(...results);
-                for (const cb of this._doneCallbacks) {
-                    cb([], results);
-                }
-            }).catch((e: Error) => {
-                throw e;
-            });
+
+        const errors = await this.requestImportErrorsWithPaging(id);
+        this.failedImports.push(...errors);
+        for (const cb of this._doneCallbacks) {
+            cb(this.imports, this.failedImports);
+        }
     }
 
     private handleError(err: unknown) {
@@ -375,7 +370,42 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
     }
 
-    private resetRetries() {
-        this._numRetries = 0;
+
+    private async requestImportsWithPaging(id: string): Promise<I[]> {
+        const imports = [];
+        let hasNextPage = true;
+        let pageToken: string | undefined;
+        while (hasNextPage) {
+            const res: { results?: I[] | undefined; next_page_token?: string | undefined; } = await withRetry(
+                () => this.requester.requestImports(id, pageToken),
+                this.handleError.bind(this)
+            );
+            const results = res.results || [];
+            imports.push(...results);
+
+            hasNextPage = !!res.next_page_token && res.next_page_token !== pageToken;
+            pageToken = res.next_page_token;
+        }
+        return imports;
+    }
+
+
+    private async requestImportErrorsWithPaging(id: string): Promise<F[]> {
+        const errors = [];
+        let hasNextPage = true;
+        let pageToken: string | undefined;
+
+        while (hasNextPage) {
+            const res = await withRetry(
+                () => this.requester.requestImportErrors(id, pageToken),
+                this.handleError.bind(this)
+            );
+
+            const results = res.results || [];
+            errors.push(...results);
+            const nextPageToken = res.next_page_token;
+            hasNextPage = !!nextPageToken && nextPageToken !== pageToken;
+        }
+        return errors;
     }
 }
