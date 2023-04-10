@@ -5,6 +5,7 @@ import { FSError } from '.';
 export enum FSErrorName {
     ERROR_UNKNOWN = 'FS_UNKNOWN',
     ERROR_TIMEOUT = 'FS_TIMEOUT',
+    ERROR_MAX_RETRY = 'FS_MAX_RETRY',
     // for 429 rate limited
     ERROR_RATE_LIMITED = 'FS_RATE_LIMITED',
     // for non-2xx responses, except 429
@@ -40,6 +41,10 @@ export class FSBaseError extends Error implements FSError {
         this.prependStackTrace(err.stack);
         return this;
     }
+
+    public canRetry(): boolean { return false; }
+
+    public getRetryAfter(): number { return 0; }
 
     private prependStackTrace(additionalStack?: string) {
         if (additionalStack) {
