@@ -19,7 +19,8 @@ module.exports = {
     semi: ['error', 'always'],
     quotes: ['error', 'single'],
     'no-trailing-spaces': 'error',
-    'eol-last': 'error'
+    'eol-last': 'error',
+    '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '_' }],
   },
   settings: {
     'import/resolver': {
