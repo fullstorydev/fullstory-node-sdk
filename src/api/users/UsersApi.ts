@@ -152,7 +152,7 @@ export class UsersApi {
             queryParams.set('display_name', displayName);
         }
         if (isIdentified !== undefined) {
-            queryParams.set('is_identified', isIdentified);
+            queryParams.set('is_identified', String(isIdentified));
         }
         if (pageToken !== undefined) {
             queryParams.set('page_token', pageToken);

@@ -27,7 +27,7 @@ export interface IUsersApi {
 export interface IBatchUsersApi {
     batchCreate(
         requests?: Array<BatchUserImportRequest>,
-        jobOptions?: IBatchJobOptions
+        jobOptions?: BatchJobOptions
     ): BatchUsersJob;
 }
 
@@ -110,7 +110,7 @@ export class Users implements IUsersApi, IBatchUsersApi {
         return this.usersImpl.updateUser(id, body, options);
     }
 
-    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: IBatchJobOptions): BatchUsersJob {
+    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions): BatchUsersJob {
         return new BatchUsersJob(this.opts, requests, jobOptions);
     }
 }
