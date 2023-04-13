@@ -19,6 +19,12 @@ workflows:
               version: ["14.21.3","16.19.1","18.15.0"]
           pkg-manager: npm
           test-results-for: jest
+      - node/run:
+          name: "Run Build"
+          npm-run: build
+      - node/run:
+          name: "Run Build Production"
+          npm-run: build:production
       - maven/test:
           name: "Run maven test"
           app_src_directory: openapi-generator

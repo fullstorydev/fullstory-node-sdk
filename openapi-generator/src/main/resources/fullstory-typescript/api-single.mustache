@@ -53,10 +53,14 @@ export class {{classname}} {
         const headerParams: OutgoingHttpHeaders = {};
         {{! TODO(sabrina): don't have any Form Params for now. Add if needed. }}
         {{ #queryParams }}
+        {{#isPrimitiveType}}
         if ({{paramName}} !== undefined) {
-            {{! TODO(sabrina): properly serialize param into String }}
-            queryParams.set('{{baseName}}', {{paramName}});
+            queryParams.set('{{baseName}}', {{^isString}}String({{/isString}}{{paramName}}{{^isString}}){{/isString}});
         }
+        {{/isPrimitiveType}}
+        {{^isPrimitiveType}}
+        non-primitive-param-type-not-supported! Please update to support the param type{{! // TODO(sabrina): properly serialize non-premitive type param }}
+        {{/isPrimitiveType}}
         {{/queryParams}}
         {{#headerParams}}
         if ({{paramName}} !== undefined) {
