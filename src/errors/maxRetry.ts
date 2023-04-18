@@ -1,9 +1,9 @@
 import { FSBaseError, FSErrorName } from './base';
 
-export class FSUnknownError extends FSBaseError {
+export class FSMaxRetryError extends FSBaseError {
     constructor(msg: string, cause?: any) {
         super(
-            FSErrorName.ERROR_UNKNOWN,
+            FSErrorName.ERROR_MAX_RETRY,
             msg,
             cause,
         );

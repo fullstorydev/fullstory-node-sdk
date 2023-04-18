@@ -61,4 +61,26 @@ export class FSApiError extends FSBaseError {
         }
         return;
     }
+
+    public canRetry(): boolean {
+        if (this.name === FSErrorName.ERROR_RATE_LIMITED) {
+            return true;
+        }
+        if (this.headers?.['retry-after']) {
+            return true;
+        }
+        return false;
+    }
+
+    public getRetryAfter(): number {
+        const ra = this.headers?.['retry-after'];
+        if (!ra) {
+            return 0;
+        }
+        const retryAfter = Number.parseInt(ra);
+        if (isNaN(retryAfter)) {
+            return 0;
+        }
+        return retryAfter * 1000; // in ms
+    }
 }

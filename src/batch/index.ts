@@ -4,8 +4,9 @@
 ////////////////////////////////////
 import { JobMetadata, JobStatus } from '@model/index';
 
-import { FSUnknownError } from '../errors';
+import { FSUnknownError, isFSError } from '../errors';
 import { toError } from '../errors/base';
+import { withDelay, withRetry } from '../utils/retry';
 
 export interface IBatchRequester<S, R, I, F> {
     requestCreateJob(req: { requests: R[]; }): Promise<JobMetadata>;
@@ -23,14 +24,12 @@ export interface BatchJobOptions {
     * The minimum interval at which job status is polled from the server.
     * The interval does not guarantee the poll happens at the exact time, but ensures the previous
     * poll had completed.
-    * TODO(sabrina):
     * If polling had hit a rate limit, exponentially increasing delays based on `retry-after` header
     * and the number of consecutive failures.
     */
     pollInterval?: number;
     /*
-    * TODO(sabrina):
-    * maxRetry max number of API errors in a row before aborting
+    * maxRetry: max number of API errors in a row before aborting.
     */
     maxRetry?: number,
     // TODO(sabrina): add a timeout and onTimeout to clean up everything
@@ -92,6 +91,12 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     getFailedImports(): F[];
 
     /*
+   * Fires when the request to create batch job returns successful response and we got a job ID.
+   * @param job The current job.
+   */
+    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
+
+    /*
     * Fires when a poll to get latest job status is completed after each poll interval,
     * while the job is still processing (job status == PROCESSING).
     * @param job The current job.
@@ -133,6 +138,7 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     failedImports: F[] = [];
     errors: Error[] = [];
 
+    private _createdCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
     private _processingCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
     private _doneCallbacks: ((imported: I[], failed: F[]) => void)[] = [];
     private _abortCallbacks: ((errors: Error[]) => void)[] = [];
@@ -141,6 +147,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     private _executionStatus: 'not-started' | 'pending' | 'completed' | 'aborted' = 'not-started';
     private _interval?: NodeJS.Timer;
     private _statusPromise?: Promise<S>;
+    private _nextPollDelay = 0;
+    private _numRetries = 0;
 
     constructor(
         requests: R[] = [],
@@ -187,7 +195,7 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
 
         this._executionStatus = 'pending';
-        this.requester.requestCreateJob(this)
+        withRetry(() => this.requester.requestCreateJob(this), this.handleError.bind(this), this.options.maxRetry)
             .then(response => {
                 // Successful response should always have ID.
                 // If not, something wrong had happened in calling server API
@@ -196,20 +204,26 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 }
                 this.setMetadata(response);
                 this.startPolling();
-            }).catch(e => {
-                this.handleError(e);
-                // TODO: retry on transient error to create job before aborting
+                this.handleJobCreated();
+            }).catch(_ => { // all errors should have already been handled
                 this.handleAbort();
             });
     }
 
+    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
     on(type: 'processing', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
     on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, S, R, I, F>;
     on(type: 'error', callback: (error: Error) => void): IBatchJob<K, S, R, I, F>;
     on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
     on(type: string, callback: any): IBatchJob<K, S, R, I, F> {
-        // TODO(sabrina): move these shared logic into batch.ts
         switch (type) {
+            case 'created':
+                if (this._executionStatus !== 'not-started') {
+                    // job had already been started, invoke immediately.
+                    callback(this);
+                }
+                this._createdCallbacks.push(callback);
+                break;
             case 'processing':
                 this._processingCallbacks.push(callback);
                 break;
@@ -235,7 +249,7 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 this._abortCallbacks.push(callback);
                 break;
             default:
-                throw new Error('Unknown event type');
+                throw new Error('Unknown event type.');
         }
         return this;
     }
@@ -259,8 +273,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 return;
             }
 
-            // start a new poll and set the new promise
-            this._statusPromise = this.requester.requestJobStatus(id);
+            // start a new request with any rate limited retry delay, and set the new promise
+            this._statusPromise = withDelay(() => this.requester.requestJobStatus(id), this._nextPollDelay);
             try {
                 const statusRsp = await this._statusPromise;
 
@@ -268,8 +282,9 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 const metadata = statusRsp.job || {};
                 metadata.id = this.getId();
 
-                // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 this.setMetadata(metadata);
+                this._numRetries = 0;
+                // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 switch (metadata.status) {
                     case JobStatus.Processing:
                         this.handleProcessing();
@@ -285,8 +300,12 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 }
             } catch (e) {
                 this.handleError(e);
-                // TODO(sabrina): retry on transient error to maxRetry before aborting
-                this.handleAbort();
+                this._numRetries++;
+                if (this._numRetries >= this.options.maxRetry || !isFSError(e) || !e.canRetry()) {
+                    this.handleAbort();
+                } else {
+                    this._nextPollDelay = e.getRetryAfter() + this._nextPollDelay * 2;
+                }
             } finally {
                 // clean up the current promise
                 delete this._statusPromise;
@@ -298,6 +317,12 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         clearInterval(this._interval);
     }
 
+    private handleJobCreated() {
+        for (const cb of this._createdCallbacks) {
+            cb(this);
+        }
+    }
+
     private handleProcessing() {
         for (const cb of this._processingCallbacks) {
             cb(this);
@@ -305,8 +330,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
     private handleCompleted(id: string) {
-        this._executionStatus = 'completed';
         this.stopPolling();
+        this._executionStatus = 'completed';
         this.requester.requestImports(id)
             .then(results => {
                 this.imports.push(...results);
@@ -319,8 +344,8 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
     private handleCompletedWithFailure(id: string) {
-        this._executionStatus = 'completed';
         this.stopPolling();
+        this._executionStatus = 'completed';
         this.requester.requestImportErrors(id)
             .then(results => {
                 this.failedImports.push(...results);
@@ -348,5 +373,9 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         for (const cb of this._abortCallbacks) {
             cb(this.errors);
         }
+    }
+
+    private resetRetries() {
+        this._numRetries = 0;
     }
 }
