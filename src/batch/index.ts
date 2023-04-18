@@ -91,7 +91,7 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     getFailedImports(): F[];
 
     /*
-   * Fires when the request to crate batch job returns successful response and we got a job ID.
+   * Fires when the request to create batch job returns successful response and we got a job ID.
    * @param job The current job.
    */
     on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
