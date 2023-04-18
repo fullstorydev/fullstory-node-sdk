@@ -10,9 +10,17 @@ describe('FullStory SDK', () => {
             apiKey: MOCK_API_KEY,
         });
         expect(client).toHaveProperty('opts');
-        expect((client as any)['opts']).toHaveProperty('apiKey', MOCK_API_KEY);
+        expect((client as any)['opts']).toHaveProperty('apiKey', 'Basic ' + MOCK_API_KEY);
 
         expect(client).toHaveProperty('users');
         expect(client).toHaveProperty('events');
+    });
+
+    test('can initialize with prefixed api key', () => {
+        const client = init({
+            apiKey: 'Basic ' + MOCK_API_KEY,
+        });
+        expect(client).toHaveProperty('opts');
+        expect((client as any)['opts']).toHaveProperty('apiKey', 'Basic ' + MOCK_API_KEY);
     });
 });
