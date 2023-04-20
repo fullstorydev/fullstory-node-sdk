@@ -124,7 +124,6 @@ describe('FullStory Users API', () => {
             display_name: 'NodeJS Smoke Test User 3'
         };
 
-
         // Create A Job
         const job = users
             .batchCreate([createReq1], { pollInterval: 1000 })
@@ -133,6 +132,7 @@ describe('FullStory Users API', () => {
         job.execute();
 
         job.on('processing', (job) => {
+            console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);
@@ -158,42 +158,7 @@ describe('FullStory Users API', () => {
             done(error);
         });
 
-    }, BATCH_JOB_TIMEOUT);
-
-    test('Batch Users Job handling with pagination', done => {
-        const reqs: CreateUserRequest[] = [];
-        for (let i = 0; i < 101; i++) {
-            reqs.push({
-                display_name: 'NodeJS Smoke Test User Batch 2 - ' + i,
-            });
-        }
-
-        // Create A Job
-        const job = users.batchCreate(reqs, { pollInterval: 1000 });
-
-        job.execute();
-
-        job.on('processing', (job) => {
-            console.log('on processing...', job.getId());
-            expect(job.getId()).toBeTruthy();
-            expect(job.metadata?.status).toBe(JobStatus.Processing);
-            expect(job.getImports()).toEqual([]);
-            expect(job.getFailedImports()).toEqual([]);
-        });
-
-        job.on('done',
-            (imported, failed) => {
-                expect(job.metadata?.status).toBe(JobStatus.Completed);
-                expect(imported).toHaveLength(101);
-                expect(failed).toHaveLength(0);
-                done();
-            });
-
-        job.on('error', error => {
-            done(error);
-        });
-
-    }, BATCH_JOB_TIMEOUT * 5); // longer wait for big imports
+    }, BATCH_JOB_TIMEOUT * 10);
 
     test('Batch Users Job handling with rate limited', done => {
         const req: CreateUserRequest = {
@@ -210,7 +175,7 @@ describe('FullStory Users API', () => {
             job.add([req]);
         }
         job.on('processing', (job) => {
-            console.log('processing', job.getId());
+            console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);

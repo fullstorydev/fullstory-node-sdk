@@ -371,40 +371,31 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
 
 
     private async requestImportsWithPaging(id: string): Promise<IMPORT[]> {
-        const imports = [];
-        let hasNextPage = true;
-        let pageToken: string | undefined;
-        while (hasNextPage) {
-            const res: { results?: IMPORT[] | undefined; next_page_token?: string | undefined; } = await withRetry(
-                () => this.requester.requestImports(id, pageToken),
-                this.handleError.bind(this)
-            );
-            const results = res.results || [];
-            imports.push(...results);
-
-            hasNextPage = !!res.next_page_token && res.next_page_token !== pageToken;
-            pageToken = res.next_page_token;
-        }
-        return imports;
+        const imports = await this.withPageToken((next?: string) => this.requester.requestImports(id, next));
+        return imports.flatMap(i => i.results || []);
     }
 
 
     private async requestImportErrorsWithPaging(id: string): Promise<FAILURE[]> {
-        const errors = [];
+        const errors = await this.withPageToken((next?: string) => this.requester.requestImportErrors(id, next));
+        return errors.flatMap(e => e.results || []);
+    }
+
+    private async withPageToken<T extends { next_page_token?: string; }>(method: { (next?: string): Promise<T>; }) {
+        const results: T[] = [];
         let hasNextPage = true;
         let pageToken: string | undefined;
 
         while (hasNextPage) {
             const res = await withRetry(
-                () => this.requester.requestImportErrors(id, pageToken),
-                this.handleError.bind(this)
+                () => method(pageToken),
+                (err) => this.handleError(err)
             );
+            results.push(res);
 
-            const results = res.results || [];
-            errors.push(...results);
-            const nextPageToken = res.next_page_token;
-            hasNextPage = !!nextPageToken && nextPageToken !== pageToken;
+            hasNextPage = !!res.next_page_token && res.next_page_token !== pageToken;
+            pageToken = res.next_page_token;
         }
-        return errors;
+        return results;
     }
 }
