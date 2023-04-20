@@ -62,13 +62,27 @@ describe('BatchJob', () => {
         const rsp: CreateUserResponse = {};
         mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
         mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Completed } }; });
-        mockRequester.requestImports = jest.fn(async _ => { return { results: [rsp, rsp, rsp], next_page_token: 'test.token' }; });
+
+        // mock return of 4 pages of 3 rsp each
+        let i = 0;
+        mockRequester.requestImports = jest.fn(async _ => {
+            if (i < 3) {
+                return { results: [rsp, rsp, rsp], next_page_token: `test.token.${++i}` };
+            } else {
+                return { results: [rsp, rsp, rsp] };
+            }
+        });
 
         const baseJob = new BatchJob([], mockRequester, {});
+
         baseJob.on('done', (i, f) => {
-            expect(i).toHaveLength(6);
+            expect(i).toHaveLength(12);
             expect(f).toHaveLength(0);
-            expect(mockRequester.requestImports).toHaveBeenCalledTimes(2);
+            expect(mockRequester.requestImports).toHaveBeenCalledTimes(4);
+            expect(mockRequester.requestImports).toHaveBeenNthCalledWith(1, 'test', undefined);
+            expect(mockRequester.requestImports).toHaveBeenNthCalledWith(2, 'test', 'test.token.1');
+            expect(mockRequester.requestImports).toHaveBeenNthCalledWith(3, 'test', 'test.token.2');
+            expect(mockRequester.requestImports).toHaveBeenNthCalledWith(4, 'test', 'test.token.3');
             done();
         });
         baseJob.execute();

@@ -31,7 +31,7 @@ export interface IBatchUsersApi {
     ): BatchUsersJob;
 }
 
-class BatchUsersJob extends BatchJob<'users', GetBatchUserImportStatusResponse, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport> {
+class BatchUsersJob extends BatchJob<BatchUserImportRequest, CreateBatchUserImportJobResponse, GetBatchUserImportStatusResponse, BatchUserImportResponse, FailedUserImport> {
     constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: BatchJobOptions = {}) {
         super(requests, new BatchUsersRequester(fsOpts), opts);
     }

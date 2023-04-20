@@ -23,7 +23,7 @@ export interface IBatchEventsApi {
     ): BatchEventsJob;
 }
 
-class BatchEventsJob extends BatchJob<'events', GetBatchEventsImportStatusResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport> {
+class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, GetBatchEventsImportStatusResponse, CreateEventsResponse, FailedEventsImport> {
     constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}) {
         super(requests, new BatchEventsRequester(fsOpts), opts);
     }

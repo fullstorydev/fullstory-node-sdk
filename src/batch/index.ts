@@ -8,14 +8,14 @@ import { FSUnknownError, isFSError } from '../errors';
 import { toError } from '../errors/base';
 import { withDelay, withRetry } from '../utils/retry';
 
-export interface IBatchRequester<REQ, RSP, S, I, F> {
+export interface IBatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
     requestCreateJob(req: REQ): Promise<RSP>;
 
-    requestImports(id: string, nextPageToken?: string): Promise<I>;
+    requestImports(id: string, nextPageToken?: string): Promise<IMPORTS_RSP>;
 
-    requestImportErrors(id: string, nextPageToken?: string): Promise<F>;
+    requestImportErrors(id: string, nextPageToken?: string): Promise<ERRORS_RSP>;
 
-    requestJobStatus(id: string): Promise<S>;
+    requestJobStatus(id: string): Promise<STATUS_RSP>;
 }
 
 export interface BatchJobOptions {
@@ -41,22 +41,20 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
     maxRetry: 3,
 };
 
-type BatchTypeNames = 'users' | 'events';
-
-export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
+export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
     readonly options: Required<BatchJobOptions>;
-    requests: R[];
+    requests: REQUEST[];
 
     readonly metadata?: JobMetadata;
-    readonly imports: I[];
-    readonly failedImports: F[];
+    readonly imports: IMPORT[];
+    readonly failedImports: FAILURE[];
     errors: Error[];
 
     /*
     * Add more request objects in the requests before the job executes.
     * @throws An error if job is already executed, or max number of items reached.
     */
-    add(requests: R[]): IBatchJob<K, S, R, I, F>;
+    add(requests: REQUEST[]): this;
 
     // TODO(sabrina): allow removal of a specific request?
 
@@ -82,26 +80,26 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * Retrieve successful imports if the job is done.
     * @returns An array of batch items successfully imported.
     */
-    getImports(): I[];
+    getImports(): IMPORT[];
 
     /*
     * Retrieve failed items imports if the job has errors.
     * @returns An array of batch items failed to be imported.
     */
-    getFailedImports(): F[];
+    getFailedImports(): FAILURE[];
 
     /*
    * Fires when the request to create batch job returns successful response and we got a job ID.
    * @param job The current job.
    */
-    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'created', callback: (job: this) => void): this;
 
     /*
     * Fires when a poll to get latest job status is completed after each poll interval,
     * while the job is still processing (job status == PROCESSING).
     * @param job The current job.
     */
-    on(type: 'processing', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'processing', callback: (job: this) => void): this;
 
     /*
     * Fires when job status becomes COMPLETED or FAILED.
@@ -112,7 +110,7 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * @param imported An array of batch items successfully imported.
     * @returns failed An array of batch items failed to be imported.
     */
-    on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'done', callback: (imported: IMPORT[], failed: FAILURE[]) => void): this;
 
     /*
     * Fires when any errors during the import jobs, may be called more than once.
@@ -120,45 +118,47 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed items.
     * @param error The error encountered.
     */
-    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'error', callback: (error: Error) => void): this;
 
     /*
     * Fires when the job aborts due to unrecoverable error.
     * Called only once per job execution.
     * @param errors The errors encountered over the lifecycle of the job.
     */
-    on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'abort', callback: (errors: Error[]) => void): this;
 }
-export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }, R, I, F> implements IBatchJob<K, S, R, I, F>{
-    readonly options: Required<BatchJobOptions>;
-    requests: R[] = [];
 
-    metadata?: JobMetadata;
-    imports: I[] = [];
-    failedImports: F[] = [];
+export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, IMPORT, FAILURE>{
+    readonly options: Required<BatchJobOptions>;
+    requests: REQUEST[] = [];
+
+    metadata?: JobMetadata | undefined;
+    imports: IMPORT[] = [];
+    failedImports: FAILURE[] = [];
     errors: Error[] = [];
 
-    private _createdCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
-    private _processingCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
-    private _doneCallbacks: ((imported: I[], failed: F[]) => void)[] = [];
+    private _createdCallbacks: ((job: this) => void)[] = [];
+    private _processingCallbacks: ((job: this) => void)[] = [];
+    private _doneCallbacks: ((imported: IMPORT[], failed: FAILURE[]) => void)[] = [];
     private _abortCallbacks: ((errors: Error[]) => void)[] = [];
     private _errorCallbacks: ((error: Error) => void)[] = [];
 
     private _executionStatus: 'not-started' | 'pending' | 'completed' | 'aborted' = 'not-started';
     private _interval?: NodeJS.Timer;
-    private _statusPromise?: Promise<S>;
+    private _statusPromise?: Promise<STATUS_RSP>;
     private _nextPollDelay = 0;
     private _numRetries = 0;
 
     constructor(
-        requests: R[] = [],
+        requests: REQUEST[] = [],
         // TODO(sabrina):these could be better typed
-        private requester: IBatchRequester<{ requests: R[]; }, S, S, { results?: I[], next_page_token?: string; }, { results?: F[], next_page_token?: string; }>,
+        private requester: IBatchRequester<{ requests: REQUEST[]; }, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
         opts: BatchJobOptions = {},
     ) {
         this.requests.push(...requests);
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
     }
+
 
     getId(): string | undefined {
         return this.metadata?.id;
@@ -168,15 +168,15 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         return this.metadata?.status;
     }
 
-    getImports(): I[] {
+    getImports(): IMPORT[] {
         return this.imports;
     }
 
-    getFailedImports(): F[] {
+    getFailedImports(): FAILURE[] {
         return this.failedImports;
     }
 
-    add(requests: R[]): IBatchJob<K, S, R, I, F> {
+    add(requests: REQUEST[]) {
         if (this._executionStatus != 'not-started') {
             throw new Error('Job already executed, can not add more requests.');
         }
@@ -211,12 +211,12 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
             });
     }
 
-    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'processing', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
-    on(type: string, callback: any): IBatchJob<K, S, R, I, F> {
+    on(type: 'created', callback: (job: this) => void): this;
+    on(type: 'processing', callback: (job: this) => void): this;
+    on(type: 'done', callback: (imported: IMPORT[], failed: FAILURE[]) => void): this;
+    on(type: 'error', callback: (error: Error) => void): this;
+    on(type: 'abort', callback: (errors: Error[]) => void): this;
+    on(type: string, callback: any): this {
         switch (type) {
             case 'created':
                 if (this._executionStatus !== 'not-started') {
@@ -341,7 +341,6 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
     private async handleCompletedWithFailure(id: string) {
-        console.log('handle handleCompletedWithFailure');
         this.stopPolling();
         this._executionStatus = 'completed';
 
@@ -371,12 +370,12 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
 
-    private async requestImportsWithPaging(id: string): Promise<I[]> {
+    private async requestImportsWithPaging(id: string): Promise<IMPORT[]> {
         const imports = [];
         let hasNextPage = true;
         let pageToken: string | undefined;
         while (hasNextPage) {
-            const res: { results?: I[] | undefined; next_page_token?: string | undefined; } = await withRetry(
+            const res: { results?: IMPORT[] | undefined; next_page_token?: string | undefined; } = await withRetry(
                 () => this.requester.requestImports(id, pageToken),
                 this.handleError.bind(this)
             );
@@ -390,7 +389,7 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
     }
 
 
-    private async requestImportErrorsWithPaging(id: string): Promise<F[]> {
+    private async requestImportErrorsWithPaging(id: string): Promise<FAILURE[]> {
         const errors = [];
         let hasNextPage = true;
         let pageToken: string | undefined;
