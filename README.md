@@ -2,6 +2,321 @@
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/fullstorydev/fullstory-node-sdk/tree/main.svg?style=svg&circle-token=ff82bccfd4023cd504f7b59ec5bd537bc875ec79)](https://dl.circleci.com/status-badge/redirect/gh/fullstorydev/fullstory-node-sdk/tree/main)
 
-Official FullStory server API client SDK for NodeJS.
+> This package is in beta preview. It relies on unreleased beta API endpoints that may contain breaking changes without notice, do not use in production.
 
-> Thank you for your interest in FullStory NodeJS SDK This project is under construction. Please check back later for updates.
+The Official FullStory server API client SDK for NodeJS. The SDK is designed for easy usage to make server-to-server HTTP API requests. For more information visit our [developer site](https://developer.fullstory.com/server/v2/getting-started/).
+
+To use our in-browser module, we also provide a [FullStory browser SDK](https://www.npmjs.com/package/@fullstory/browser).
+
+## NodeJS Support
+
+- Node.js >= 14
+
+## Getting Started
+
+### Installation
+
+```bash
+# npm
+npm install @fullstory/server-api-client
+# yarn
+yarn add @fullstory/server-api-client
+```
+
+### Usage
+
+#### Initializing the Client
+
+Use the `init` function that initializes the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
+
+```ts
+const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
+```
+
+#### Users
+
+- Use `users` to access the [users api](https://developer.fullstory.com/server/v2/users/introduction/)
+
+  ```ts
+  const { users } = fsClient;
+  ```
+
+- [Create a user](https://developer.fullstory.com/server/v2/users/create-user/)
+
+  ```ts
+  const createResponse = await users.create({
+    uid: 'user123',
+    display_name: 'Display Name',
+    email: 'user123@example.com',
+    properties: {
+      pricing_plan_str: 'paid',
+      popup_help_bool: true,
+      total_spent_real: 14.5,
+    },
+  });
+  ```
+
+- [Get a user](https://developer.fullstory.com/server/v2/users/get-user/)
+
+  ```ts
+  // get user by the fullstory assigned id
+  const getResponse = await users.get('123456');
+  ```
+
+- [Get users](https://developer.fullstory.com/server/v2/users/list-users/)
+
+  ```ts
+  // get user by the application-specific uid
+  const listResponse = await users.list('user123');
+  ```
+
+- [Update a user](https://developer.fullstory.com/server/v2/users/update-user/)
+
+  ```ts
+  // update user by the fullstory assigned id
+  const updatedResponse = await users.update('123456',
+    { display_name: 'New Display Name' });
+  ```
+
+- [Delete a user](https://developer.fullstory.com/server/v2/users/delete-user/)
+
+  ```ts
+  // delete user by the fullstory assigned id
+  await users.delete('123456');
+  ```
+
+#### Events
+
+- Use `events` to access the [events api](https://developer.fullstory.com/server/v2/events/introduction/)
+
+  ```ts
+  const { events } = fsClient;
+  ```
+
+- [Create events](https://developer.fullstory.com/server/v2/events/create-events/)
+
+  ```ts
+  const createResponse = await events.create({
+      user: {
+        id: '123456',
+      },
+      session: {
+        use_most_recent: true,
+      },
+      context: {
+        web: {
+          url: 'https://www.example.com',
+          referrer_url: 'https://www.referrer.com',
+        },
+        device: {
+          ip: '127.0.0.1',
+          serial_number: 'ABC',
+        },
+        location: {
+          latitude: 33.80177165865808,
+          longitude: -84.39222238465959,
+        },
+      },
+      events: [
+        {
+          name: 'Support Ticket',
+          timestamp: '2022-03-15T14:23:23Z',
+          properties: {
+            id: 424242,
+            priority: 'Normal',
+            source: 'Email',
+            title: 'Account locked out',
+          },
+        },
+        {
+          name: "Another Event",
+        }
+      ]
+    });
+  ```
+
+#### Batch Import Job
+
+- [Create a batch users import job](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
+
+  ```ts
+  // array of users to be imported
+  const requests = [
+    {
+      uid: 'user123',
+      display_name: 'Display Name',
+      email: 'user123@example.com',
+      properties: {
+        pricing_plan_str: 'paid',
+        popup_help_bool: true,
+        total_spent_real: 14.5,
+      },
+    },
+    {
+      uid: 'user456',
+    },
+    {
+      uid: 'user789',
+      display_name: 'A New User',
+    },
+  ];
+
+  // create a job object
+  const job = users.batchCreate(requests);
+
+  // you can add more requests before executing
+  job.add([
+    { display_name: 'Someone Else' },
+    { display_name: 'Last User' },
+  ]);
+  ```
+
+- [Create a batch events import job](https://developer.fullstory.com/server/v2/events/create-batch-events-import-job/)
+
+  ```ts
+  // array of events requests to be imported
+  const requests = [
+    {
+      user: {
+        id: '123456',
+      },
+      session: {
+        use_most_recent: true,
+      },
+      context: {
+        web: {
+          url: 'https://www.example.com',
+        },
+      },
+      events: [
+        {
+          name: 'Support Ticket',
+          timestamp: '2022-03-15T14:23:23Z',
+          properties: {
+            source: 'Email',
+            title: 'Account locked out',
+          },
+        },
+        {
+          name: "Another Event",
+        },
+        {
+          name: "More Events",
+        }
+      ]
+    },
+    {
+      user: {
+        id: '000000',
+      },
+      session: {
+        use_most_recent: true,
+      },
+      events: [
+        {
+          name: 'Events - 1',
+        },
+        {
+          name: "Events - 2",
+        },
+        {
+          name: "Events - 3",
+        }
+      ]
+    }
+  ];
+
+  // create a job object
+  const job = events.batchCreate(requests);
+
+  // you can add more requests before executing
+  job.add([
+    {
+      user: {
+        id: '999999',
+      },
+      events: [
+        {
+          name: 'Events - 1',
+        },
+      ]
+    }
+  ]);
+  ```
+
+- Batch Import Options
+
+  Each job can be created with different options:
+
+  ```ts
+  const options = {
+    // poll job status every one minute
+    pollInterval: 60000,
+    // retry 5 times on API errors before aborting
+    maxRetry: 5,
+  }
+  ```
+
+- Adding listeners for a batch import jobs and executing the job
+
+  1. When the job execute is called, an API request is made to the server to create the import the job:
+  - [users](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
+  - [events](https://developer.fullstory.com/server/v2/events/create-batch-events-import-job/)
+
+  2. Once the job is created successfully, `created` listeners are invoked with the job's information.
+
+  3. The job then starts to poll on the server to get the latest job status at an interval:
+  - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-import-status/)
+  - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-import-status/)
+
+    Each successful poll will result in `processing` listeners being invoked.
+
+  4. When the job status reaches a `done` state (`COMPLETED` or `FAILED`), we automatically retrieve the results, by calling get batch imports:
+  - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-imports/) 
+  - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-imports/) 
+
+    or get batch errors:
+  - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-import-errors/) 
+  - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-import-errors/)
+
+    And the `done` listeners are invoked with the results.
+
+  5. The `error` listeners are called anytime an error is encountered, may be called more than once.
+
+  6. The `abort` listeners is called only once per job, if non-recoverable errors had occurred, such as multiple API failures had been encountered that exceeds the max number of retries.
+
+    ```ts
+    job
+      // register listeners before executing
+      .on('created', job => {
+        console.log('batch job successfully created', job.getId());
+      })
+      .on('processing', job => {
+        console.log('get notified when job status polled and is still processing', job.getId());
+      })
+      .on('error', error => {
+        console.log('an error had occurred during the import', error);
+      })
+      .on('abort', error => {
+        console.error('an unrecoverable error had occurred and the job had been aborted', error);
+      })
+      .on('done', (imported, failed) => {
+        console.log('the batch imported job is done');
+        console.log('items successfully imported', imported);
+        console.log('items failed to be imported', failed);
+      })
+
+      // execute the job by calling the server API
+      job.execute();
+    ```
+
+    > Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
+
+### Multiple batch import jobs
+
+  It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.
+
+  The batch import job execution will retry if rate limit or other transient errors had been encountered up to a max number of retries.
+
+## Error Handling
+// TODO
