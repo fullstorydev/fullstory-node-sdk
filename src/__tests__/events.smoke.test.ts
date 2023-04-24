@@ -105,7 +105,7 @@ describe('FullStory Events API', () => {
             .add([createReq2, createReq3]);
 
         job.on('processing', (job) => {
-            console.log('on processing...', job.getId());
+            console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);

@@ -1,9 +1,8 @@
-import { UsersBatchImportApi } from '@api/users.index';
 import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
 
-import { FSApiError } from '../errors';
+import { FSApiError, FSErrorName, isFSError } from '../errors';
 import { Users } from '../users';
 
 dotenv.config();
@@ -125,7 +124,6 @@ describe('FullStory Users API', () => {
             display_name: 'NodeJS Smoke Test User 3'
         };
 
-
         // Create A Job
         const job = users
             .batchCreate([createReq1], { pollInterval: 1000 })
@@ -134,6 +132,7 @@ describe('FullStory Users API', () => {
         job.execute();
 
         job.on('processing', (job) => {
+            console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);
@@ -159,21 +158,24 @@ describe('FullStory Users API', () => {
             done(error);
         });
 
-    }, BATCH_JOB_TIMEOUT);
+    }, BATCH_JOB_TIMEOUT * 10);
 
     test('Batch Users Job handling with rate limited', done => {
         const req: CreateUserRequest = {
             display_name: 'NodeJS Smoke Test User 1',
         };
 
-        let hasError = false;
+        let gotRLError = false;
         // Create A Job
         const job = users
-            .batchCreate([req, req, req], {
+            .batchCreate([], {
                 pollInterval: 1 // should trigger at least one rate limited error
             });
-
+        for (let i = 0; i < 10; i++) {
+            job.add([req]);
+        }
         job.on('processing', (job) => {
+            console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();
             expect(job.metadata?.status).toBe(JobStatus.Processing);
             expect(job.getImports()).toEqual([]);
@@ -183,7 +185,7 @@ describe('FullStory Users API', () => {
         job.on('done',
             (imported, failed) => {
                 expect(job.metadata?.status).toBe(JobStatus.Completed);
-                expect(imported).toHaveLength(3);
+                expect(imported).toHaveLength(10);
                 expect(failed).toHaveLength(0);
                 expect(imported).toEqual(
                     expect.arrayContaining([
@@ -191,7 +193,7 @@ describe('FullStory Users API', () => {
                     ])
                 );
                 // make sure at least one error had been encountered
-                expect(hasError).toBeTruthy();
+                expect(gotRLError).toBeTruthy();
                 done();
             });
 
@@ -202,7 +204,10 @@ describe('FullStory Users API', () => {
         });
 
         job.on('error', e => {
-            hasError = true;
+            if (isFSError(e) && e.name === FSErrorName.ERROR_RATE_LIMITED) {
+                gotRLError = true;
+            }
+
             console.log(`error ${e} encountered`);
         });
 

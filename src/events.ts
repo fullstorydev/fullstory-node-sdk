@@ -1,5 +1,5 @@
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from '@api/index';
-import { CreateBatchEventsImportJobRequest, CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportStatusResponse, JobMetadata } from '@model/index';
+import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, GetBatchEventsImportStatusResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
@@ -23,49 +23,45 @@ export interface IBatchEventsApi {
     ): BatchEventsJob;
 }
 
-class BatchEventsJob extends BatchJob<'events', GetBatchEventsImportStatusResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport> {
+class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, GetBatchEventsImportStatusResponse, CreateEventsResponse, FailedEventsImport> {
     constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}) {
         super(requests, new BatchEventsRequester(fsOpts), opts);
     }
 }
 
-class BatchEventsRequester implements IBatchRequester<GetBatchEventsImportStatusResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport> {
+export type IBatchEventRequester = IBatchRequester<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, GetBatchEventsImportStatusResponse, GetBatchEventsImportsResponse, GetBatchEventsImportErrorsResponse>;
+
+class BatchEventsRequester implements IBatchEventRequester {
     protected readonly batchEventsImpl: FSBatchEventsApi;
 
     constructor(fsOpts: FullStoryOptions) {
         this.batchEventsImpl = new FSBatchEventsApi(fsOpts);
     }
 
-    async requestCreateJob(requests: CreateBatchEventsImportJobRequest): Promise<JobMetadata> {
+    async requestCreateJob(requests: CreateBatchEventsImportJobRequest): Promise<CreateBatchEventsImportJobResponse> {
         const rsp = await this.batchEventsImpl.createBatchEventsImportJob(requests);
         // make sure job metadata exist
-        const job = rsp.body?.job;
-        if (!job) {
+        const job = rsp.body;
+        if (!job?.job?.id) {
             throw new Error(`Unable to get job ID after creating job, server status: ${rsp.httpStatusCode}`);
         }
         return job;
     }
 
-    async requestImports(id: string): Promise<CreateEventsResponse[]> {
-        // TODO(sabrina): handle when there's a next_page_token
-        // we'd have to invoke /events/batch/{job_id}/imports more than once
-
-        const res = await this.batchEventsImpl.getBatchEventsImports(id);
-        const results = res.body?.results;
+    async requestImports(id: string, nextPageToken?: string): Promise<GetBatchEventsImportsResponse> {
+        const res = await this.batchEventsImpl.getBatchEventsImports(id, nextPageToken);
+        const results = res.body;
         if (!results) {
-            throw new Error('API did not response with any results');
+            throw new Error('API did not response with expected body');
         }
         return results;
     }
 
-    async requestImportErrors(id: string): Promise<FailedEventsImport[]> {
-        // TODO(sabrina): handle when there's a next_page_token
-        // we'd have to invoke /events/batch/{job_id}/errors more than once
-
-        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id);
-        const results = res.body?.results;
+    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
+        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id, nextPageToken);
+        const results = res.body;
         if (!results) {
-            throw new Error('API did not response with any results');
+            throw new Error('API did not response with expected body');
         }
         return results;
     }

@@ -8,14 +8,14 @@ import { FSUnknownError, isFSError } from '../errors';
 import { toError } from '../errors/base';
 import { withDelay, withRetry } from '../utils/retry';
 
-export interface IBatchRequester<S, R, I, F> {
-    requestCreateJob(req: { requests: R[]; }): Promise<JobMetadata>;
+export interface IBatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
+    requestCreateJob(req: REQ): Promise<RSP>;
 
-    requestImports(id: string): Promise<I[]>;
+    requestImports(id: string, nextPageToken?: string): Promise<IMPORTS_RSP>;
 
-    requestImportErrors(id: string): Promise<F[]>;
+    requestImportErrors(id: string, nextPageToken?: string): Promise<ERRORS_RSP>;
 
-    requestJobStatus(id: string): Promise<S>;
+    requestJobStatus(id: string): Promise<STATUS_RSP>;
 }
 
 export interface BatchJobOptions {
@@ -41,22 +41,20 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
     maxRetry: 3,
 };
 
-type BatchTypeNames = 'users' | 'events';
-
-export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
+export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
     readonly options: Required<BatchJobOptions>;
-    requests: R[];
+    requests: REQUEST[];
 
     readonly metadata?: JobMetadata;
-    readonly imports: I[];
-    readonly failedImports: F[];
+    readonly imports: IMPORT[];
+    readonly failedImports: FAILURE[];
     errors: Error[];
 
     /*
     * Add more request objects in the requests before the job executes.
     * @throws An error if job is already executed, or max number of items reached.
     */
-    add(requests: R[]): IBatchJob<K, S, R, I, F>;
+    add(requests: REQUEST[]): this;
 
     // TODO(sabrina): allow removal of a specific request?
 
@@ -82,26 +80,26 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * Retrieve successful imports if the job is done.
     * @returns An array of batch items successfully imported.
     */
-    getImports(): I[];
+    getImports(): IMPORT[];
 
     /*
     * Retrieve failed items imports if the job has errors.
     * @returns An array of batch items failed to be imported.
     */
-    getFailedImports(): F[];
+    getFailedImports(): FAILURE[];
 
     /*
    * Fires when the request to create batch job returns successful response and we got a job ID.
    * @param job The current job.
    */
-    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'created', callback: (job: this) => void): this;
 
     /*
     * Fires when a poll to get latest job status is completed after each poll interval,
     * while the job is still processing (job status == PROCESSING).
     * @param job The current job.
     */
-    on(type: 'processing', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'processing', callback: (job: this) => void): this;
 
     /*
     * Fires when job status becomes COMPLETED or FAILED.
@@ -112,7 +110,7 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * @param imported An array of batch items successfully imported.
     * @returns failed An array of batch items failed to be imported.
     */
-    on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'done', callback: (imported: IMPORT[], failed: FAILURE[]) => void): this;
 
     /*
     * Fires when any errors during the import jobs, may be called more than once.
@@ -120,44 +118,47 @@ export interface IBatchJob<K extends BatchTypeNames, S, R, I, F> {
     * - When job status is COMPLETED or FAILED, but unable to retrieve imported/failed items.
     * @param error The error encountered.
     */
-    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'error', callback: (error: Error) => void): this;
 
     /*
     * Fires when the job aborts due to unrecoverable error.
     * Called only once per job execution.
     * @param errors The errors encountered over the lifecycle of the job.
     */
-    on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
+    on(type: 'abort', callback: (errors: Error[]) => void): this;
 }
-export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }, R, I, F> implements IBatchJob<K, S, R, I, F>{
-    readonly options: Required<BatchJobOptions>;
-    requests: R[] = [];
 
-    metadata?: JobMetadata;
-    imports: I[] = [];
-    failedImports: F[] = [];
+export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, IMPORT, FAILURE>{
+    readonly options: Required<BatchJobOptions>;
+    requests: REQUEST[] = [];
+
+    metadata?: JobMetadata | undefined;
+    imports: IMPORT[] = [];
+    failedImports: FAILURE[] = [];
     errors: Error[] = [];
 
-    private _createdCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
-    private _processingCallbacks: ((job: BatchJob<K, S, R, I, F>) => void)[] = [];
-    private _doneCallbacks: ((imported: I[], failed: F[]) => void)[] = [];
+    private _createdCallbacks: ((job: this) => void)[] = [];
+    private _processingCallbacks: ((job: this) => void)[] = [];
+    private _doneCallbacks: ((imported: IMPORT[], failed: FAILURE[]) => void)[] = [];
     private _abortCallbacks: ((errors: Error[]) => void)[] = [];
     private _errorCallbacks: ((error: Error) => void)[] = [];
 
     private _executionStatus: 'not-started' | 'pending' | 'completed' | 'aborted' = 'not-started';
     private _interval?: NodeJS.Timer;
-    private _statusPromise?: Promise<S>;
+    private _statusPromise?: Promise<STATUS_RSP>;
     private _nextPollDelay = 0;
     private _numRetries = 0;
 
     constructor(
-        requests: R[] = [],
-        private requester: IBatchRequester<S, R, I, F>,
+        requests: REQUEST[] = [],
+        // TODO(sabrina):these could be better typed
+        private requester: IBatchRequester<{ requests: REQUEST[]; }, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
         opts: BatchJobOptions = {},
     ) {
         this.requests.push(...requests);
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
     }
+
 
     getId(): string | undefined {
         return this.metadata?.id;
@@ -167,15 +168,15 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         return this.metadata?.status;
     }
 
-    getImports(): I[] {
+    getImports(): IMPORT[] {
         return this.imports;
     }
 
-    getFailedImports(): F[] {
+    getFailedImports(): FAILURE[] {
         return this.failedImports;
     }
 
-    add(requests: R[]): IBatchJob<K, S, R, I, F> {
+    add(requests: REQUEST[]) {
         if (this._executionStatus != 'not-started') {
             throw new Error('Job already executed, can not add more requests.');
         }
@@ -199,10 +200,10 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
             .then(response => {
                 // Successful response should always have ID.
                 // If not, something wrong had happened in calling server API
-                if (!response.id) {
+                if (!response.job?.id) {
                     throw new FSUnknownError(`Unable to get job ID after creating a job, job metadata received: ${response}`);
                 }
-                this.setMetadata(response);
+                this.setMetadata(response.job);
                 this.startPolling();
                 this.handleJobCreated();
             }).catch(_ => { // all errors should have already been handled
@@ -210,12 +211,12 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
             });
     }
 
-    on(type: 'created', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'processing', callback: (job: IBatchJob<K, S, R, I, F>) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'done', callback: (imported: I[], failed: F[]) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'error', callback: (error: Error) => void): IBatchJob<K, S, R, I, F>;
-    on(type: 'abort', callback: (errors: Error[]) => void): IBatchJob<K, S, R, I, F>;
-    on(type: string, callback: any): IBatchJob<K, S, R, I, F> {
+    on(type: 'created', callback: (job: this) => void): this;
+    on(type: 'processing', callback: (job: this) => void): this;
+    on(type: 'done', callback: (imported: IMPORT[], failed: FAILURE[]) => void): this;
+    on(type: 'error', callback: (error: Error) => void): this;
+    on(type: 'abort', callback: (errors: Error[]) => void): this;
+    on(type: string, callback: any): this {
         switch (type) {
             case 'created':
                 if (this._executionStatus !== 'not-started') {
@@ -283,7 +284,6 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
                 metadata.id = this.getId();
 
                 this.setMetadata(metadata);
-                this._numRetries = 0;
                 // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 switch (metadata.status) {
                     case JobStatus.Processing:
@@ -329,32 +329,26 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
     }
 
-    private handleCompleted(id: string) {
+    private async handleCompleted(id: string) {
         this.stopPolling();
         this._executionStatus = 'completed';
-        this.requester.requestImports(id)
-            .then(results => {
-                this.imports.push(...results);
-                for (const cb of this._doneCallbacks) {
-                    cb(this.imports, this.failedImports);
-                }
-            }).catch((e: Error) => {
-                throw e;
-            });
+
+        const imports = await this.requestImportsWithPaging(id);
+        this.imports.push(...imports);
+        for (const cb of this._doneCallbacks) {
+            cb(this.imports, this.failedImports);
+        }
     }
 
-    private handleCompletedWithFailure(id: string) {
+    private async handleCompletedWithFailure(id: string) {
         this.stopPolling();
         this._executionStatus = 'completed';
-        this.requester.requestImportErrors(id)
-            .then(results => {
-                this.failedImports.push(...results);
-                for (const cb of this._doneCallbacks) {
-                    cb([], results);
-                }
-            }).catch((e: Error) => {
-                throw e;
-            });
+
+        const errors = await this.requestImportErrorsWithPaging(id);
+        this.failedImports.push(...errors);
+        for (const cb of this._doneCallbacks) {
+            cb(this.imports, this.failedImports);
+        }
     }
 
     private handleError(err: unknown) {
@@ -375,7 +369,33 @@ export class BatchJob<K extends BatchTypeNames, S extends { job?: JobMetadata; }
         }
     }
 
-    private resetRetries() {
-        this._numRetries = 0;
+
+    private async requestImportsWithPaging(id: string): Promise<IMPORT[]> {
+        const imports = await this.withPageToken((next?: string) => this.requester.requestImports(id, next));
+        return imports.flatMap(i => i.results || []);
+    }
+
+
+    private async requestImportErrorsWithPaging(id: string): Promise<FAILURE[]> {
+        const errors = await this.withPageToken((next?: string) => this.requester.requestImportErrors(id, next));
+        return errors.flatMap(e => e.results || []);
+    }
+
+    private async withPageToken<T extends { next_page_token?: string; }>(method: { (next?: string): Promise<T>; }) {
+        const results: T[] = [];
+        let hasNextPage = true;
+        let pageToken: string | undefined;
+
+        while (hasNextPage) {
+            const res = await withRetry(
+                () => method(pageToken),
+                (err) => this.handleError(err)
+            );
+            results.push(res);
+
+            hasNextPage = !!res.next_page_token && res.next_page_token !== pageToken;
+            pageToken = res.next_page_token;
+        }
+        return results;
     }
 }
