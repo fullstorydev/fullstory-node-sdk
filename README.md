@@ -319,4 +319,45 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   The batch import job execution will retry if rate limit or other transient errors had been encountered up to a max number of retries.
 
 ## Error Handling
-// TODO
+
+- `init` may throw an error when the required options fields are not satisfied.
+
+- Functions in the FullStory client may throw `FSError` objects. For import jobs, the `FSError` object is provided to the on `error` callbacks.
+
+-  If needed, the `name` field identifies the type of error. The SDK also provides `isFSError` function to check if an error object is a typed `FSError`.
+
+  See [errors](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/src/errors) for more information.
+
+  ```ts
+  try {
+    ...
+  } catch (err: unknown) {
+    if (isFSError(err)) {
+      switch (err.name) {
+        case FSErrorName.ERROR_RATE_LIMITED:
+          console.log('FullStory server API returned HTTP 429 Too Many Requests.');
+          console.log(`received 'retry - after' header, retry in ${err.getRetryAfter()} milliseconds.`);
+          break;
+        case FSErrorName.ERROR_PARSE_RESPONSE:
+          console.log('Unable to parse FullStory server API responses.');
+          console.log(`Raw response received ${(err as FSParserError).fsErrorPayload}.`);
+          break;
+        case FSErrorName.ERROR_FULLSTORY:
+          // API errors except 429s
+          console.log('FullStory server API returned non-2xx responses.');
+          console.log(`Status: ${(err as FSApiError).httpStatusCode}.`);
+          console.log(`Response: ${(err as FSApiError).fsErrorPayload}.`);
+          break;
+        case FSErrorName.ERROR_TIMEOUT:
+          console.log('Timeout exceeded while making FullStory server API requests.');
+          break;
+        case FSErrorName.ERROR_MAX_RETRY:
+          console.log('Max number of retries exceeded during batch import job execution.');
+          break;
+        case FSErrorName.ERROR_UNKNOWN:
+          console.log('Unexpected error occurred.');
+          break;
+      }
+    }
+  }
+  ```
