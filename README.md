@@ -316,7 +316,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
   It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.
 
-  The batch import job execution will retry if rate limit or other transient errors had been encountered up to a max number of retries.
+  The batch import job execution will retry if rate limit or other transient errors are encountered up to a max number of retries.
 
 ## Error Handling
 
