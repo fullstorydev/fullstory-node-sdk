@@ -11,11 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Steps to reproduce the behavior. Please include any code snippet or a link to your project repository that experience the issue so we could better understand the issue.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
