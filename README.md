@@ -49,9 +49,9 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     display_name: 'Display Name',
     email: 'user123@example.com',
     properties: {
-      pricing_plan_str: 'paid',
-      popup_help_bool: true,
-      total_spent_real: 14.5,
+      pricing_plan: 'paid',
+      popup_help: true,
+      total_spent: 14.5,
     },
   });
   ```
@@ -147,9 +147,9 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
       display_name: 'Display Name',
       email: 'user123@example.com',
       properties: {
-        pricing_plan_str: 'paid',
-        popup_help_bool: true,
-        total_spent_real: 14.5,
+        pricing_plan: 'paid',
+        popup_help: true,
+        total_spent: 14.5,
       },
     },
     {
