@@ -16,7 +16,7 @@ If an issue doesn't already exist, you can open a new issue using a relevant [is
 
 ## Create a PR
 
-Follow the steps if you've noticed any issues that interest you and would like to create a PR to fix.
+Follow the following steps if you notice any issues that interest you and would like to create a PR to fix them.
 
 - Fork the repository.
 
