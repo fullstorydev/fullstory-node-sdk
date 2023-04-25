@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-> If you are a FullStory customer with any question regarding the FullStory APIs, please direct your questions to our support team. 
+> If you are a FullStory customer with any questions regarding the FullStory APIs, please direct your questions to our support team. 
 
 **Your Questions**
 A clear and concise description of your question and what you are trying to achieve.
