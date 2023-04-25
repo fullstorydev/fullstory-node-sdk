@@ -34,4 +34,4 @@ Some tips for successful PR:
 
 - A FullStory team member may ask for changes to be made before a PR can be merged. Address them by making changes and committing to your branch.
 
-- Resolve any conversation in the PR, as they are addressed.
+- Resolve any conversations in the PR, as they are addressed.
