@@ -10,7 +10,7 @@ See project [README](https://github.com/fullstorydev/fullstory-node-sdk/blob/mai
 
 ## Create a new issue
 
-If you notice any issues or anything that may be confusing to you, search to see if there's any [issue](https://github.com/fullstorydev/fullstory-node-sdk/issues) already created.
+If you notice any issues or anything that may be confusing to you, search to see if there's an [issue](https://github.com/fullstorydev/fullstory-node-sdk/issues) already created.
 
 If an issue doesn't already exist, you can open a new issue using a relevant [issue form](https://github.com/fullstorydev/fullstory-node-sdk/issues/new/choose).
 
