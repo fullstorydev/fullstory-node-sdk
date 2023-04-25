@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { FSApiError, FSErrorName, FSUnknownError } from '../../errors';
 import { UsersApi, UsersBatchImportApi } from '../index';
@@ -35,6 +35,7 @@ describe('FullStory Users API', () => {
             uid: 'test_user_1',
             display_name: 'test_user_1_display',
             email: 'test_user_1@test.com',
+            is_being_deleted: false,
             properties: {
                 singed_up: true,
                 signed_up_date: '2023-03-14T20:30:19+0000'
@@ -218,7 +219,8 @@ describe('FullStory Batch Users API', () => {
         const mockJob: CreateBatchUserImportJobResponse = {
             job: {
                 id: 'abcd1234',
-                status: JobStatus.Processing
+                status: JobStatus.Processing,
+                created: new Date().toISOString()
             }
         };
 
@@ -242,7 +244,7 @@ describe('FullStory Batch Users API', () => {
     });
 
     test('get job status', async () => {
-        const mockJob: GetBatchUserImportStatusResponse = {
+        const mockJob = {
             job: {
                 id: 'abcd1234',
                 status: JobStatus.Processing
@@ -270,6 +272,8 @@ describe('FullStory Batch Users API', () => {
 
     test('get job imports', async () => {
         const mockRsp: GetBatchUserImportsResponse = {
+            total_records: '2',
+            next_page_token: '',
             results: [
                 { id: '12341234' },
                 { id: '43214321' }

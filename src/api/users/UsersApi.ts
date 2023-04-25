@@ -10,13 +10,7 @@
 import { OutgoingHttpHeaders } from 'node:http';
 import { RequestOptions } from 'node:https';
 
-import { GetUserResponse } from '@model/users/GetUserResponse';
-import { ListUsersResponse } from '@model/users/ListUsersResponse';
-import { CreateUserResponse } from '@model/users/CreateUserResponse';
-import { UpdateUserResponse } from '@model/users/UpdateUserResponse';
-import { CreateUserRequest } from '@model/users/CreateUserRequest';
-import { UpdateUserRequest } from '@model/users/UpdateUserRequest';
-import { ErrorResponse } from '@model/apierror/ErrorResponse';
+import { GetUserResponse , ListUsersResponse , CreateUserResponse , UpdateUserResponse , CreateUserRequest , UpdateUserRequest , ErrorResponse } from '@model/index';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
@@ -34,13 +28,17 @@ export class UsersApi {
      * Creates a user with the specified details
      * @summary Create User
      * @param body
+     * @param includeSchema Whether to include the schema in the response.
     */
-    public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
+    public async createUser(body: CreateUserRequest, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (includeSchema !== undefined) {
+            queryParams.set('include_schema', String(includeSchema));
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported
@@ -101,14 +99,18 @@ export class UsersApi {
      * Retrieve details for a single user
      * @summary Get User
      * @param id The FullStory assigned user ID
+     * @param includeSchema Whether to include the schema in the response.
     */
-    public async getUser(id: string, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
+    public async getUser(id: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (includeSchema !== undefined) {
+            queryParams.set('include_schema', String(includeSchema));
+        }
 
         const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
@@ -135,8 +137,9 @@ export class UsersApi {
      * @param displayName The nice-looking name for a user
      * @param isIdentified Whether or not a user is anonymous or identified
      * @param pageToken The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.
+     * @param includeSchema Whether to include schemas in the response.
     */
-    public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
+    public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
         const apiPath = `${this.basePath}/v2beta/users`;
         const url = new URL(apiPath);
 
@@ -156,6 +159,9 @@ export class UsersApi {
         }
         if (pageToken !== undefined) {
             queryParams.set('page_token', pageToken);
+        }
+        if (includeSchema !== undefined) {
+            queryParams.set('include_schema', String(includeSchema));
         }
 
         const queryStr = queryParams.toString();
@@ -180,14 +186,18 @@ export class UsersApi {
      * @summary Update User
      * @param id The FullStory assigned user ID
      * @param body
+     * @param includeSchema Whether to include the schema in the response.
     */
-    public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
+    public async updateUser(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (includeSchema !== undefined) {
+            queryParams.set('include_schema', String(includeSchema));
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported

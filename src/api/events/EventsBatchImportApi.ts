@@ -10,12 +10,7 @@
 import { OutgoingHttpHeaders } from 'node:http';
 import { RequestOptions } from 'node:https';
 
-import { GetBatchEventsImportErrorsResponse } from '@model/events/GetBatchEventsImportErrorsResponse';
-import { CreateBatchEventsImportJobRequest } from '@model/events/CreateBatchEventsImportJobRequest';
-import { GetBatchEventsImportsResponse } from '@model/events/GetBatchEventsImportsResponse';
-import { CreateBatchEventsImportJobResponse } from '@model/events/CreateBatchEventsImportJobResponse';
-import { ErrorResponse } from '@model/apierror/ErrorResponse';
-import { GetBatchEventsImportStatusResponse } from '@model/events/GetBatchEventsImportStatusResponse';
+import { JobStatusResponse , GetBatchEventsImportErrorsResponse , CreateBatchEventsImportJobRequest , GetBatchEventsImportsResponse , CreateBatchEventsImportJobResponse , ErrorResponse } from '@model/index';
 
 import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
@@ -32,7 +27,7 @@ export class EventsBatchImportApi {
     /**
      * Creates a batch events import job with the given list of event information.  The number of request objects that can be included in a single batch request is `50,000`.
      * @summary Create Events Import
-     * @param body
+     * @param body The request payloads contains the list of events to be imported
     */
     public async createBatchEventsImportJob(body: CreateBatchEventsImportJobRequest, options?: FSRequestOptions): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
         const apiPath = `${this.basePath}/v2beta/events/batch`;
@@ -105,7 +100,7 @@ export class EventsBatchImportApi {
      * @summary Get Batch Import Job Details
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
     */
-    public async getBatchEventsImportStatus(jobId: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportStatusResponse>> {
+    public async getBatchEventsImportStatus(jobId: string, options?: FSRequestOptions): Promise<FSResponse<JobStatusResponse>> {
         const apiPath = `${this.basePath}/v2beta/events/batch/{job_id}`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -122,7 +117,7 @@ export class EventsBatchImportApi {
         };
 
         try {
-            return await this.httpClient.request<void, GetBatchEventsImportStatusResponse>(requestOptions, undefined, options);
+            return await this.httpClient.request<void, JobStatusResponse>(requestOptions, undefined, options);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
