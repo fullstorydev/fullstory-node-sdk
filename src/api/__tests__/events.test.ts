@@ -39,8 +39,7 @@ describe('FullStory Events API', () => {
             events: [
                 { name: 'nodejs-sdk-event-1' },
                 { name: 'nodejs-sdk-event-2' }
-            ],
-            include_schema: false,
+            ]
         };
         const mockEvent: CreateEventsResponse = {
             ...createReq
