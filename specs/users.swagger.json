@@ -129,6 +129,13 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include schemas in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -216,6 +223,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateUserRequest"
             }
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -323,7 +337,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportStatusResponse"
+              "$ref": "#/definitions/fullstory.v2.job.JobStatusResponse"
             }
           },
           "400": {
@@ -494,6 +508,13 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include schemas in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -594,6 +615,13 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include schemas in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -684,6 +712,13 @@
             "required": true,
             "type": "string",
             "format": "int64"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -866,6 +901,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.UpdateUserRequest"
             }
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -891,7 +933,12 @@
           "type": "string",
           "description": "A short snake-cased value that is safe to handle programmatically"
         }
-      }
+      },
+      "description": "A structured error response from the server",
+      "required": [
+        "message",
+        "code"
+      ]
     },
     "fullstory.v2.job.JobMetadata": {
       "type": "object",
@@ -922,7 +969,12 @@
         }
       },
       "description": "JobMetadata contains metadata about asynchronous jobs.",
-      "title": "JobMetadata"
+      "title": "JobMetadata",
+      "required": [
+        "id",
+        "status",
+        "created"
+      ]
     },
     "fullstory.v2.job.JobStatus": {
       "type": "string",
@@ -932,7 +984,42 @@
         "FAILED"
       ],
       "default": "UNKNOWN",
-      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being\nprocessed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being processed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+    },
+    "fullstory.v2.job.JobStatusResponse": {
+      "type": "object",
+      "example": {
+        "imports": 42,
+        "errors": 2,
+        "job": {
+          "id": "abd123=",
+          "status": "FAILED",
+          "created": "2019-04-18T14:36:11.123Z",
+          "finished": "2019-04-18T15:36:11.123Z"
+        }
+      },
+      "properties": {
+        "imports": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The stats on the number of items imported successfully"
+        },
+        "errors": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Only included for failed imports. The stats on the number of items that failed to be imported"
+        },
+        "job": {
+          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
+          "description": "Information about the current state of the job"
+        }
+      },
+      "description": "Server response for the job status",
+      "required": [
+        "imports",
+        "errors",
+        "job"
+      ]
     },
     "fullstory.v2.users.BatchUserImportRequest": {
       "type": "object",
@@ -970,10 +1057,15 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
         }
-      }
+      },
+      "description": "The request payloads contains the user data to be imported"
     },
     "fullstory.v2.users.BatchUserImportResponse": {
       "type": "object",
@@ -1012,10 +1104,22 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
+        },
+        "type_conflicts": {
+          "type": "object",
+          "description": "Any fields that are associated with multiple types."
         }
-      }
+      },
+      "description": "Server response for a batch user imported",
+      "required": [
+        "id"
+      ]
     },
     "fullstory.v2.users.CreateBatchUserImportJobRequest": {
       "type": "object",
@@ -1037,7 +1141,10 @@
           },
           "description": "The list of users and their information that should be imported in this batch request"
         }
-      }
+      },
+      "required": [
+        "requests"
+      ]
     },
     "fullstory.v2.users.CreateBatchUserImportJobResponse": {
       "type": "object",
@@ -1053,7 +1160,10 @@
           "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
           "description": "Information about the job that was initiated to import the list of users submitted"
         }
-      }
+      },
+      "required": [
+        "job"
+      ]
     },
     "fullstory.v2.users.CreateUserRequest": {
       "type": "object",
@@ -1085,8 +1195,12 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
         }
       }
     },
@@ -1126,10 +1240,22 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
+        },
+        "type_conflicts": {
+          "type": "object",
+          "description": "Any fields that are associated with multiple types."
         }
-      }
+      },
+      "description": "Request payload for creating a user",
+      "required": [
+        "id"
+      ]
     },
     "fullstory.v2.users.DeleteUserResponse": {
       "type": "object"
@@ -1178,7 +1304,7 @@
           "description": "Page of user import failures for the batch import"
         },
         "total_records": {
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "description": "The total number of failures for the specified user import"
         },
@@ -1186,10 +1312,30 @@
           "type": "string",
           "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
         }
-      }
+      },
+      "description": "Server response for retrieving batch users import errors",
+      "required": [
+        "total_records",
+        "next_page_token"
+      ]
     },
     "fullstory.v2.users.GetBatchUserImportErrorsResponse.FailedUserImport": {
       "type": "object",
+      "example": {
+        "message": "The error message",
+        "code": "error_code",
+        "user": {
+          "id": 123,
+          "uid": "xyz123",
+          "display_name": "Daniel Falko",
+          "email": "daniel.falko@example.com",
+          "properties": {
+            "pricing_plan_str": "paid",
+            "popup_help_bool": true,
+            "total_spent_real": 14.50
+          }
+        }
+      },
       "properties": {
         "message": {
           "type": "string",
@@ -1203,36 +1349,13 @@
           "$ref": "#/definitions/fullstory.v2.users.BatchUserImportRequest",
           "description": "Corresponding user import request that resulted in failure"
         }
-      }
-    },
-    "fullstory.v2.users.GetBatchUserImportStatusResponse": {
-      "type": "object",
-      "example": {
-        "imports": 42,
-        "errors": 4,
-        "job": {
-          "id": "otpo123",
-          "status": "COMPLETED",
-          "created": "2019-04-18T14:36:11.123Z",
-          "finished": "2019-04-18T15:36:11.123Z"
-        }
       },
-      "properties": {
-        "imports": {
-          "type": "string",
-          "format": "int64",
-          "description": "The stats on the number of users imported successfully"
-        },
-        "errors": {
-          "type": "string",
-          "format": "int64",
-          "description": "Only included for failed imports. The stats on the number of users that failed to be imported"
-        },
-        "job": {
-          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
-          "description": "Information about the current state of the job that was initiated to import the list of users"
-        }
-      }
+      "description": "Server response for failed batch users",
+      "required": [
+        "message",
+        "code",
+        "user"
+      ]
     },
     "fullstory.v2.users.GetBatchUserImportsResponse": {
       "type": "object",
@@ -1271,7 +1394,7 @@
           "description": "Page of user import responses for the batch import"
         },
         "total_records": {
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "description": "Total number of records in this batch import"
         },
@@ -1279,7 +1402,13 @@
           "type": "string",
           "description": "The token that can be used in a subsequent request to fetch the next page of import results"
         }
-      }
+      },
+      "description": "Server response for retrieving batch users imported",
+      "required": [
+        "results",
+        "total_records",
+        "next_page_token"
+      ]
     },
     "fullstory.v2.users.GetUserResponse": {
       "type": "object",
@@ -1321,10 +1450,27 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
+        },
+        "type_conflicts": {
+          "type": "object",
+          "description": "Any fields that are associated with multiple types."
+        },
+        "app_url": {
+          "type": "string",
+          "description": "A link to the FullStory app segments page, focused on this user."
         }
-      }
+      },
+      "description": "Server response payload for retrieving a single user",
+      "required": [
+        "id",
+        "is_being_deleted"
+      ]
     },
     "fullstory.v2.users.ListUsersResponse": {
       "type": "object",
@@ -1354,15 +1500,25 @@
           "description": "The list of users that match the input filter criteria"
         },
         "total_records": {
-          "type": "string",
+          "type": "integer",
           "format": "uint64",
           "description": "The total number of users that matched the filter criteria"
         },
         "next_page_token": {
           "type": "string",
           "description": "The token that can be used in a subsequent request with the same filter criteria to fetch the next page of users"
+        },
+        "app_url": {
+          "type": "string",
+          "description": "A link to an anonymous segment in the FullStory app contining these users."
         }
-      }
+      },
+      "description": "Server response for listing all users satisfying the request",
+      "required": [
+        "results",
+        "total_records",
+        "next_page_token"
+      ]
     },
     "fullstory.v2.users.UpdateUserRequest": {
       "type": "object",
@@ -1394,10 +1550,15 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
         }
-      }
+      },
+      "description": "Request payload for updating a user"
     },
     "fullstory.v2.users.UpdateUserResponse": {
       "type": "object",
@@ -1436,8 +1597,29 @@
         },
         "properties": {
           "type": "object",
-          "description": "Properties that provide additional information about your user.\n* Up to 500 unique properties are allowed.\n* Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n* Property names must start with an alphabetic character (A-Z or a-z).\n* The maximum property name length is 512 characters.\n* Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted\nconcatenation of all its parent properties must still be under the length limit of 512 characters.\n* Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
+          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
           "maxProperties": 500
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
+        },
+        "type_conflicts": {
+          "type": "object",
+          "description": "Any fields that are associated with multiple types."
+        }
+      },
+      "description": "Server response payload for updating a user",
+      "required": [
+        "id"
+      ]
+    },
+    "fullstory.v2.varsapi.Schema": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "A mapping of field names to their corresponding types."
         }
       }
     },
