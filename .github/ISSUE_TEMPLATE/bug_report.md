@@ -21,7 +21,7 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Actual behavior**
-A clear and concise description of what you expected to happen.
+A clear and concise description of what actually happened.
 
 **Node env (please complete the following information):**
  - Dev OS: [e.g. MacOS]
