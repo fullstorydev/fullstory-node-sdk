@@ -257,7 +257,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   }
   ```
 
-- Adding listeners for a batch import jobs and executing the job
+- Adding listeners for a batch import job and executing the job
 
   1. When the job execute is called, an API request is made to the server to create the import the job:
   - [users](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
