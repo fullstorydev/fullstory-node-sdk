@@ -1,5 +1,6 @@
 {{! This file is mostly a duplicate of typescript-node template with minor changes. }}
 {{! TODO(sabrina): change as neccessary for FullStory APIs. }}
+/* eslint multiline-comment-style: ["error", "starred-block"] */
 {{>info}}
 {{#models}}
 {{#model}}
@@ -7,20 +8,20 @@
 {{#tsImports}}
 import { {{classname}} } from '@model/{{filename}}';
 {{/tsImports}}
-
-{{#description}}
-/**
-* {{{.}}}
-*/
-{{/description}}
 {{^isEnum}}
+/**
+* @interface {{classname}}{{#unescapedDescription}} {{{.}}}{{/unescapedDescription}}
+{{#parent}}
+* @extends {{{.}}}
+{{/parent}}
+*/
 export interface {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{
 {{#vars}}
-{{#description}}
+{{#unescapedDescription}}
     /**
     * {{{.}}}
     */
-{{/description}}
+{{/unescapedDescription}}
     '{{name}}'{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}};
 {{/vars}}
 }
@@ -33,6 +34,9 @@ export namespace {{classname}} {
 {{/vars}}
 {{#vars}}
 {{#isEnum}}
+    /**
+    * @enum {{enumName}}{{#unescapedDescription}} {{.}}{{/unescapedDescription}}
+    */
     export enum {{enumName}} {
         {{#allowableValues}}
         {{#enumVars}}
@@ -50,6 +54,10 @@ export namespace {{classname}} {
 {{/hasEnums}}
 {{/isEnum}}
 {{#isEnum}}
+/**
+* @enum {{classname}}
+{{#unescapedDescription}}{{.}}{{/unescapedDescription}}
+*/
 export enum {{classname}} {
     {{#allowableValues}}
     {{#enumVars}}

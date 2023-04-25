@@ -3,9 +3,9 @@ import { IncomingHttpHeaders } from 'node:http';
 import { FSBaseError, FSErrorName } from './base';
 
 /*
-    FSParserError returned when server API returns a 2xx code but
-    the response data can not be parsed correctly.
-*/
+ * FSParserError returned when server API returns a 2xx code but
+ * the response data can not be parsed correctly.
+ */
 export class FSParserError extends FSBaseError {
     // if received a http status code
     httpStatusCode: number;

@@ -102,6 +102,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
             }
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -186,6 +193,7 @@
         "parameters": [
           {
             "name": "body",
+            "description": "The request payloads contains the list of events to be imported",
             "in": "body",
             "required": true,
             "schema": {
@@ -209,7 +217,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportStatusResponse"
+              "$ref": "#/definitions/fullstory.v2.job.JobStatusResponse"
             }
           },
           "400": {
@@ -303,7 +311,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job is still processing.",
-            "schema": { }
+            "schema": {}
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -403,7 +411,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job is still processing.",
-            "schema": { }
+            "schema": {}
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -506,10 +514,43 @@
           "type": "string",
           "description": "A short snake-cased value that is safe to handle programmatically"
         }
-      }
+      },
+      "description": "A structured error response from the server",
+      "required": [
+        "message",
+        "code"
+      ]
+    },
+    "fullstory.v2.events.BrowserContext": {
+      "type": "object",
+      "example": {
+        "url": "https://app.example.com",
+        "referrer_url": "https://referrer.example.com",
+        "user_agent": "Example Browser User Agent"
+      },
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "user_agent": {
+          "type": "string"
+        },
+        "referrer_url": {
+          "type": "string"
+        }
+      },
+      "description": "The browser context in which the events are attached to"
     },
     "fullstory.v2.events.Context": {
       "type": "object",
+      "example": {
+        "browser": {
+          "url": "https://example.com"
+        },
+        "device": {
+          "ip": "127.0.0.1"
+        }
+      },
       "properties": {
         "integration": {
           "type": "string"
@@ -520,8 +561,8 @@
             "type": "string"
           }
         },
-        "web": {
-          "$ref": "#/definitions/fullstory.v2.events.WebContext"
+        "browser": {
+          "$ref": "#/definitions/fullstory.v2.events.BrowserContext"
         },
         "mobile": {
           "$ref": "#/definitions/fullstory.v2.events.MobileContext"
@@ -532,7 +573,8 @@
         "location": {
           "$ref": "#/definitions/fullstory.v2.events.LocationContext"
         }
-      }
+      },
+      "description": "The context in which the events are attached to"
     },
     "fullstory.v2.events.CreateBatchEventsImportJobRequest": {
       "type": "object",
@@ -544,12 +586,12 @@
               "id": "123456789"
             },
             "session": {
-              "use_latest_session": true
+              "use_most_recent": true
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
-              "web": {
+              "custom_annotations": {},
+              "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
@@ -574,12 +616,12 @@
               "id": "1234567890"
             },
             "session": {
-              "use_latest_session": true
+              "use_most_recent": true
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
-              "web": {
+              "custom_annotations": {},
+              "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
@@ -608,7 +650,11 @@
           },
           "description": "The list of event requests that should be imported"
         }
-      }
+      },
+      "description": "The request payloads contains the list of events to be imported",
+      "required": [
+        "requests"
+      ]
     },
     "fullstory.v2.events.CreateBatchEventsImportJobResponse": {
       "type": "object",
@@ -625,62 +671,12 @@
           "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
           "description": "Information about the job that was initiated to import the list of events submitted"
         }
-      }
+      },
+      "required": [
+        "job"
+      ]
     },
     "fullstory.v2.events.CreateEventsRequest": {
-      "type": "object",
-      "example": {
-        "user ": {
-          "uid": "xyz123 ",
-          "id ": "123456789 "
-        },
-        "session ": {
-          "use_latest_session ": true
-        },
-        "context ": {
-          "integration ": "segment ",
-          "custom_annotations ": { },
-          "web ": {
-            "url ": "https://store.mondaymorning.com ",
-            "user_agent ": "square/pos ",
-            "referrer_url ": " "
-          }
-        },
-        "events ": [
-          {
-            "name ": "Support Ticket ",
-            "timestamp ": "2022-03-15T14:23:23Z ",
-            "properties ": {
-              "id ": 424242,
-              "priority ": "Normal ",
-              "source ": "Email ",
-              "title ": "Account locked out "
-            }
-          }
-        ]
-      },
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/fullstory.v2.events.UserIdRequest"
-        },
-        "session": {
-          "$ref": "#/definitions/fullstory.v2.events.SessionIdRequest"
-        },
-        "context": {
-          "$ref": "#/definitions/fullstory.v2.events.Context"
-        },
-        "events": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/fullstory.v2.events.Event"
-          }
-        },
-        "include_schema": {
-          "type": "boolean"
-        }
-      }
-    },
-    "fullstory.v2.events.CreateEventsResponse": {
       "type": "object",
       "example": {
         "user": {
@@ -688,12 +684,12 @@
           "id": "123456789"
         },
         "session": {
-          "id": "123456"
+          "use_most_recent": true
         },
         "context": {
           "integration": "segment",
-          "custom_annotations": { },
-          "web": {
+          "custom_annotations": {},
+          "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
             "referrer_url": ""
@@ -714,6 +710,57 @@
       },
       "properties": {
         "user": {
+          "$ref": "#/definitions/fullstory.v2.events.UserIdRequest"
+        },
+        "session": {
+          "$ref": "#/definitions/fullstory.v2.events.SessionIdRequest"
+        },
+        "context": {
+          "$ref": "#/definitions/fullstory.v2.events.Context"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/fullstory.v2.events.Event"
+          }
+        }
+      },
+      "description": "The request payload for events to be created"
+    },
+    "fullstory.v2.events.CreateEventsResponse": {
+      "type": "object",
+      "example": {
+        "user": {
+          "uid": "xyz123",
+          "id": "123456789"
+        },
+        "session": {
+          "id": "123456"
+        },
+        "context": {
+          "integration": "segment",
+          "custom_annotations": {},
+          "browser": {
+            "url": "https://store.mondaymorning.com",
+            "user_agent": "square/pos",
+            "referrer_url": ""
+          },
+          "events": [
+            {
+              "name": "Support Ticket",
+              "timestamp": "2022-03-15T14:23:23Z",
+              "properties": {
+                "id": 424242,
+                "priority": "Normal",
+                "source": "Email",
+                "title": "Account locked out"
+              }
+            }
+          ]
+        }
+      },
+      "properties": {
+        "user": {
           "$ref": "#/definitions/fullstory.v2.events.UserResponse"
         },
         "session": {
@@ -728,10 +775,16 @@
             "$ref": "#/definitions/fullstory.v2.events.Event"
           }
         }
-      }
+      },
+      "description": "Server response for created events"
     },
     "fullstory.v2.events.DeviceContext": {
       "type": "object",
+      "example": {
+        "manufacturer": "Device Manufacturer",
+        "serial_number": "ABC123",
+        "ip": "127.0.0.1"
+      },
       "properties": {
         "ip": {
           "type": "string"
@@ -773,29 +826,38 @@
           "type": "integer",
           "format": "int32"
         }
-      }
+      },
+      "description": "The device context in which the events are attached to"
     },
     "fullstory.v2.events.Event": {
       "type": "object",
+      "example": {
+        "name": "Event Name",
+        "timestamp": "2023-04-13T18:37:20.828Z",
+        "properties": {
+          "additional_prop": "Additional property"
+        }
+      },
       "properties": {
         "name": {
           "type": "string",
-          "description": "The event name."
+          "description": "The event name"
         },
         "timestamp": {
           "type": "string",
           "format": "date-time",
-          "description": "Optional event timestamp, defaults to current time."
+          "description": "Optional event timestamp, defaults to current time"
         },
         "properties": {
           "type": "object",
-          "description": "The custom event payload."
+          "description": "The custom event payload"
         },
         "schema": {
           "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference."
+          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference"
         }
-      }
+      },
+      "description": "The event payload"
     },
     "fullstory.v2.events.GetBatchEventsImportErrorsResponse": {
       "type": "object",
@@ -810,12 +872,12 @@
                 "id": "123456789"
               },
               "session": {
-                "use_latest_session": true
+                "use_most_recent": true
               },
               "context": {
                 "integration": "segment",
-                "custom_annotations": { },
-                "web": {
+                "custom_annotations": {},
+                "browser": {
                   "url": "https://store.mondaymorning.com",
                   "user_agent": "square/pos",
                   "referrer_url": ""
@@ -848,7 +910,7 @@
           "description": "Page of events import failures for the batch import"
         },
         "total_records": {
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "description": "The total number of failures for the specified events import"
         },
@@ -856,10 +918,45 @@
           "type": "string",
           "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
         }
-      }
+      },
+      "description": "Server response for retrieving batch events import errors"
     },
     "fullstory.v2.events.GetBatchEventsImportErrorsResponse.FailedEventsImport": {
       "type": "object",
+      "example": {
+        "message": "time stamp out of range",
+        "code": "event_validation_failed",
+        "events": {
+          "user": {
+            "uid": "xyz123",
+            "id": "123456789"
+          },
+          "session": {
+            "use_most_recent": true
+          },
+          "context": {
+            "integration": "segment",
+            "custom_annotations": {},
+            "browser": {
+              "url": "https://store.mondaymorning.com",
+              "user_agent": "square/pos",
+              "referrer_url": ""
+            }
+          },
+          "events": [
+            {
+              "name": "Support Ticket",
+              "timestamp": "2012-03-15T14:23:23Z",
+              "properties": {
+                "id": 424242,
+                "priority": "Normal",
+                "source": "Email",
+                "title": "Account locked out"
+              }
+            }
+          ]
+        }
+      },
       "properties": {
         "message": {
           "type": "string",
@@ -873,36 +970,8 @@
           "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest",
           "description": "Corresponding events import request that resulted in failure"
         }
-      }
-    },
-    "fullstory.v2.events.GetBatchEventsImportStatusResponse": {
-      "type": "object",
-      "example": {
-        "imports": 42,
-        "errors": 2,
-        "job": {
-          "id": "abd123=",
-          "status": "FAILED",
-          "created": "2019-04-18T14:36:11.123Z",
-          "finished": "2019-04-18T15:36:11.123Z"
-        }
       },
-      "properties": {
-        "imports": {
-          "type": "string",
-          "format": "int64",
-          "description": "The stats on the number of events imported successfully"
-        },
-        "errors": {
-          "type": "string",
-          "format": "int64",
-          "description": "Only included for failed imports. The stats on the number of events that failed to be imported"
-        },
-        "job": {
-          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
-          "description": "Information about the current state of the job that was initiated to import the list of events"
-        }
-      }
+      "description": "Server response for failed batch events"
     },
     "fullstory.v2.events.GetBatchEventsImportsResponse": {
       "type": "object",
@@ -918,8 +987,8 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
-              "web": {
+              "custom_annotations": {},
+              "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
@@ -951,7 +1020,7 @@
           "description": "Page of events import responses for the batch import"
         },
         "total_records": {
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "description": "Total number of records in this batch import"
         },
@@ -959,19 +1028,28 @@
           "type": "string",
           "description": "The token that can be used in a subsequent request to fetch the next page of import results"
         }
-      }
+      },
+      "description": "Server response for retrieving batch events imported"
     },
     "fullstory.v2.events.LocationContext": {
       "type": "object",
+      "example": {
+        "country_code": "US",
+        "region_code": "US",
+        "city_name": "Atlanta"
+      },
       "properties": {
         "country_code": {
-          "type": "string"
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 standard country code"
         },
         "region_code": {
-          "type": "string"
+          "type": "string",
+          "description": "ISO-3166-2 standard region code"
         },
         "city_name": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the city"
         },
         "latitude": {
           "type": "number",
@@ -981,10 +1059,16 @@
           "type": "number",
           "format": "double"
         }
-      }
+      },
+      "description": "The location context in which the events are attached to"
     },
     "fullstory.v2.events.MobileContext": {
       "type": "object",
+      "example": {
+        "app_id": "com.company.example",
+        "app_name": "example app",
+        "app_version": "1.0.0"
+      },
       "properties": {
         "app_id": {
           "type": "string"
@@ -998,31 +1082,46 @@
         "build_variant": {
           "type": "string"
         }
-      }
+      },
+      "description": "The mobile context in which the events are attached to"
     },
     "fullstory.v2.events.SessionIdRequest": {
       "type": "object",
+      "example": {
+        "use_most_recent": true
+      },
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "The FullStory assigned user ID"
         },
         "use_most_recent": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Use the most recent session for the user"
         }
-      }
+      },
+      "description": "The session identifier"
     },
     "fullstory.v2.events.SessionResponse": {
       "type": "object",
+      "example": {
+        "id": 123456789
+      },
       "properties": {
         "id": {
           "type": "string",
           "format": "int64"
         }
-      }
+      },
+      "description": "The session identifier"
     },
     "fullstory.v2.events.UserIdRequest": {
       "type": "object",
+      "example": {
+        "uid": "xyz123",
+        "id": 123456789
+      },
       "properties": {
         "uid": {
           "type": "string",
@@ -1034,10 +1133,15 @@
           "format": "int64",
           "description": "The FullStory assigned user ID"
         }
-      }
+      },
+      "description": "The user identifier. `id` is required if `session` is provided in the request."
     },
     "fullstory.v2.events.UserResponse": {
       "type": "object",
+      "example": {
+        "uid": "xyz123",
+        "id": 123456789
+      },
       "properties": {
         "id": {
           "type": "string",
@@ -1046,21 +1150,8 @@
         "uid": {
           "type": "string"
         }
-      }
-    },
-    "fullstory.v2.events.WebContext": {
-      "type": "object",
-      "properties": {
-        "url": {
-          "type": "string"
-        },
-        "user_agent": {
-          "type": "string"
-        },
-        "referrer_url": {
-          "type": "string"
-        }
-      }
+      },
+      "description": "The user identifier"
     },
     "fullstory.v2.job.JobMetadata": {
       "type": "object",
@@ -1091,7 +1182,12 @@
         }
       },
       "description": "JobMetadata contains metadata about asynchronous jobs.",
-      "title": "JobMetadata"
+      "title": "JobMetadata",
+      "required": [
+        "id",
+        "status",
+        "created"
+      ]
     },
     "fullstory.v2.job.JobStatus": {
       "type": "string",
@@ -1101,7 +1197,42 @@
         "FAILED"
       ],
       "default": "UNKNOWN",
-      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being\nprocessed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+      "description": " - PROCESSING: Indicates that the job has been accepted by FullStory and is being processed.\n - COMPLETED: Indicates that the job has been completed successfully without any errors.\n - FAILED: Indicates that the job has failures, including partial failures."
+    },
+    "fullstory.v2.job.JobStatusResponse": {
+      "type": "object",
+      "example": {
+        "imports": 42,
+        "errors": 2,
+        "job": {
+          "id": "abd123=",
+          "status": "FAILED",
+          "created": "2019-04-18T14:36:11.123Z",
+          "finished": "2019-04-18T15:36:11.123Z"
+        }
+      },
+      "properties": {
+        "imports": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The stats on the number of items imported successfully"
+        },
+        "errors": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Only included for failed imports. The stats on the number of items that failed to be imported"
+        },
+        "job": {
+          "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
+          "description": "Information about the current state of the job"
+        }
+      },
+      "description": "Server response for the job status",
+      "required": [
+        "imports",
+        "errors",
+        "job"
+      ]
     },
     "fullstory.v2.varsapi.Schema": {
       "type": "object",
@@ -1131,7 +1262,7 @@
   },
   "security": [
     {
-      "ApiKeyAuth": [ ]
+      "ApiKeyAuth": []
     }
   ]
 }

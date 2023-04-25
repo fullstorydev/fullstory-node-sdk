@@ -26,9 +26,11 @@ describe('FullStory Events API', () => {
         // Create events
         const createEventsReq: CreateEventsRequest = {
             user: { uid: 'nodejs_sdk_smoke_test_user_2' },
-            // TODO(sabrina): add sessions and context to these events
-            // 'session'?: SessionIdRequest;
-            // 'context'?: Context;
+            /*
+             * TODO(sabrina): add sessions and context to these events
+             * 'session'?: SessionIdRequest;
+             * 'context'?: Context;
+             */
             events: [{
                 name: 'NodeJS Smoke Test Event - 1',
                 properties: {
@@ -47,7 +49,6 @@ describe('FullStory Events API', () => {
                     prop_2: 'properties two'
                 }
             }],
-            include_schema: true,
         };
 
         const created = await events.create(createEventsReq);
@@ -85,7 +86,6 @@ describe('FullStory Events API', () => {
                     prop_2: 'properties two'
                 }
             }],
-            include_schema: true,
         };
         const createReq2: CreateEventsRequest = {
             // user: { uid: 'nodejs_sdk_smoke_test_batch_2' },
@@ -120,13 +120,13 @@ describe('FullStory Events API', () => {
                 expect(imported).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
-                            events: createReq1.events!.map(e => expect.objectContaining({ ...e }))
+                            events: createReq1.events?.map(e => expect.objectContaining({ ...e }))
                         }),
                         expect.objectContaining({
-                            events: createReq2.events!.map(e => expect.objectContaining({ ...e }))
+                            events: createReq2.events?.map(e => expect.objectContaining({ ...e }))
                         }),
                         expect.objectContaining({
-                            events: createReq3.events!.map(e => expect.objectContaining({ ...e }))
+                            events: createReq3.events?.map(e => expect.objectContaining({ ...e }))
                         }),
                     ])
                 );

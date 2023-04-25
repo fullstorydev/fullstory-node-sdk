@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, GetBatchEventsImportStatusResponse, JobStatus } from '@model/index';
+import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
 
 import { EventsApi, EventsBatchImportApi } from '..';
 
@@ -39,8 +39,7 @@ describe('FullStory Events API', () => {
             events: [
                 { name: 'nodejs-sdk-event-1' },
                 { name: 'nodejs-sdk-event-2' }
-            ],
-            include_schema: false,
+            ]
         };
         const mockEvent: CreateEventsResponse = {
             ...createReq
@@ -98,7 +97,8 @@ describe('FullStory Batch Events API', () => {
         const mockJob: CreateBatchEventsImportJobResponse = {
             job: {
                 id: 'abcd1234',
-                status: JobStatus.Processing
+                status: JobStatus.Processing,
+                created: new Date().toISOString()
             }
         };
 
@@ -122,10 +122,13 @@ describe('FullStory Batch Events API', () => {
     });
 
     test('get job status', async () => {
-        const mockJob: GetBatchEventsImportStatusResponse = {
+        const mockJob: JobStatusResponse = {
+            imports: 0,
+            errors: 0,
             job: {
                 id: 'abcd1234',
-                status: JobStatus.Processing
+                status: JobStatus.Processing,
+                created: new Date().toISOString(),
             }
         };
 

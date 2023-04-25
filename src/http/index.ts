@@ -118,8 +118,7 @@ export class FSHttpClient implements IFSHttpClient {
                     try {
                         responseData = JSON.parse(responseDataStr);
                     } catch (e) {
-                        // It's possible that response is invalid json
-                        // return parse error regardless of response status
+                        // It's possible that response is invalid json, return parse error regardless of response status
                         if (e instanceof SyntaxError) {
                             reject(new FSParserError('Invalid JSON response', msg.statusCode, msg.headers, responseDataStr, e));
                         } else {

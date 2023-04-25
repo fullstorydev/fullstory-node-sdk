@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { BatchUserImportRequest, CreateUserResponse, FailedUserImport, JobStatus } from '@model/index';
+import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobResponse, CreateUserResponse, FailedUserImport, JobStatus, JobStatusResponse } from '@model/index';
 
 import { FSApiError } from '../../errors';
 import { IBatchUsersRequester } from '../../users';
@@ -16,6 +16,11 @@ beforeEach(() => {
     jest.resetAllMocks();
 });
 
+const MOCK_JOB_RSP: CreateBatchUserImportJobResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() } };
+const MOCK_JOB__PROCESSING: JobStatusResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() }, imports: 0, errors: 0 };
+const MOCK_JOB_FAILED: JobStatusResponse = { job: { id: 'test', status: JobStatus.Failed, created: new Date().toISOString(), finished: new Date().toISOString() }, imports: 0, errors: 0 };
+const MOCK_JOB_COMPLETED: JobStatusResponse = { job: { id: 'test', status: JobStatus.Completed, created: new Date().toISOString(), finished: new Date().toISOString() }, imports: 0, errors: 0 };
+
 describe('BatchJob', () => {
     test('more requests can be added', () => {
         const req: BatchUserImportRequest = { display_name: 'test batch job' };
@@ -26,7 +31,7 @@ describe('BatchJob', () => {
     });
 
     test('can execute', done => {
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('created', job => {
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
@@ -37,8 +42,8 @@ describe('BatchJob', () => {
     });
 
     test('on processing should be called', done => {
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
-        mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Processing } }; });
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB__PROCESSING);
 
         const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('processing', _ => {
@@ -48,7 +53,7 @@ describe('BatchJob', () => {
     });
 
     test('on error should be called', done => {
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('test'); });
 
         const baseJob = new BatchJob([], mockRequester, {});
@@ -59,17 +64,17 @@ describe('BatchJob', () => {
     });
 
     test('request imports should be called with paging', done => {
-        const rsp: CreateUserResponse = {};
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
-        mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Completed } }; });
+        const rsp: CreateUserResponse = { id: 'fake' };
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
 
         // mock return of 4 pages of 3 rsp each
         let i = 0;
         mockRequester.requestImports = jest.fn(async _ => {
             if (i < 3) {
-                return { results: [rsp, rsp, rsp], next_page_token: `test.token.${++i}` };
+                return { total_records: 3, results: [rsp, rsp, rsp], next_page_token: `test.token.${++i}` };
             } else {
-                return { results: [rsp, rsp, rsp] };
+                return { total_records: 3, results: [rsp, rsp, rsp], next_page_token: '' };
             }
         });
 
@@ -89,10 +94,10 @@ describe('BatchJob', () => {
     });
 
     test('on done should be called on job complete', done => {
-        const rsp: CreateUserResponse = {};
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
-        mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Completed } }; });
-        mockRequester.requestImports = jest.fn(async _ => { return { results: [rsp, rsp, rsp] }; });
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
+        const mockUser: BatchUserImportResponse = { id: 'test_user_id' };
+        mockRequester.requestImports = jest.fn(async _ => { return { total_records: 3, results: [mockUser, mockUser, mockUser], next_page_token: '' }; });
 
         const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('done', (i, f) => {
@@ -104,10 +109,10 @@ describe('BatchJob', () => {
     });
 
     test('on done should be called on job complete with failure', (done) => {
-        const rsp: FailedUserImport = {};
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
-        mockRequester.requestJobStatus = jest.fn(async _ => { return { job: { status: JobStatus.Failed } }; });
-        mockRequester.requestImportErrors = jest.fn(async _ => { return { results: [rsp, rsp, rsp] }; });
+        const mockFailed: FailedUserImport = { message: 'test message', code: 'test_error', user: { id: 'test_user_id' } };
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_FAILED);
+        mockRequester.requestImportErrors = jest.fn(async _ => { return { total_records: 3, results: [mockFailed, mockFailed, mockFailed], next_page_token: '' }; });
 
         const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('done', (i, f) => {
@@ -141,7 +146,7 @@ describe('BatchJob', () => {
     });
 
     test('abort on max number of retry-able poll errors', done => {
-        mockRequester.requestCreateJob = jest.fn(async _ => { return { job: { id: 'test' } }; });
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => {
             throw new FSApiError('rate limited', 429);
         });

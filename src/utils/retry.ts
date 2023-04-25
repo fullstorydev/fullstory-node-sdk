@@ -1,9 +1,11 @@
 import { isFSError } from '../errors';
 import { FSMaxRetryError } from '../errors/maxRetry';
 
-// withDelay wraps func to be invoked with a delay.
-// Resolves if func resolves.
-// If func rejects with retry-able error, resolves with the error and retryIn milliseconds.
+/*
+ * withDelay wraps func to be invoked with a delay.
+ * Resolves if func resolves.
+ * If func rejects with retry-able error, resolves with the error and retryIn milliseconds.
+ */
 export async function withDelay<T>(func: () => Promise<T>, delay = 0): Promise<T> {
     return new Promise((res, rej) => {
         setTimeout(() => {
@@ -26,12 +28,14 @@ export async function withRetry<T>(func: () => Promise<T>, onError: (err: unknow
             if (!isFSError(err) || !err.canRetry()) {
                 throw err;
             }
-            // TODO(sabrina):
-            // Minimal effort to reasonably retry with exponential back-off and
-            // at least wait for retry after. This could be an issue if there are
-            // multiple jobs/nodes running all at once. Consider allowing custom
-            // delay calculation using something more reasonable like distributed cache.
-            // Should eventually allow custom retry strategies
+            /*
+             * TODO(sabrina):
+             * Minimal effort to reasonably retry with exponential back-off and
+             * at least wait for retry after. This could be an issue if there are
+             * multiple jobs/nodes running all at once. Consider allowing custom
+             * delay calculation using something more reasonable like distributed cache.
+             * Should eventually allow custom retry strategies
+             */
             delay = err.getRetryAfter() + delay * 2;
         }
     }

@@ -6,6 +6,7 @@
  * Do not edit manually.
  */
 
+export * from '@model/events/BrowserContext';
 export * from '@model/events/Context';
 export * from '@model/events/CreateBatchEventsImportJobRequest';
 export * from '@model/events/CreateBatchEventsImportJobResponse';
@@ -16,10 +17,10 @@ export * from '@model/apierror/ErrorResponse';
 export * from '@model/events/Event';
 export * from '@model/events/FailedEventsImport';
 export * from '@model/events/GetBatchEventsImportErrorsResponse';
-export * from '@model/events/GetBatchEventsImportStatusResponse';
 export * from '@model/events/GetBatchEventsImportsResponse';
 export * from '@model/job/JobMetadata';
 export * from '@model/job/JobStatus';
+export * from '@model/job/JobStatusResponse';
 export * from '@model/events/LocationContext';
 export * from '@model/events/MobileContext';
 export * from '@model/varsapi/Schema';
@@ -27,4 +28,3 @@ export * from '@model/events/SessionIdRequest';
 export * from '@model/events/SessionResponse';
 export * from '@model/events/UserIdRequest';
 export * from '@model/events/UserResponse';
-export * from '@model/events/WebContext';
