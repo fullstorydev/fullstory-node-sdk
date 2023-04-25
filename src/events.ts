@@ -8,6 +8,9 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 //  CRUD operations
 ////////////////////////////////////
 
+/**
+ * @interface IEventsApi - create events within a single context.
+*/
 export interface IEventsApi {
     create(...req: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<CreateEventsResponse>>;
 }
@@ -16,6 +19,9 @@ export interface IEventsApi {
 //  Batch Imports
 ////////////////////////////////////
 
+/**
+ * @interface IBatchEventsApi - batch import events across multiple context.
+*/
 export interface IBatchEventsApi {
     batchCreate(
         requests?: CreateEventsRequest[],

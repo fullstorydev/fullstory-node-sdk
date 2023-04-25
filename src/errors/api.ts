@@ -5,8 +5,8 @@ import { ErrorResponse } from '@model/events.index';
 import { FSBaseError, FSErrorName } from './base';
 
 /*
-    FSApiError represents when server API returns a non-2xx code.
-*/
+ * FSApiError represents when server API returns a non-2xx code.
+ */
 export class FSApiError extends FSBaseError {
     // if received a http status code
     httpStatusCode?: number;

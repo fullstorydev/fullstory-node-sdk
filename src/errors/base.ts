@@ -31,10 +31,6 @@ export class FSBaseError extends Error implements FSError {
         this.name = name;
         this.message = message;
         this.cause = toError(cause);
-
-        if (this.cause) {
-            this.chain(this.cause);
-        }
     }
 
     public chain(err: Error) {
