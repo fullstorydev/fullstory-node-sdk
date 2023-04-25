@@ -1,5 +1,5 @@
 import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from '@api/index';
-import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportsResponse, GetBatchUserImportStatusResponse, GetUserResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatusResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
@@ -31,12 +31,12 @@ export interface IBatchUsersApi {
     ): BatchUsersJob;
 }
 
-class BatchUsersJob extends BatchJob<BatchUserImportRequest, CreateBatchUserImportJobResponse, GetBatchUserImportStatusResponse, BatchUserImportResponse, FailedUserImport> {
+class BatchUsersJob extends BatchJob<BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
     constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: BatchJobOptions = {}) {
         super(requests, new BatchUsersRequester(fsOpts), opts);
     }
 }
-export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, GetBatchUserImportStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
+export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
 
 class BatchUsersRequester implements IBatchUsersRequester {
     protected readonly batchUsersImpl: FSUsersBatchApi;
@@ -64,7 +64,7 @@ class BatchUsersRequester implements IBatchUsersRequester {
         return results;
     }
 
-    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
+    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
         const res = await this.batchUsersImpl.getBatchUserImportErrors(id, nextPageToken);
         const results = res.body;
         if (!results) {
@@ -73,7 +73,7 @@ class BatchUsersRequester implements IBatchUsersRequester {
         return results;
     }
 
-    async requestJobStatus(id: string): Promise<GetBatchUserImportStatusResponse> {
+    async requestJobStatus(id: string): Promise<JobStatusResponse> {
         const rsp = await this.batchUsersImpl.getBatchUserImportStatus(id);
         const body = rsp.body;
         if (!body) {
@@ -94,21 +94,25 @@ export class Users implements IUsersApi, IBatchUsersApi {
         this.usersImpl = new FSUsersApi(opts);
     }
 
-    async get(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(id, options);
+    //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
+    async get(id: string, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
+        return this.usersImpl.getUser(id, includeSchema, options);
     }
 
-    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(body, options);
+    async create(body: CreateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(body, includeSchema, options);
     }
-    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, options);
+
+    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
+        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, includeSchema, options);
     }
+
     async delete(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
         return this.usersImpl.deleteUser(id, options);
     }
-    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(id, body, options);
+
+    async update(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(id, body, includeSchema, options);
     }
 
     batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions): BatchUsersJob {

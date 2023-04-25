@@ -130,7 +130,6 @@ describe('FullStory Batch Events API', () => {
                 id: 'abcd1234',
                 status: JobStatus.Processing,
                 created: new Date().toISOString(),
-
             }
         };
 

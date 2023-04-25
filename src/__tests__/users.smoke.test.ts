@@ -25,7 +25,7 @@ describe('FullStory Users API', () => {
 
     test('CRUD single user API round trip', async () => {
         const createReq: CreateUserRequest = {
-            uid: 'nodejs_sdk_smoke_test_user_1',
+            uid: 'nodejs_sdk_smoke_test_crud_1',
             display_name: 'NodeJS Smoke Test User',
             email: 'donotreply@fullstory',
             properties: {
@@ -33,9 +33,8 @@ describe('FullStory Users API', () => {
                 sign_up: {
                     signed_up: true,
                     signed_up_date: '2000-10-31T00:00:00Z',
-                    signed_up_d_str: '2000-10-31T00:00:00Z',
                 },
-                cell_num: '4041111111'
+                cell_number: '4041111111'
             }
         };
 
@@ -103,7 +102,7 @@ describe('FullStory Users API', () => {
 
     test('Batch Users Job handling', done => {
         const createReq1: CreateUserRequest = {
-            uid: 'nodejs_sdk_smoke_test_batch_1',
+            uid: 'nodejs_sdk_smoke_test_batch_2',
             display_name: 'NodeJS Smoke Test User',
             email: 'donotreply@fullstory',
             properties: {
@@ -111,9 +110,8 @@ describe('FullStory Users API', () => {
                 sign_up: {
                     signed_up: true,
                     signed_up_date: '2000-10-31T00:00:00Z',
-                    signed_up_d_str: '2000-10-31T00:00:00Z',
                 },
-                cell_num: '4041111111'
+                cell_number: '4041111111'
             }
         };
         const createReq2: CreateUserRequest = {

@@ -20,20 +20,22 @@ export interface IBatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> 
 
 export interface BatchJobOptions {
     /*
-    * pollInterval in ms, defaults to every 2 seconds.
-    * The minimum interval at which job status is polled from the server.
-    * The interval does not guarantee the poll happens at the exact time, but ensures the previous
-    * poll had completed.
-    * If polling had hit a rate limit, exponentially increasing delays based on `retry-after` header
-    * and the number of consecutive failures.
-    */
+     * pollInterval in ms, defaults to every 2 seconds.
+     * The minimum interval at which job status is polled from the server.
+     * The interval does not guarantee the poll happens at the exact time, but ensures the previous
+     * poll had completed.
+     * If polling had hit a rate limit, exponentially increasing delays based on `retry-after` header
+     * and the number of consecutive failures.
+     */
     pollInterval?: number;
     /*
-    * maxRetry: max number of API errors in a row before aborting.
-    */
+     * maxRetry: max number of API errors in a row before aborting.
+     */
     maxRetry?: number,
-    // TODO(sabrina): add a timeout and onTimeout to clean up everything
-    // TODO(sabrina): allow custom retry policies
+    /*
+     * TODO(sabrina): add a timeout and onTimeout to clean up everything
+     * TODO(sabrina): allow custom retry policies
+     */
 }
 
 export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
@@ -59,21 +61,21 @@ export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
     // TODO(sabrina): allow removal of a specific request?
 
     /*
-    * Starts to execute the job by invoking the create batch import API.
-    * Listen to the "error" event to be notified if any error occurs while creating the job.
-    */
+     * Starts to execute the job by invoking the create batch import API.
+     * Listen to the "error" event to be notified if any error occurs while creating the job.
+     */
     execute(): void;
 
     /*
-    * Get the current job Id.
-    * @returns The string job Id, or undefined if not yet executed.
-    */
+     * Get the current job Id.
+     * @returns The string job Id, or undefined if not yet executed.
+     */
     getId(): string | undefined;
 
     /*
-    * Get the current job status.
-    * @returns The current JobStatus, or undefined if not yet executed.
-    */
+     * Get the current job status.
+     * @returns The current JobStatus, or undefined if not yet executed.
+     */
     getStatus(): JobStatus | undefined;
 
     /*
@@ -278,11 +280,10 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
             this._statusPromise = withDelay(() => this.requester.requestJobStatus(id), this._nextPollDelay);
             try {
                 const statusRsp = await this._statusPromise;
-
-                // work around for https://fullstory.atlassian.net/browse/ECO-8192 missing job id
-                const metadata = statusRsp.job || {};
-                metadata.id = this.getId();
-
+                const metadata = statusRsp.job;
+                if (!metadata || !metadata.id) {
+                    throw new FSUnknownError('Invalid job metadata received: ' + statusRsp);
+                }
                 this.setMetadata(metadata);
                 // TODO(sabrina): maybe dispatch this as events rather than calling handlers here
                 switch (metadata.status) {

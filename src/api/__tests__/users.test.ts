@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatus, UpdateUserRequest, UpdateUserResponse } from '@model/index';
+import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatus, JobStatusResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { FSApiError, FSErrorName, FSUnknownError } from '../../errors';
 import { UsersApi, UsersBatchImportApi } from '../index';
@@ -244,10 +244,13 @@ describe('FullStory Batch Users API', () => {
     });
 
     test('get job status', async () => {
-        const mockJob = {
+        const mockJob: JobStatusResponse = {
+            imports: 0,
+            errors: 0,
             job: {
                 id: 'abcd1234',
-                status: JobStatus.Processing
+                status: JobStatus.Processing,
+                created: new Date().toISOString(),
             }
         };
 
@@ -272,7 +275,7 @@ describe('FullStory Batch Users API', () => {
 
     test('get job imports', async () => {
         const mockRsp: GetBatchUserImportsResponse = {
-            total_records: '2',
+            total_records: 2,
             next_page_token: '',
             results: [
                 { id: '12341234' },
@@ -300,6 +303,8 @@ describe('FullStory Batch Users API', () => {
 
     test('get job errors', async () => {
         const mockJob: GetBatchUserImportErrorsResponse = {
+            total_records: 2,
+            next_page_token: '',
             results: [
                 {
                     message: 'Unknown error occurred',

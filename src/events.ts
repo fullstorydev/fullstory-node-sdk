@@ -1,5 +1,5 @@
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from '@api/index';
-import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, GetBatchEventsImportStatusResponse } from '@model/index';
+import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatusResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
@@ -23,13 +23,13 @@ export interface IBatchEventsApi {
     ): BatchEventsJob;
 }
 
-class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, GetBatchEventsImportStatusResponse, CreateEventsResponse, FailedEventsImport> {
+class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, CreateEventsResponse, FailedEventsImport> {
     constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}) {
         super(requests, new BatchEventsRequester(fsOpts), opts);
     }
 }
 
-export type IBatchEventRequester = IBatchRequester<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, GetBatchEventsImportStatusResponse, GetBatchEventsImportsResponse, GetBatchEventsImportErrorsResponse>;
+export type IBatchEventRequester = IBatchRequester<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, GetBatchEventsImportsResponse, GetBatchEventsImportErrorsResponse>;
 
 class BatchEventsRequester implements IBatchEventRequester {
     protected readonly batchEventsImpl: FSBatchEventsApi;
@@ -66,7 +66,7 @@ class BatchEventsRequester implements IBatchEventRequester {
         return results;
     }
 
-    async requestJobStatus(id: string): Promise<GetBatchEventsImportStatusResponse> {
+    async requestJobStatus(id: string): Promise<JobStatusResponse> {
         const rsp = await this.batchEventsImpl.getBatchEventsImportStatus(id);
         const body = rsp.body;
         if (!body) {
@@ -86,8 +86,8 @@ export class Events implements IEventsApi, IBatchEventsApi {
         this.eventsImpl = new FSEventsApi(opts);
     }
 
-    async create(body: CreateEventsRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateEventsResponse>> {
-        return this.eventsImpl.createEvents(body, options);
+    async create(body: CreateEventsRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateEventsResponse>> {
+        return this.eventsImpl.createEvents(body, includeSchema, options);
     }
 
     batchCreate(requests?: CreateEventsRequest[] | undefined, jobOptions?: BatchJobOptions | undefined): BatchEventsJob {
