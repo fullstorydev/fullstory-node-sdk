@@ -42,7 +42,7 @@ Some tips for successful PR:
 
 This project uses [OpenAPI Generator](https://openapi-generator.tech/) to generate [models](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/src/model) and [APIs](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/src/api) from the [OpenAPI specs](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/specs).
 
-Do not edit the generated files directly. In stead, make your changes to the [openapi-generator](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/openapi-generator) to apply to updates to all models and apis generated.
+Do not edit the generated files directly. Instead, make your changes to the [openapi-generator](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/openapi-generator) to apply updates to all models and apis generated.
 
 ### Testing
 
