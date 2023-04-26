@@ -22,7 +22,7 @@ Follow the following steps if you notice any issues that interest you and would 
 
 - Set up the project locally following the instructions in [README](https://github.com/fullstorydev/fullstory-node-sdk/blob/main/README.md).
 
-- Create and commit your changes to your feature branch.
+- Create and commit your changes to your feature branch. See testing section for running tests locally.
 
 - Once you are happy with your changes, [open a PR from your fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
@@ -35,3 +35,66 @@ Some tips for successful PR:
 - A FullStory team member may ask for changes to be made before a PR can be merged. Address them by making changes and committing to your branch.
 
 - Resolve any conversations in the PR, as they are addressed.
+
+## Development
+
+### Code Generator
+
+This project uses [OpenAPI Generator](https://openapi-generator.tech/) to generate [models](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/src/model) and [APIs](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/src/api) from the [OpenAPI specs](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/specs).
+
+Do not edit the generated files directly. In stead, make your changes to the [openapi-generator](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/openapi-generator) to apply to updates to all models and apis generated.
+
+### Testing
+
+Tests must be run successfully before each PR can be merged. Follow the following steps to run local test.
+
+#### Tests for the OpenAPI Generator
+
+Run the following command to run all unit tests for [openapi-generator](https://github.com/fullstorydev/fullstory-node-sdk/tree/main/openapi-generator).
+
+The tests will also generate files in the `openapi-generator/out` folder so you can inspect the output without overriding the `src` files.
+
+```shell
+# from project root
+mvn -f openapi-generator clean test  
+```
+
+#### TypeScript Unit Tests
+
+Use the following command to run all unit tests within `src`.
+
+```shell
+npm run test
+```
+
+#### Smoke tests
+
+Smoke tests will invoke server APIs in real environment. By default smoke tests will not run and they do not run in CI on PR creation.
+
+However you may find them helpful to ensure end-to-end functionality. Create a `.env` file at project's root, see [`.example.env`](https://github.com/fullstorydev/fullstory-node-sdk/blob/main/.example.env) to enable the tests.
+
+Use the following command to run the tests.
+
+```shell
+npm run test -i src/__tests__/*.smoke.test.ts
+```
+
+### Building
+
+#### Generate Code
+
+Run the following command to generate models and apis:
+
+```shell
+make gen-openapi
+```
+
+#### Build the Project
+
+Run the following command to build the npm package:
+
+```shell
+npm run build
+# or
+npm run build:production
+```
