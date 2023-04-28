@@ -69,7 +69,7 @@ npm run test
 
 #### Smoke tests
 
-Smoke tests will invoke server APIs in real environment. By default smoke tests will not run and they do not run in CI on PR creation.
+Smoke tests will invoke server APIs in a real environment. By default smoke tests will not run and they do not run in CI on PR creation.
 
 However you may find them helpful to ensure end-to-end functionality. Create a `.env` file at project's root, see [`.example.env`](https://github.com/fullstorydev/fullstory-node-sdk/blob/main/.example.env) to enable the tests.
 
