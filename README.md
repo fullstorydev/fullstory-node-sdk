@@ -27,9 +27,11 @@ yarn add @fullstory/server-api-client
 
 #### Initializing the Client
 
-Use the `init` function that initializes the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
+Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
 
 ```ts
+import { init } from '@fullstory/server-api-client';
+
 const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 ```
 
