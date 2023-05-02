@@ -28,7 +28,25 @@ jobs:
       - run:
           name: "npm-pack"
           command: npm pack
-      # persist current folder for checkout and artifacts
+      - run:
+          name: "set-npm-version" 
+          command: |
+            echo "export NPM_PACKAGE_VERSION=$(npm pkg get version)" >> $BASH_ENV
+      - run: 
+          name: "set-is-beta"
+          command: |
+            if [[ $NPM_PACKAGE_VERSION == *"beta"* ]];
+            then
+              echo "export IS_BETA=true" >> $BASH_ENV
+            else
+              echo "export IS_BETA=false" >> $BASH_ENV
+            fi
+      - run:
+          name: "export-env"
+          command: |
+            echo "Will publish version: $NPM_PACKAGE_VERSION, is beta: $IS_BETA"
+            cp $BASH_ENV bash.env
+      # persist current folder including env for the deploy-npm job
       - persist_to_workspace:
           root: .
           paths: 
@@ -39,12 +57,21 @@ jobs:
         # restore from build-pack job
         - attach_workspace:
             at: .
+        - run: 
+            name: "restore-bash-env"
+            command: cat bash.env >> $BASH_ENV
         - run:
             name: authenticate-with-registry
             command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
         - run:
             name: publish-package
-            command: npm publish --access public
+            command: |
+              if [ $IS_BETA == "true" ];
+              then
+                npm publish --access public --tag beta
+              else
+                npm publish --access public
+              fi
 
 workflows:
   run-tests:
