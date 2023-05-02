@@ -7,11 +7,50 @@ orbs:
   node: circleci/node@5.1.0
   maven: circleci/maven@1.3
 
+jobs:
+  build-pack:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install
+      - node/install-packages
+      - run:
+          name: "set-up-smoke-test-env"
+          command: |
+            echo "RUN_SMOKE_TESTS=true" >> .env
+            echo "FS_API_KEY=${ECO_API_KEY}" >> .env
+      - run:
+          name: "npm-test"
+          command: npm run test
+      - run:
+          name: "npm-build"
+          command: npm run build:production
+      - run:
+          name: "npm-pack"
+          command: npm pack
+      # persist current folder for checkout and artifacts
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - .
+  deploy-npm:
+      executor: node/default
+      steps:
+        # restore from build-pack job
+        - attach_workspace:
+            at: .
+        - run:
+            name: authenticate-with-registry
+            command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
+        - run:
+            name: publish-package
+            command: npm publish --access public
+
 workflows:
   run-tests:
     jobs:
       - node/run:
-          name: "Run lint"
+          name: "run-lint"
           npm-run: lint
       - node/test:
           matrix:
@@ -20,12 +59,26 @@ workflows:
           pkg-manager: npm
           test-results-for: jest
       - node/run:
-          name: "Run Build"
+          name: "run-build"
           npm-run: build
       - node/run:
-          name: "Run Build Production"
+          name: "run-build-production"
           npm-run: build:production
       - maven/test:
-          name: "Run maven test"
+          name: "run-maven-test"
           app_src_directory: openapi-generator
           test_results_path: openapi-generator/target/surefire-reports
+  hold-and-deploy:
+    when:
+      and:
+        # only run when a new version is tagged
+        - matches: { pattern: /^v.*/, value: << pipeline.git.tag >> }
+    jobs:
+      - build-pack
+      - hold:
+          type: approval
+          requires:
+            - build-pack
+      - deploy-npm:
+          requires:
+            - hold
