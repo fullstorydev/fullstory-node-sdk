@@ -44,7 +44,7 @@ jobs:
             command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
         - run:
             name: publish-package
-            command: npm publish --dry-run
+            command: npm publish --access public
 
 workflows:
   run-tests:
