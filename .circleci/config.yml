@@ -14,11 +14,11 @@ jobs:
       - checkout
       - node/install
       - node/install-packages
-      # - run:
-      #     name: "set-up-smoke-test-env"
-      #     command: |
-      #       echo "RUN_SMOKE_TESTS=true" >> .env
-      #       echo "FS_API_KEY=${ECO_API_KEY}" >> .env
+      - run:
+          name: "set-up-smoke-test-env"
+          command: |
+            echo "RUN_SMOKE_TESTS=true" >> .env
+            echo "FS_API_KEY=${ECO_API_KEY}" >> .env
       - run:
           name: "npm-test"
           command: npm run test
@@ -28,11 +28,7 @@ jobs:
       - run:
           name: "npm-pack"
           command: npm pack
-      - run:
-          name: "check folder"
-          command: |
-            echo $CIRCLE_WORKING_DIRECTORY
-            pwd
+      # persist current folder for checkout and artifacts
       - persist_to_workspace:
           root: .
           paths: 
@@ -40,26 +36,21 @@ jobs:
   deploy-npm:
       executor: node/default
       steps:
+        # restore from build-pack job
         - attach_workspace:
             at: .
         - run:
-            name: "check folder"
-            command: |
-              echo $CIRCLE_WORKING_DIRECTORY
-              pwd
-              ls .
-        - run:
-            name: Authenticate with registry
+            name: authenticate-with-registry
             command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > .npmrc
         - run:
-            name: Publish package
+            name: publish-package
             command: npm publish --dry-run
 
 workflows:
   run-tests:
     jobs:
       - node/run:
-          name: "Run lint"
+          name: "run-lint"
           npm-run: lint
       - node/test:
           matrix:
@@ -68,13 +59,13 @@ workflows:
           pkg-manager: npm
           test-results-for: jest
       - node/run:
-          name: "Run Build"
+          name: "run-build"
           npm-run: build
       - node/run:
-          name: "Run Build Production"
+          name: "run-build-production"
           npm-run: build:production
       - maven/test:
-          name: "Run maven test"
+          name: "run-maven-test"
           app_src_directory: openapi-generator
           test_results_path: openapi-generator/target/surefire-reports
   hold-and-deploy:
