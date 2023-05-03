@@ -96,16 +96,27 @@ workflows:
           app_src_directory: openapi-generator
           test_results_path: openapi-generator/target/surefire-reports
   hold-and-deploy:
-    when:
-      and:
-        # only run when a new version is tagged
-        - matches: { pattern: /^v.*/, value: << pipeline.git.tag >> }
     jobs:
-      - build-pack
+      - build-pack:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - hold:
           type: approval
           requires:
             - build-pack
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - deploy-npm:
           requires:
             - hold
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
