@@ -10,9 +10,11 @@ export function init(opts: FullStoryOptions): FullStoryClient {
     return new FullStoryImpl({ ...opts, apiKey });
 }
 
-export { BatchJobOptions, IBatchJob } from './batch';
+export { BatchJobOptions } from './batch';
 export { FSError, FSErrorName, isFSError } from './errors';
-export { IBatchEventsApi, IEventsApi } from './events';
-export { IBatchUsersApi, IUsersApi } from './users';
+export { IBatchEventsJob as BatchEventsJob, IEvents as Events } from './events';
+export { FullStoryClient } from './fullstory';
+export { FullStoryOptions } from './http';
+export { IBatchUsersJob as BatchUsersJob, IUsers as Users } from './users';
 export * from '@api/index';
 export * from '@model/index';

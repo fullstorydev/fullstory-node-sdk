@@ -1,7 +1,7 @@
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from '@api/index';
 import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatusResponse } from '@model/index';
 
-import { BatchJob, BatchJobOptions, IBatchRequester } from './batch';
+import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -28,6 +28,16 @@ export interface IBatchEventsApi {
         jobOptions?: BatchJobOptions
     ): BatchEventsJob;
 }
+
+/**
+ * @interface IBatchEventsJob - a job for batch import events, providing job management and callbacks.
+*/
+export type IBatchEventsJob = IBatchJob<CreateEventsRequest, CreateEventsResponse, FailedEventsImport>;
+
+/**
+ * @interface IEvents - create or batch import events.
+*/
+export type IEvents = IBatchEventsApi & IEventsApi;
 
 class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, CreateEventsResponse, FailedEventsImport> {
     constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}) {
@@ -85,7 +95,8 @@ class BatchEventsRequester implements IBatchEventRequester {
 ////////////////////////////////////
 //  Exported User Interface
 ////////////////////////////////////
-export class Events implements IEventsApi, IBatchEventsApi {
+
+export class Events implements IEvents {
     protected readonly eventsImpl: FSEventsApi;
 
     constructor(private opts: FullStoryOptions) {
