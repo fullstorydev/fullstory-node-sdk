@@ -6,6 +6,7 @@
  */
 
 import { CreateEventsRequest } from '@model/events/CreateEventsRequest';
+import { SharedData } from '@model/events/SharedData';
 /**
  * @interface CreateBatchEventsImportJobRequest The request payloads contains the list of events to be imported
  */
@@ -14,5 +15,6 @@ export interface CreateBatchEventsImportJobRequest {
      * The list of event requests that should be imported
      */
     'requests': Array<CreateEventsRequest>;
+    'shared'?: SharedData;
 }
 

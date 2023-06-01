@@ -6,7 +6,7 @@
  */
 
 /**
- * @interface DeviceContext The device context in which the events are attached to
+ * @interface DeviceContext The device context in which the events are attached to.
  */
 export interface DeviceContext {
     'ip'?: string;

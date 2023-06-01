@@ -6,7 +6,7 @@
  */
 
 /**
- * @interface MobileContext The mobile context in which the events are attached to
+ * @interface MobileContext The mobile context in which the events are attached to.
  */
 export interface MobileContext {
     'app_id'?: string;

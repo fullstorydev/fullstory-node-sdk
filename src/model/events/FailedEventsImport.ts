@@ -6,18 +6,20 @@
  */
 
 import { CreateEventsRequest } from '@model/events/CreateEventsRequest';
+import { SharedData } from '@model/events/SharedData';
 /**
  * @interface FailedEventsImport Server response for failed batch events
  */
 export interface FailedEventsImport {
     /**
-     * Description of the failure encountered while importing the events
+     * A description of the failure encountered while importing the events.
      */
     'message'?: string;
     /**
-     * Error code
+     * The error code.
      */
     'code'?: string;
-    'events'?: CreateEventsRequest;
+    'event'?: CreateEventsRequest;
+    'shared'?: SharedData;
 }
 

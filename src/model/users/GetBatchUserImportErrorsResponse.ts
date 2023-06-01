@@ -21,6 +21,6 @@ export interface GetBatchUserImportErrorsResponse {
     /**
      * The token that can be used in a subsequent request to fetch the next page of import failures
      */
-    'next_page_token': string;
+    'next_page_token'?: string;
 }
 

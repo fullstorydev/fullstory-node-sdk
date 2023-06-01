@@ -66,17 +66,52 @@ export class UsersApi {
     }
 
     /**
-     * Delete a single user
+     * Delete a single user. `id` may be supplied as a path parameter, or `uid` as a query parameter. One or the other is required. ex: `/v2beta/users?uid={uid}` or `/v2beta/users/{id}`
      * @summary Delete User
-     * @param id The FullStory assigned user ID
+     * @param id The FullStory-generated id for the user - not required if &#x60;uid&#x60; is passed as a query parameter
+     * @param uid The customer-provided id for a user - required if the &#x60;id&#x60; parameter isn\&#39;t included in the URL path
     */
-    public async deleteUser(id: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
+    public async deleteUser(id: string, uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (uid !== undefined) {
+            queryParams.set('uid', uid);
+        }
+
+        const queryStr = queryParams.toString();
+        const requestOptions: RequestOptions = {
+            method: 'DELETE',
+            headers: headerParams,
+            hostname: url.hostname,
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
+        };
+
+        try {
+            return await this.httpClient.request<void, void>(requestOptions, undefined, options);
+        } catch (e) {
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
+        }
+    }
+
+    /**
+     *
+     * @param uid NB: OpenAPI spec is omitted deliberately, since we are not showing this as a distinct endpoint.
+    */
+    public async deleteUserByUid(uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
+        const apiPath = `${this.basePath}/v2beta/users`;
+        const url = new URL(apiPath);
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+        if (uid !== undefined) {
+            queryParams.set('uid', uid);
+        }
 
         const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
