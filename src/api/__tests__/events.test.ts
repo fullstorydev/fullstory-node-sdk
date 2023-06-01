@@ -36,10 +36,7 @@ describe('FullStory Events API', () => {
                 integration: 'nodejs-sdk-test',
                 //todo more context here
             },
-            events: [
-                { name: 'nodejs-sdk-event-1' },
-                { name: 'nodejs-sdk-event-2' }
-            ]
+            name: 'nodejs-sdk-event-1',
         };
         const mockEvent: CreateEventsResponse = {
             ...createReq
@@ -76,22 +73,14 @@ describe('FullStory Batch Events API', () => {
             requests: [
                 {
                     user: { uid: 'test_batch_1' },
-                    events: [
-                        { name: 'NodeJS Test Batch 1-1' },
-                        {
-                            name: 'NodeJS Test Batch 1-2',
-                            properties: {
-                                prop_1: '1,2,3'
-                            }
-                        }
-                    ]
+                    name: 'NodeJS Test Batch 1-2',
+                    properties: {
+                        prop_1: '1,2,3'
+                    },
                 }, {
                     user: { uid: 'test_batch_2' },
-                    events: [
-                        { name: 'NodeJS Test Batch 2-1' },
-                        { name: 'NodeJS Test Batch 2-2' }
-                    ]
-                }
+                    name: 'NodeJS Test Batch 2-1',
+                },
             ]
         };
         const mockJob: CreateBatchEventsImportJobResponse = {
@@ -154,12 +143,8 @@ describe('FullStory Batch Events API', () => {
     test('get job imports', async () => {
         const mockRsp: GetBatchEventsImportsResponse = {
             results: [
-                {
-                    events: [
-                        { name: 'NodeJS Test Batch 1' },
-                        { name: 'NodeJS Test Batch 2' }
-                    ]
-                },
+                { name: 'NodeJS Test Batch 1' },
+                { name: 'NodeJS Test Batch 2' }
             ]
         };
 
@@ -188,13 +173,10 @@ describe('FullStory Batch Events API', () => {
                 {
                     message: 'Unknown error occurred',
                     code: 'unknown_error',
-                    events:
+                    event:
                     {
                         user: { uid: 'NodeJS mock' },
-                        events: [
-                            { name: 'NodeJS Test Batch 1' },
-                            { name: 'NodeJS Test Batch 1' }
-                        ]
+                        name: 'NodeJS Test Batch 1',
                     }
                 }
             ]
