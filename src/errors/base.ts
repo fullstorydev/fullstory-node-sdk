@@ -11,7 +11,8 @@ export enum FSErrorName {
     // for non-2xx responses, except 429
     ERROR_FULLSTORY = 'FS_FULLSTORY_API',
     // for 2xx responses but unable to parse body into response object
-    ERROR_PARSE_RESPONSE = 'FS_ERROR_PARSE_RESPONSE'
+    ERROR_PARSE_RESPONSE = 'FS_ERROR_PARSE_RESPONSE',
+    ERROR_INVALID_ARGUMENT = 'FS_ERROR_INVALID_ARGUMENT',
 }
 
 export class FSBaseError extends Error implements FSError {
