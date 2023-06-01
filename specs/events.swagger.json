@@ -24,7 +24,7 @@
     "/v2beta/events": {
       "post": {
         "summary": "Create Events",
-        "description": "Creates one or more events with the specified details",
+        "description": "Creates one event with the specified details.",
         "operationId": "CreateEvents",
         "responses": {
           "200": {
@@ -74,7 +74,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -84,7 +84,7 @@
             }
           },
           "500": {
-            "description": "Returned when a server error is encountered",
+            "description": "Returned when a server error is encountered.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -119,8 +119,8 @@
     },
     "/v2beta/events/batch": {
       "post": {
-        "summary": "Create Events Import",
-        "description": "Creates a batch events import job with the given list of event information.\n\nThe number of request objects that can be included in a single batch request is `50,000`.",
+        "summary": "Create Events Batch Import",
+        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`.",
         "operationId": "CreateBatchEventsImportJob",
         "responses": {
           "200": {
@@ -170,7 +170,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -180,7 +180,7 @@
             }
           },
           "500": {
-            "description": "Returned when a server error is encountered",
+            "description": "Returned when a server error is encountered.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -261,7 +261,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -271,7 +271,7 @@
             }
           },
           "500": {
-            "description": "Returned when a server error is encountered",
+            "description": "Returned when a server error is encountered.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -311,7 +311,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job is still processing.",
-            "schema": {}
+            "schema": { }
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -354,7 +354,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -364,7 +364,7 @@
             }
           },
           "500": {
-            "description": "Returned when a server error is encountered",
+            "description": "Returned when a server error is encountered.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -411,7 +411,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job is still processing.",
-            "schema": {}
+            "schema": { }
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -454,7 +454,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -464,7 +464,7 @@
             }
           },
           "500": {
-            "description": "Returned when a server error is encountered",
+            "description": "Returned when a server error is encountered.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -488,6 +488,13 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "tags": [
@@ -539,7 +546,7 @@
           "type": "string"
         }
       },
-      "description": "The browser context in which the events are attached to"
+      "description": "The browser context in which the events are attached to."
     },
     "fullstory.v2.events.Context": {
       "type": "object",
@@ -574,7 +581,7 @@
           "$ref": "#/definitions/fullstory.v2.events.LocationContext"
         }
       },
-      "description": "The context in which the events are attached to"
+      "description": "The context in which the events are attached to."
     },
     "fullstory.v2.events.CreateBatchEventsImportJobRequest": {
       "type": "object",
@@ -590,25 +597,21 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": {},
+              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
               }
             },
-            "events": [
-              {
-                "name": "Support Ticket",
-                "timestamp": "2022-03-15T14:23:23Z",
-                "properties": {
-                  "id": 424242,
-                  "priority": "Normal",
-                  "source": "Email",
-                  "title": "Account locked out"
-                }
-              }
-            ]
+            "name": "Support Ticket",
+            "timestamp": "2022-03-15T14:23:23Z",
+            "properties": {
+              "id": 424242,
+              "priority": "Normal",
+              "source": "Email",
+              "title": "Account locked out"
+            }
           },
           {
             "user": {
@@ -620,25 +623,21 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": {},
+              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
               }
             },
-            "events": [
-              {
-                "name": "Support Ticket",
-                "timestamp": "2022-03-15T14:24:23Z",
-                "properties": {
-                  "id": 424243,
-                  "priority": "Normal",
-                  "source": "Email",
-                  "title": "Account locked out"
-                }
-              }
-            ]
+            "name": "Support Ticket",
+            "timestamp": "2022-03-15T14:24:23Z",
+            "properties": {
+              "id": 424243,
+              "priority": "Normal",
+              "source": "Email",
+              "title": "Account locked out"
+            }
           }
         ]
       },
@@ -649,6 +648,9 @@
             "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
           },
           "description": "The list of event requests that should be imported"
+        },
+        "shared": {
+          "$ref": "#/definitions/fullstory.v2.events.SharedData"
         }
       },
       "description": "The request payloads contains the list of events to be imported",
@@ -669,7 +671,7 @@
       "properties": {
         "job": {
           "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
-          "description": "Information about the job that was initiated to import the list of events submitted"
+          "description": "Information about the job that was initiated to import the list of events submitted."
         }
       },
       "required": [
@@ -680,33 +682,28 @@
       "type": "object",
       "example": {
         "user": {
-          "uid": "xyz123",
-          "id": "123456789"
+          "uid": "xyz123"
         },
         "session": {
           "use_most_recent": true
         },
         "context": {
           "integration": "segment",
-          "custom_annotations": {},
+          "custom_annotations": { },
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
             "referrer_url": ""
           }
         },
-        "events": [
-          {
-            "name": "Support Ticket",
-            "timestamp": "2022-03-15T14:23:23Z",
-            "properties": {
-              "id": 424242,
-              "priority": "Normal",
-              "source": "Email",
-              "title": "Account locked out"
-            }
-          }
-        ]
+        "name": "Support Ticket",
+        "timestamp": "2022-03-15T14:23:23Z",
+        "properties": {
+          "id": 424242,
+          "priority": "Normal",
+          "source": "Email",
+          "title": "Account locked out"
+        }
       },
       "properties": {
         "user": {
@@ -718,14 +715,28 @@
         "context": {
           "$ref": "#/definitions/fullstory.v2.events.Context"
         },
-        "events": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/fullstory.v2.events.Event"
-          }
+        "name": {
+          "type": "string",
+          "description": "The event's name."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional. The event's timestamp, defaults to current time."
+        },
+        "properties": {
+          "type": "object",
+          "description": "Optional. The custom event's payload."
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
         }
       },
-      "description": "The request payload for events to be created"
+      "description": "The request payload for events to be created",
+      "required": [
+        "name"
+      ]
     },
     "fullstory.v2.events.CreateEventsResponse": {
       "type": "object",
@@ -739,44 +750,54 @@
         },
         "context": {
           "integration": "segment",
-          "custom_annotations": {},
+          "custom_annotations": { },
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
             "referrer_url": ""
-          },
-          "events": [
-            {
-              "name": "Support Ticket",
-              "timestamp": "2022-03-15T14:23:23Z",
-              "properties": {
-                "id": 424242,
-                "priority": "Normal",
-                "source": "Email",
-                "title": "Account locked out"
-              }
-            }
-          ]
+          }
+        },
+        "name": "Support Ticket",
+        "timestamp": "2022-03-15T14:23:23Z",
+        "properties": {
+          "id": 424242,
+          "priority": "Normal",
+          "source": "Email",
+          "title": "Account locked out"
         }
       },
       "properties": {
         "user": {
-          "$ref": "#/definitions/fullstory.v2.events.UserResponse"
+          "$ref": "#/definitions/fullstory.v2.events.UserIdResponse"
         },
         "session": {
-          "$ref": "#/definitions/fullstory.v2.events.SessionResponse"
+          "$ref": "#/definitions/fullstory.v2.events.SessionIdResponse"
         },
         "context": {
           "$ref": "#/definitions/fullstory.v2.events.Context"
         },
-        "events": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/fullstory.v2.events.Event"
-          }
+        "name": {
+          "type": "string",
+          "description": "The event's name."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional. The event's timestamp, defaults to current time."
+        },
+        "properties": {
+          "type": "object",
+          "description": "Optional. The custom event's payload."
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
         }
       },
-      "description": "Server response for created events"
+      "description": "Server response for created events",
+      "required": [
+        "name"
+      ]
     },
     "fullstory.v2.events.DeviceContext": {
       "type": "object",
@@ -827,37 +848,7 @@
           "format": "int32"
         }
       },
-      "description": "The device context in which the events are attached to"
-    },
-    "fullstory.v2.events.Event": {
-      "type": "object",
-      "example": {
-        "name": "Event Name",
-        "timestamp": "2023-04-13T18:37:20.828Z",
-        "properties": {
-          "additional_prop": "Additional property"
-        }
-      },
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The event name"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Optional event timestamp, defaults to current time"
-        },
-        "properties": {
-          "type": "object",
-          "description": "The custom event payload"
-        },
-        "schema": {
-          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "Optional schema declaration, to define the structure of the data and override FullStory's default type inference"
-        }
-      },
-      "description": "The event payload"
+      "description": "The device context in which the events are attached to."
     },
     "fullstory.v2.events.GetBatchEventsImportErrorsResponse": {
       "type": "object",
@@ -866,7 +857,7 @@
           {
             "message": "time stamp out of range",
             "code": "event_validation_failed",
-            "events": {
+            "event": {
               "user": {
                 "uid": "xyz123",
                 "id": "123456789"
@@ -876,25 +867,21 @@
               },
               "context": {
                 "integration": "segment",
-                "custom_annotations": {},
+                "custom_annotations": { },
                 "browser": {
                   "url": "https://store.mondaymorning.com",
                   "user_agent": "square/pos",
                   "referrer_url": ""
                 }
               },
-              "events": [
-                {
-                  "name": "Support Ticket",
-                  "timestamp": "2012-03-15T14:23:23Z",
-                  "properties": {
-                    "id": 424242,
-                    "priority": "Normal",
-                    "source": "Email",
-                    "title": "Account locked out"
-                  }
-                }
-              ]
+              "name": "Support Ticket",
+              "timestamp": "2012-03-15T14:23:23Z",
+              "properties": {
+                "id": 424242,
+                "priority": "Normal",
+                "source": "Email",
+                "title": "Account locked out"
+              }
             }
           }
         ],
@@ -926,7 +913,7 @@
       "example": {
         "message": "time stamp out of range",
         "code": "event_validation_failed",
-        "events": {
+        "event": {
           "user": {
             "uid": "xyz123",
             "id": "123456789"
@@ -936,39 +923,39 @@
           },
           "context": {
             "integration": "segment",
-            "custom_annotations": {},
+            "custom_annotations": { },
             "browser": {
               "url": "https://store.mondaymorning.com",
               "user_agent": "square/pos",
               "referrer_url": ""
             }
           },
-          "events": [
-            {
-              "name": "Support Ticket",
-              "timestamp": "2012-03-15T14:23:23Z",
-              "properties": {
-                "id": 424242,
-                "priority": "Normal",
-                "source": "Email",
-                "title": "Account locked out"
-              }
-            }
-          ]
+          "name": "Support Ticket",
+          "timestamp": "2012-03-15T14:23:23Z",
+          "properties": {
+            "id": 424242,
+            "priority": "Normal",
+            "source": "Email",
+            "title": "Account locked out"
+          }
         }
       },
       "properties": {
         "message": {
           "type": "string",
-          "description": "Description of the failure encountered while importing the events"
+          "description": "A description of the failure encountered while importing the events."
         },
         "code": {
           "type": "string",
-          "description": "Error code"
+          "description": "The error code."
         },
-        "events": {
+        "event": {
           "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest",
-          "description": "Corresponding events import request that resulted in failure"
+          "description": "The corresponding events import request that resulted in the failure."
+        },
+        "shared": {
+          "$ref": "#/definitions/fullstory.v2.events.SharedData",
+          "description": "If there is any `shared` data from the original import request that may have caused conflict with data from within this event."
         }
       },
       "description": "Server response for failed batch events"
@@ -987,25 +974,21 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": {},
+              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
                 "referrer_url": ""
               }
             },
-            "events": [
-              {
-                "name": "Support Ticket",
-                "timestamp": "2022-03-15T14:23:23Z",
-                "properties": {
-                  "id": 424242,
-                  "priority": "Normal",
-                  "source": "Email",
-                  "title": "Account locked out"
-                }
-              }
-            ]
+            "name": "Support Ticket",
+            "timestamp": "2022-03-15T14:23:23Z",
+            "properties": {
+              "id": 424242,
+              "priority": "Normal",
+              "source": "Email",
+              "title": "Account locked out"
+            }
           }
         ],
         "total_records": 98,
@@ -1041,15 +1024,15 @@
       "properties": {
         "country_code": {
           "type": "string",
-          "description": "ISO 3166-1 alpha-2 standard country code"
+          "description": "ISO 3166-1 alpha-2 standard country code."
         },
         "region_code": {
           "type": "string",
-          "description": "ISO-3166-2 standard region code"
+          "description": "ISO-3166-2 standard region code."
         },
         "city_name": {
           "type": "string",
-          "description": "Name of the city"
+          "description": "Name of the city."
         },
         "latitude": {
           "type": "number",
@@ -1060,7 +1043,7 @@
           "format": "double"
         }
       },
-      "description": "The location context in which the events are attached to"
+      "description": "The location context in which the events are attached to."
     },
     "fullstory.v2.events.MobileContext": {
       "type": "object",
@@ -1083,7 +1066,7 @@
           "type": "string"
         }
       },
-      "description": "The mobile context in which the events are attached to"
+      "description": "The mobile context in which the events are attached to."
     },
     "fullstory.v2.events.SessionIdRequest": {
       "type": "object",
@@ -1093,33 +1076,51 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
-          "description": "The FullStory assigned user ID"
+          "description": "The FullStory generated identifier for the session to associate the event with."
         },
         "use_most_recent": {
           "type": "boolean",
-          "description": "Use the most recent session for the user"
+          "description": "Associate events with the most recent session captured from the user, the session much be within the past 30 minutes."
         }
       },
-      "description": "The session identifier"
+      "description": "The session identifier."
     },
-    "fullstory.v2.events.SessionResponse": {
+    "fullstory.v2.events.SessionIdResponse": {
       "type": "object",
       "example": {
-        "id": 123456789
+        "id": "123456"
       },
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64"
+          "description": "The FullStory generated identifier for the session to associate the event with."
         }
       },
-      "description": "The session identifier"
+      "description": "The session identifier. If the event is attached to a session."
+    },
+    "fullstory.v2.events.SharedData": {
+      "type": "object",
+      "example": {
+        "context": {
+          "integration": "segment",
+          "custom_annotations": { },
+          "browser": {
+            "url": "https://store.mondaymorning.com",
+            "user_agent": "square/pos",
+            "referrer_url": ""
+          }
+        }
+      },
+      "properties": {
+        "context": {
+          "$ref": "#/definitions/fullstory.v2.events.Context"
+        }
+      },
+      "description": "Optional. Any shared context among all requests in the create batch events import job. If any of the events in the `requests` field also contain a context, the event will fail to be imported."
     },
     "fullstory.v2.events.UserIdRequest": {
       "type": "object",
       "example": {
-        "uid": "xyz123",
         "id": 123456789
       },
       "properties": {
@@ -1131,12 +1132,12 @@
         "id": {
           "type": "string",
           "format": "int64",
-          "description": "The FullStory assigned user ID"
+          "description": "The FullStory assigned user ID."
         }
       },
-      "description": "The user identifier. `id` is required if `session` is provided in the request."
+      "description": "The user identifier. Required if `session.use_most_recent` is set to `true` in the request."
     },
-    "fullstory.v2.events.UserResponse": {
+    "fullstory.v2.events.UserIdResponse": {
       "type": "object",
       "example": {
         "uid": "xyz123",
@@ -1255,14 +1256,14 @@
   "securityDefinitions": {
     "ApiKeyAuth": {
       "type": "apiKey",
-      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\"",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\".",
       "name": "Authorization",
       "in": "header"
     }
   },
   "security": [
     {
-      "ApiKeyAuth": []
+      "ApiKeyAuth": [ ]
     }
   ]
 }
