@@ -144,6 +144,8 @@
         "x-fullstory-operation-ordering": 30
       },
       "delete": {
+        "summary": "Delete User",
+        "description": "Delete a single user by uid.",
         "operationId": "DeleteUserByUid",
         "responses": {
           "200": {
@@ -216,7 +218,7 @@
         "parameters": [
           {
             "name": "uid",
-            "description": "NB: OpenAPI spec is omitted deliberately, since we are not showing this as a distinct endpoint.",
+            "description": "The application-specific ID you've given to the user",
             "in": "query",
             "required": false,
             "type": "string"
@@ -881,20 +883,15 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "int64"
-          },
-          {
-            "name": "uid",
-            "description": "The customer-provided id for a user - required if the `id` parameter isn't included in the URL path",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "format": "int64",
+            "x-fullstory-sdk-description-override": "The FullStory-generated id for the user."
           }
         ],
         "tags": [
           "Users"
         ],
-        "x-fullstory-operation-ordering": 50
+        "x-fullstory-operation-ordering": 50,
+        "x-fullstory-sdk-description-override": "Delete a single user by FullStory generated user ID."
       },
       "post": {
         "summary": "Update User",
@@ -1220,6 +1217,7 @@
         "requests": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportRequest"
           },
           "description": "The list of users and their information that should be imported in this batch request"
@@ -1382,6 +1380,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportErrorsResponse.FailedUserImport"
           },
           "description": "Page of user import failures for the batch import"
@@ -1471,6 +1470,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportResponse"
           },
           "description": "Page of user import responses for the batch import"
@@ -1576,6 +1576,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetUserResponse"
           },
           "description": "The list of users that match the input filter criteria"
