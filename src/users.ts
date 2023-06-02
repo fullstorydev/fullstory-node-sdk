@@ -21,7 +21,7 @@ export interface IUsersApi {
 
     list(...req: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>>;
 
-    delete(...req: Parameters<typeof FSUsersApi.prototype.deleteUser>): Promise<FSResponse<void>>;
+    delete(id?: string, uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>>;
 
     update(...req: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>>;
 }
@@ -127,13 +127,13 @@ export class Users implements IUsers {
     }
 
     async delete(id?: string, uid?: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
-        if (id) {
-            return this.usersImpl.deleteUser(id, undefined, options);
+        if (id && !uid) {
+            return this.usersImpl.deleteUser(id, options);
         }
-        if (uid) {
+        if (uid && !id) {
             return this.usersImpl.deleteUserByUid(uid, options);
         }
-        throw new FSInvalidArgumentError('at least of id or uid is required');
+        throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
     async update(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
