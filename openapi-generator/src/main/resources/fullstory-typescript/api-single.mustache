@@ -40,7 +40,7 @@ export class {{classname}} {
      * @summary {{&summary}}
      {{/summary}}
      {{#allParams}}
-     * @param {{paramName}}{{#description}} {{.}}{{/description}}
+     * @param {{paramName}}{{#unescapedDescription}} {{&.}}{{/unescapedDescription}}{{^unescapedDescription}} {{&description}}{{/unescapedDescription}}
      {{/allParams}}
      {{! TODO(sabrina): @throws error }}
     */

@@ -2,6 +2,9 @@ import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from '
 import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatusResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
+import { FSParserError } from './errors';
+import { FSBaseError } from './errors/base';
+import { FSInvalidArgumentError } from './errors/invalidArgument';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -18,7 +21,7 @@ export interface IUsersApi {
 
     list(...req: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>>;
 
-    delete(...req: Parameters<typeof FSUsersApi.prototype.deleteUser>): Promise<FSResponse<void>>;
+    delete(id?: string, uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>>;
 
     update(...req: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>>;
 }
@@ -123,8 +126,14 @@ export class Users implements IUsers {
         return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, includeSchema, options);
     }
 
-    async delete(id: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
-        return this.usersImpl.deleteUser(id, options);
+    async delete(id?: string, uid?: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
+        if (id && !uid) {
+            return this.usersImpl.deleteUser(id, options);
+        }
+        if (uid && !id) {
+            return this.usersImpl.deleteUserByUid(uid, options);
+        }
+        throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
     async update(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {

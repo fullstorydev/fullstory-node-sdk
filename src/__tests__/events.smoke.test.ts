@@ -31,24 +31,17 @@ describe('FullStory Events API', () => {
              * 'session'?: SessionIdRequest;
              * 'context'?: Context;
              */
-            events: [{
-                name: 'NodeJS Smoke Test Event - 1',
-                properties: {
-                    membership_tier: 'gold',
-                    sign_up: {
-                        signed_up: true,
-                        signed_up_date: '2000-10-31T00:00:00Z',
-                        signed_up_d_str: '2000-10-31T00:00:00Z',
-                    },
-                    cell_num: '4041111111'
-                }
-            },
-            {
-                name: 'NodeJS Smoke Test Event - 2',
-                properties: {
-                    prop_2: 'properties two'
-                }
-            }],
+
+            name: 'NodeJS Smoke Test Event - 1',
+            properties: {
+                membership_tier: 'gold',
+                sign_up: {
+                    signed_up: true,
+                    signed_up_date: '2000-10-31T00:00:00Z',
+                    signed_up_d_str: '2000-10-31T00:00:00Z',
+                },
+                cell_num: '4041111111'
+            }
         };
 
         const created = await events.create(createEventsReq);
@@ -60,43 +53,31 @@ describe('FullStory Events API', () => {
         expect(responseBody?.user?.uid).toEqual(createEventsReq.user?.uid);
         expect(responseBody?.user?.id).toBeTruthy();
         expect(responseBody?.session?.id).toBeTruthy();
-        expect(responseBody).toHaveProperty('events');
-        expect(responseBody?.events?.[0]?.name).toEqual('NodeJS Smoke Test Event - 1');
-        expect(responseBody?.events?.[0]).toHaveProperty('schema');
-        expect(responseBody?.events?.[0]).toHaveProperty('properties');
+        expect(responseBody).toHaveProperty('name');
+        expect(responseBody).toHaveProperty('properties');
+
+        expect(responseBody?.name).toEqual('NodeJS Smoke Test Event - 1');
     });
 
     test('Batch Events Job handling', done => {
         const createReq1: CreateEventsRequest = {
             // user: { uid: 'nodejs_sdk_smoke_test_batch_2' },
-            events: [{
-                name: 'NodeJS Smoke Test Batch - Event - 1',
-                properties: {
-                    membership_tier: 'gold',
-                    sign_up: {
-                        signed_up: true,
-                        some_other_str: 'some other strings...',
-                    },
-                    cell_num: '4041111111'
-                }
-            },
-            {
-                name: 'NodeJS Smoke Test Batch - Event - 2',
-                properties: {
-                    prop_2: 'properties two'
-                }
-            }],
+            name: 'NodeJS Smoke Test Batch - Event - 1',
+            properties: {
+                membership_tier: 'gold',
+                sign_up: {
+                    signed_up: true,
+                    some_other_str: 'some other strings...',
+                },
+                cell_num: '4041111111'
+            }
         };
         const createReq2: CreateEventsRequest = {
             // user: { uid: 'nodejs_sdk_smoke_test_batch_2' },
-            events: [{
-                name: 'NodeJS Smoke Test Batch - Event - 3',
-            }],
+            name: 'NodeJS Smoke Test Batch - Event - 3',
         };
         const createReq3: CreateEventsRequest = {
-            events: [{
-                name: 'NodeJS Smoke Test Batch - Event - 4',
-            }]
+            name: 'NodeJS Smoke Test Batch - Event - 4',
         };
 
         // Create A Job
@@ -120,13 +101,13 @@ describe('FullStory Events API', () => {
                 expect(imported).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
-                            events: createReq1.events?.map(e => expect.objectContaining({ ...e }))
+                            ...createReq1
                         }),
                         expect.objectContaining({
-                            events: createReq2.events?.map(e => expect.objectContaining({ ...e }))
+                            ...createReq2
                         }),
                         expect.objectContaining({
-                            events: createReq3.events?.map(e => expect.objectContaining({ ...e }))
+                            ...createReq3
                         }),
                     ])
                 );

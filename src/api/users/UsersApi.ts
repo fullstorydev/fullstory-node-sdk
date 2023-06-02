@@ -66,9 +66,9 @@ export class UsersApi {
     }
 
     /**
-     * Delete a single user
+     * Delete a single user by FullStory generated user ID.
      * @summary Delete User
-     * @param id The FullStory assigned user ID
+     * @param id The FullStory-generated id for the user.
     */
     public async deleteUser(id: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
@@ -77,6 +77,38 @@ export class UsersApi {
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+
+        const queryStr = queryParams.toString();
+        const requestOptions: RequestOptions = {
+            method: 'DELETE',
+            headers: headerParams,
+            hostname: url.hostname,
+            path: url.pathname + (queryStr ? '?' + queryStr : ''),
+        };
+
+        try {
+            return await this.httpClient.request<void, void>(requestOptions, undefined, options);
+        } catch (e) {
+            // e originates from a callback (node task queue)
+            // try to append the current stack trace to the error
+            throw chainedFSError(e);
+        }
+    }
+
+    /**
+     * Delete a single user by uid.
+     * @summary Delete User
+     * @param uid The application-specific ID you've given to the user
+    */
+    public async deleteUserByUid(uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
+        const apiPath = `${this.basePath}/v2beta/users`;
+        const url = new URL(apiPath);
+
+        const queryParams: URLSearchParams = new URLSearchParams();
+        const headerParams: OutgoingHttpHeaders = {};
+        if (uid !== undefined) {
+            queryParams.set('uid', uid);
+        }
 
         const queryStr = queryParams.toString();
         const requestOptions: RequestOptions = {
@@ -132,7 +164,7 @@ export class UsersApi {
     /**
      * Retrieve a list of users matching the supplied filter criteria
      * @summary Get Users
-     * @param uid The application-specific ID you\&#39;ve given to a user
+     * @param uid The application-specific ID you've given to a user
      * @param email The email address associated with a user
      * @param displayName The nice-looking name for a user
      * @param isIdentified Whether or not a user is anonymous or identified

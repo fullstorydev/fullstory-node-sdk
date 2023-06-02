@@ -25,7 +25,7 @@ export class EventsApi {
     }
 
     /**
-     * Creates one or more events with the specified details
+     * Creates one event with the specified details.
      * @summary Create Events
      * @param body
      * @param includeSchema Whether to include the schema in the response.

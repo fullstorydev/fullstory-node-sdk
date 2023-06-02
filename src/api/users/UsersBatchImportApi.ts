@@ -66,9 +66,8 @@ export class UsersBatchImportApi {
      * @summary Get Batch Import Errors
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param nextPageToken The token that can be used in a request to fetch the next page of results
-     * @param includeSchema Whether to include schemas in the response.
     */
-    public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
+    public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -77,9 +76,6 @@ export class UsersBatchImportApi {
         const headerParams: OutgoingHttpHeaders = {};
         if (nextPageToken !== undefined) {
             queryParams.set('next_page_token', nextPageToken);
-        }
-        if (includeSchema !== undefined) {
-            queryParams.set('include_schema', String(includeSchema));
         }
 
         const queryStr = queryParams.toString();

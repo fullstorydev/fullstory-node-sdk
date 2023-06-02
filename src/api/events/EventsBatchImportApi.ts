@@ -25,8 +25,8 @@ export class EventsBatchImportApi {
     }
 
     /**
-     * Creates a batch events import job with the given list of event information.  The number of request objects that can be included in a single batch request is `50,000`.
-     * @summary Create Events Import
+     * Creates a batch events import job with the given list of event information.  The maximum number of request objects that can be included in a single batch request is `50,000`.
+     * @summary Create Events Batch Import
      * @param body The request payloads contains the list of events to be imported
     */
     public async createBatchEventsImportJob(body: CreateBatchEventsImportJobRequest, options?: FSRequestOptions): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
@@ -130,8 +130,9 @@ export class EventsBatchImportApi {
      * @summary Get Batch Imported Events
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param nextPageToken The token that can be used in a request to fetch the next page of results
+     * @param includeSchema Whether to include the schema in the response.
     */
-    public async getBatchEventsImports(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportsResponse>> {
+    public async getBatchEventsImports(jobId: string, nextPageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportsResponse>> {
         const apiPath = `${this.basePath}/v2beta/events/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -140,6 +141,9 @@ export class EventsBatchImportApi {
         const headerParams: OutgoingHttpHeaders = {};
         if (nextPageToken !== undefined) {
             queryParams.set('next_page_token', nextPageToken);
+        }
+        if (includeSchema !== undefined) {
+            queryParams.set('include_schema', String(includeSchema));
         }
 
         const queryStr = queryParams.toString();

@@ -21,9 +21,9 @@ export interface ListUsersResponse {
     /**
      * The token that can be used in a subsequent request with the same filter criteria to fetch the next page of users
      */
-    'next_page_token': string;
+    'next_page_token'?: string;
     /**
-     * A link to an anonymous segment in the FullStory app contining these users.
+     * A link to an anonymous segment in the FullStory app containing these users.
      */
     'app_url'?: string;
 }

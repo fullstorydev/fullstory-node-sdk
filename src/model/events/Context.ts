@@ -10,7 +10,7 @@ import { DeviceContext } from '@model/events/DeviceContext';
 import { LocationContext } from '@model/events/LocationContext';
 import { MobileContext } from '@model/events/MobileContext';
 /**
- * @interface Context The context in which the events are attached to
+ * @interface Context The context in which the events are attached to.
  */
 export interface Context {
     'integration'?: string;

@@ -74,7 +74,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -143,6 +143,91 @@
         ],
         "x-fullstory-operation-ordering": 30
       },
+      "delete": {
+        "summary": "Delete User",
+        "description": "Delete a single user by uid.",
+        "operationId": "DeleteUserByUid",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.DeleteUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uid",
+            "description": "The application-specific ID you've given to the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
       "post": {
         "summary": "Create User",
         "description": "Creates a user with the specified details",
@@ -195,7 +280,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -291,7 +376,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -381,7 +466,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -431,7 +516,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job that is still processing.",
-            "schema": {}
+            "schema": { }
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -474,7 +559,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -508,13 +593,6 @@
             "in": "query",
             "required": false,
             "type": "string"
-          },
-          {
-            "name": "include_schema",
-            "description": "Whether to include schemas in the response.",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -538,7 +616,7 @@
           },
           "202": {
             "description": "Returned when this API is called while the job that is still processing.",
-            "schema": {}
+            "schema": { }
           },
           "400": {
             "description": "Returned when invalid input has been provided. Fix the issue and retry.",
@@ -581,7 +659,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -684,7 +762,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -728,7 +806,7 @@
       },
       "delete": {
         "summary": "Delete User",
-        "description": "Delete a single user",
+        "description": "Delete a single user. `id` may be supplied as a path parameter, or `uid` as a query parameter. One or the other is required. ex: `/v2beta/users?uid={uid}` or `/v2beta/users/{id}`",
         "operationId": "DeleteUser",
         "responses": {
           "200": {
@@ -778,7 +856,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -801,17 +879,19 @@
         "parameters": [
           {
             "name": "id",
-            "description": "The FullStory assigned user ID",
+            "description": "The FullStory-generated id for the user - not required if `uid` is passed as a query parameter",
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "int64"
+            "format": "int64",
+            "x-fullstory-sdk-description-override": "The FullStory-generated id for the user."
           }
         ],
         "tags": [
           "Users"
         ],
-        "x-fullstory-operation-ordering": 50
+        "x-fullstory-operation-ordering": 50,
+        "x-fullstory-sdk-description-override": "Delete a single user by FullStory generated user ID."
       },
       "post": {
         "summary": "Update User",
@@ -865,7 +945,7 @@
             }
           },
           "429": {
-            "description": "Returned when the client has exceeded the rate limit for this endpoint.",
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
             "schema": {
               "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
               "example": {
@@ -1029,9 +1109,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1075,9 +1155,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1128,7 +1208,7 @@
           {
             "uid": "xyz123",
             "properties": {
-              "rewards_status_str": "platinum"
+              "rewards_status": "platinum"
             }
           }
         ]
@@ -1137,6 +1217,7 @@
         "requests": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportRequest"
           },
           "description": "The list of users and their information that should be imported in this batch request"
@@ -1172,9 +1253,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1212,9 +1293,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1272,9 +1353,9 @@
               "display_name": "Daniel Falko",
               "email": "daniel.falko@example.com",
               "properties": {
-                "pricing_plan_str": "paid",
-                "popup_help_bool": true,
-                "total_spent_real": 14.50
+                "pricing_plan": "paid",
+                "popup_help": true,
+                "total_spent": 14.50
               }
             }
           },
@@ -1285,9 +1366,9 @@
               "display_name": "Stan Bandee",
               "email": "stan.bandee@example.com",
               "properties": {
-                "pricing_plan_str": "free",
-                "popup_help_bool": true,
-                "total_spent_real": 0
+                "pricing_plan": "free",
+                "popup_help": true,
+                "total_spent": 0
               }
             }
           }
@@ -1299,6 +1380,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportErrorsResponse.FailedUserImport"
           },
           "description": "Page of user import failures for the batch import"
@@ -1315,8 +1397,7 @@
       },
       "description": "Server response for retrieving batch users import errors",
       "required": [
-        "total_records",
-        "next_page_token"
+        "total_records"
       ]
     },
     "fullstory.v2.users.GetBatchUserImportErrorsResponse.FailedUserImport": {
@@ -1330,9 +1411,9 @@
           "display_name": "Daniel Falko",
           "email": "daniel.falko@example.com",
           "properties": {
-            "pricing_plan_str": "paid",
-            "popup_help_bool": true,
-            "total_spent_real": 14.50
+            "pricing_plan": "paid",
+            "popup_help": true,
+            "total_spent": 14.50
           }
         }
       },
@@ -1366,9 +1447,9 @@
             "display_name": "Daniel Falko",
             "email": "daniel.falko@example.com",
             "properties": {
-              "pricing_plan_str": "paid",
-              "popup_help_bool": true,
-              "total_spent_real": 14.50
+              "pricing_plan": "paid",
+              "popup_help": true,
+              "total_spent": 14.50
             }
           },
           {
@@ -1376,9 +1457,9 @@
             "display_name": "Steve Falko",
             "email": "steve.falko@example.com",
             "properties": {
-              "pricing_plan_str": "paid",
-              "popup_help_bool": true,
-              "total_spent_real": 14.50
+              "pricing_plan": "paid",
+              "popup_help": true,
+              "total_spent": 14.50
             }
           }
         ],
@@ -1389,6 +1470,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportResponse"
           },
           "description": "Page of user import responses for the batch import"
@@ -1406,8 +1488,7 @@
       "description": "Server response for retrieving batch users imported",
       "required": [
         "results",
-        "total_records",
-        "next_page_token"
+        "total_records"
       ]
     },
     "fullstory.v2.users.GetUserResponse": {
@@ -1418,9 +1499,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1482,9 +1563,9 @@
             "display_name": "Daniel Falko",
             "email": "daniel.falko@example.com",
             "properties": {
-              "pricing_plan_str": "paid",
-              "popup_help_bool": true,
-              "total_spent_real": 14.50
+              "pricing_plan": "paid",
+              "popup_help": true,
+              "total_spent": 14.50
             }
           }
         ],
@@ -1495,6 +1576,7 @@
         "results": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetUserResponse"
           },
           "description": "The list of users that match the input filter criteria"
@@ -1510,14 +1592,13 @@
         },
         "app_url": {
           "type": "string",
-          "description": "A link to an anonymous segment in the FullStory app contining these users."
+          "description": "A link to an anonymous segment in the FullStory app containing these users."
         }
       },
       "description": "Server response for listing all users satisfying the request",
       "required": [
         "results",
-        "total_records",
-        "next_page_token"
+        "total_records"
       ]
     },
     "fullstory.v2.users.UpdateUserRequest": {
@@ -1527,9 +1608,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1568,9 +1649,9 @@
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
         "properties": {
-          "pricing_plan_str": "paid",
-          "popup_help_bool": true,
-          "total_spent_real": 14.50
+          "pricing_plan": "paid",
+          "popup_help": true,
+          "total_spent": 14.50
         }
       },
       "properties": {
@@ -1642,7 +1723,7 @@
   },
   "security": [
     {
-      "ApiKeyAuth": []
+      "ApiKeyAuth": [ ]
     }
   ]
 }

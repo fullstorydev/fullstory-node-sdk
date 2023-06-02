@@ -6,7 +6,7 @@
  */
 
 /**
- * @interface BrowserContext The browser context in which the events are attached to
+ * @interface BrowserContext The browser context in which the events are attached to.
  */
 export interface BrowserContext {
     'url'?: string;

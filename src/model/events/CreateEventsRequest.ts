@@ -6,9 +6,9 @@
  */
 
 import { Context } from '@model/events/Context';
-import { Event } from '@model/events/Event';
 import { SessionIdRequest } from '@model/events/SessionIdRequest';
 import { UserIdRequest } from '@model/events/UserIdRequest';
+import { Schema } from '@model/varsapi/Schema';
 /**
  * @interface CreateEventsRequest The request payload for events to be created
  */
@@ -16,6 +16,18 @@ export interface CreateEventsRequest {
     'user'?: UserIdRequest;
     'session'?: SessionIdRequest;
     'context'?: Context;
-    'events'?: Array<Event>;
+    /**
+     * The event's name.
+     */
+    'name': string;
+    /**
+     * Optional. The event's timestamp, defaults to current time.
+     */
+    'timestamp'?: string;
+    /**
+     * Optional. The custom event's payload.
+     */
+    'properties'?: object;
+    'schema'?: Schema;
 }
 

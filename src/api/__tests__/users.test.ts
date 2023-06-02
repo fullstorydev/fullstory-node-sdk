@@ -164,6 +164,22 @@ describe('FullStory Users API', () => {
         await expect(user).resolves.not.toHaveProperty('body');
     });
 
+    test('delete by uid', async () => {
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200
+        });
+
+        const user = users.deleteUserByUid('test-user-id-1');
+
+        expect(mockRequest).toBeCalledWith(
+            { headers: {}, hostname: defaultHost, method: 'DELETE', path: basePath + '?uid=test-user-id-1' },
+            undefined,
+            undefined
+        );
+        await expect(user).resolves.toHaveProperty('httpStatusCode', 200);
+        await expect(user).resolves.not.toHaveProperty('body');
+    });
+
 
     describe('API throws nice looking error when needed', () => {
         test('handle async error with unknown Error type', async () => {
