@@ -22,6 +22,8 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   protected String fsPrefix = "fullstory.v2";
   protected String resourceName = "unkown";
 
+  private static final String DESCRIPTION_OVERRIDE_KEY = "x-fullstory-sdk-description-override";
+
   /**
    * Configures the type of generator.
    *
@@ -202,6 +204,10 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
   public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
     Map<String, ModelsMap> models = super.postProcessAllModels(objs);
 
+    // loop over all models to check for vender extensions for description override,
+    // if the model contains a fullstory vendor extension
+    overrideDescription(objs);
+
     // first loop over all models map and create import map for all models
     Map<String, String> importLocMap = overrideAllImportsPathsInModels(models);
 
@@ -235,7 +241,12 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
       if (op.returnType == "object") {
         op.returnType = null;
       }
+
+      // the operation's notes and all it's parameters descriptions
+      // if the model contains a fullstory vendor extension
+      overrideDescription(op);
     }
+
     operations.put("tsImports", tsImports);
     // TODO(sarbina): maybe use toApiImport?
     operationMap.put("importPath", toApiFolderName(operationMap.getPathPrefix()));
@@ -312,5 +323,55 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     }
 
     mo.put("tsImports", tsImports);
+  }
+
+  private void overrideDescription(CodegenOperation op) {
+    if (!op.getHasVendorExtensions()) {
+      return;
+    }
+    Object descObj = op.vendorExtensions.get(DESCRIPTION_OVERRIDE_KEY);
+    if (descObj == null) {
+      return;
+    }
+    op.unescapedNotes = String.valueOf(op.vendorExtensions.get(DESCRIPTION_OVERRIDE_KEY));
+    op.notes = escapeText(op.unescapedNotes);
+
+    for (CodegenParameter param : op.allParams) {
+      overrideDescription(param);
+    }
+  }
+
+  private void overrideDescription(CodegenParameter p) {
+    if (p.vendorExtensions == null) {
+      return;
+    }
+    Object descObj = p.vendorExtensions.get(DESCRIPTION_OVERRIDE_KEY);
+    if (descObj == null) {
+      return;
+    }
+    p.unescapedDescription = String.valueOf(p.vendorExtensions.get(DESCRIPTION_OVERRIDE_KEY));
+    p.description = escapeText(p.unescapedDescription);
+  }
+
+  private void overrideDescription(CodegenModel m) {
+    if (m.getVendorExtensions() == null) {
+      return;
+    }
+    Object descObj = m.getVendorExtensions().get(DESCRIPTION_OVERRIDE_KEY);
+    if (descObj == null) {
+      return;
+    }
+    m.unescapedDescription = String.valueOf(descObj);
+    m.description = escapeText(m.unescapedDescription);
+  }
+
+  private void overrideDescription(Map<String, ModelsMap> models) {
+    for (String modelName : models.keySet()) {
+      ModelsMap entry = models.get(modelName);
+      for (ModelMap mo : entry.getModels()) {
+        CodegenModel m = mo.getModel();
+        overrideDescription(m);
+      }
+    }
   }
 }
