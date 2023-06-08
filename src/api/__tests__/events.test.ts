@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
 
 import { EventsApi, EventsBatchImportApi } from '..';
+import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
-const defaultHost = 'api.fullstory.com';
 const basePath = '/v2beta/events';
 const expectedHeaders = { accept: 'application/json' };
 
@@ -13,7 +13,7 @@ jest.mock('../../http', () => {
     return {
         ...jest.createMockFromModule<any>('../../http'),
         // so we can spy on "request"
-        FSHttpClient: class {
+        FSHttpClientImpl: class {
             request = mockRequest;
         },
     };
@@ -50,7 +50,7 @@ describe('FullStory Events API', () => {
 
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath },
+            makeMockReq(basePath, 'POST', '', expectedHeaders),
             createReq,
             undefined
         );
@@ -99,7 +99,7 @@ describe('FullStory Batch Events API', () => {
         const job = batchEvents.createBatchEventsImportJob(mockReq);
 
         expect(mockRequest).toBeCalledWith(
-            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath + '/batch' },
+            makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
             mockReq,
             undefined
         );
@@ -129,7 +129,7 @@ describe('FullStory Batch Events API', () => {
         const job = batchEvents.getBatchEventsImportStatus('abcd1234');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234'),
             undefined,
             undefined
         );
@@ -156,7 +156,7 @@ describe('FullStory Batch Events API', () => {
         const job = batchEvents.getBatchEventsImports('abcd1234');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/imports' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports'),
             undefined,
             undefined
         );
@@ -190,7 +190,7 @@ describe('FullStory Batch Events API', () => {
         const job = batchEvents.getBatchEventsImportErrors('abcd1234', 'next_page_token');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/errors?next_page_token=next_page_token' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?next_page_token=next_page_token'),
             undefined,
             undefined
         );

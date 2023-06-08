@@ -6,7 +6,7 @@ import { RequestOptions } from 'https';
 import nock, { cleanAll } from 'nock';
 
 import { FSApiError, FSErrorName, FSParserError, isFSError } from '../../errors';
-import { FSHttpClient } from '../index';
+import { FSHttpClientImpl } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const testHost = 'api.fullstory.test';
@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 describe('FSHttpClient', () => {
-    const client = new FSHttpClient({
+    const client = new FSHttpClientImpl({
         apiKey: MOCK_API_KEY
     });
 

@@ -42,8 +42,6 @@ export class FSHttpClientImpl implements FSHttpClient {
         fsReq?: FSRequestOptions,
     ): Promise<FSResponse<RSP>> {
         return new Promise<FSResponse<RSP>>((resolve, reject) => {
-            console.log(opts);
-
             // TODO(sabrina): add fsReq.integration_src to the request
             let connectionEvent = 'secureConnect';
             if (!opts.agent) {
