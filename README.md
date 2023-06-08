@@ -95,7 +95,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   const { events } = fsClient;
   ```
 
-- [Create events](https://developer.fullstory.com/server/v2/events/create-events/)
+- [Create a event](https://developer.fullstory.com/server/v2/events/create-events/)
 
   ```ts
   const createResponse = await events.create({
@@ -119,21 +119,14 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
           longitude: -84.39222238465959,
         },
       },
-      events: [
-        {
-          name: 'Support Ticket',
-          timestamp: '2022-03-15T14:23:23Z',
-          properties: {
-            id: 424242,
-            priority: 'Normal',
-            source: 'Email',
-            title: 'Account locked out',
-          },
-        },
-        {
-          name: "Another Event",
-        }
-      ]
+      name: 'Support Ticket',
+      timestamp: '2022-03-15T14:23:23Z',
+      properties: {
+        id: 424242,
+        priority: 'Normal',
+        source: 'Email',
+        title: 'Account locked out',
+      },
     });
   ```
 
@@ -190,42 +183,13 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
           url: 'https://www.example.com',
         },
       },
-      events: [
-        {
-          name: 'Support Ticket',
-          timestamp: '2022-03-15T14:23:23Z',
-          properties: {
-            source: 'Email',
-            title: 'Account locked out',
-          },
-        },
-        {
-          name: "Another Event",
-        },
-        {
-          name: "More Events",
-        }
-      ]
+      name: 'Support Ticket',
+      timestamp: '2022-03-15T14:23:23Z',
+      properties: {
+        source: 'Email',
+        title: 'Account locked out',
+      },
     },
-    {
-      user: {
-        id: '000000',
-      },
-      session: {
-        use_most_recent: true,
-      },
-      events: [
-        {
-          name: 'Events - 1',
-        },
-        {
-          name: "Events - 2",
-        },
-        {
-          name: "Events - 3",
-        }
-      ]
-    }
   ];
 
   // create a job object
@@ -237,12 +201,16 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
       user: {
         id: '999999',
       },
-      events: [
+      name: 'Events - 1',
+      timestamp: '2022-03-15T14:23:23Z',
+    },
         {
-          name: 'Events - 1',
-        },
-      ]
-    }
+      user: {
+        id: '100000',
+      },
+      name: 'Events - 2',
+      timestamp: '2022-03-15T14:23:23Z',
+    },
   ]);
   ```
 
@@ -336,6 +304,9 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   } catch (err: unknown) {
     if (isFSError(err)) {
       switch (err.name) {
+         case FSErrorName.ERROR_INVALID_ARGUMENT:
+          console.log('An argument provided to the SDK is invalid.');
+          break;
         case FSErrorName.ERROR_RATE_LIMITED:
           console.log('FullStory server API returned HTTP 429 Too Many Requests.');
           console.log(`received 'retry - after' header, retry in ${err.getRetryAfter()} milliseconds.`);
