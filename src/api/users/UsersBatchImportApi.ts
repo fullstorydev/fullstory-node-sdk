@@ -12,16 +12,22 @@ import { RequestOptions } from 'node:https';
 
 import { JobStatusResponse , CreateBatchUserImportJobRequest , GetBatchUserImportsResponse , GetBatchUserImportErrorsResponse , CreateBatchUserImportJobResponse , ErrorResponse } from '@model/index';
 
-import { FSHttpClient, FSRequestOptions, FSResponse, FullStoryOptions, IFSHttpClient } from '../../http';
+import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
 
 export class UsersBatchImportApi {
-    protected readonly basePath = 'https://api.fullstory.com';
-    private httpClient: IFSHttpClient;
+    readonly defaultBasePath = 'https://api.fullstory.com';
+    private basePath = this.defaultBasePath;
+    private httpClient: FSHttpClient;
 
     constructor(opts: FullStoryOptions) {
         // TODO(sabrina): allow injecting http client dependency rather than instantiating here
-        this.httpClient = new FSHttpClient(opts);
+        this.httpClient = new FSHttpClientImpl(opts);
+
+        // allow pointing to a different host for dev or tests
+        if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+            this.basePath = process.env.FS_API_HOST || this.defaultBasePath;
+        }
     }
 
     /**
@@ -49,6 +55,9 @@ export class UsersBatchImportApi {
             method: 'POST',
             headers: headerParams,
             hostname: url.hostname,
+            host: url.host,
+            port: url.port,
+            protocol: url.protocol,
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
@@ -83,6 +92,9 @@ export class UsersBatchImportApi {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
+            host: url.host,
+            port: url.port,
+            protocol: url.protocol,
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
@@ -113,6 +125,9 @@ export class UsersBatchImportApi {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
+            host: url.host,
+            port: url.port,
+            protocol: url.protocol,
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 
@@ -151,6 +166,9 @@ export class UsersBatchImportApi {
             method: 'GET',
             headers: headerParams,
             hostname: url.hostname,
+            host: url.host,
+            port: url.port,
+            protocol: url.protocol,
             path: url.pathname + (queryStr ? '?' + queryStr : ''),
         };
 

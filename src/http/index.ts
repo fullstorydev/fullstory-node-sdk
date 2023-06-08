@@ -1,6 +1,7 @@
 export * from './options';
 
 import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import * as http from 'node:http';
 import * as https from 'node:https';
 import { RequestOptions } from 'node:https';
 
@@ -8,6 +9,7 @@ import { FSApiError, FSParserError, FSTimeoutError } from '../errors';
 import { FSRequestOptions, FullStoryOptions } from './options';
 
 const defaultHttpsAgent = new https.Agent({ keepAlive: true });
+const defaultHttpAgent = new http.Agent({ keepAlive: true });
 
 export interface FSResponse<T> {
     httpStatusCode?: number;
@@ -18,7 +20,7 @@ export interface FSResponse<T> {
     body?: T;
 }
 
-export interface IFSHttpClient {
+export interface FSHttpClient {
     request: <REQ, RSP> (
         opts: RequestOptions,
         body?: REQ,
@@ -28,7 +30,7 @@ export interface IFSHttpClient {
 }
 
 // TODO(sabrina): separate out the error handling stuff out from the http client
-export class FSHttpClient implements IFSHttpClient {
+export class FSHttpClientImpl implements FSHttpClient {
     // TODO(sabrina): allow passing in a node https agent?
     constructor(
         private opts: FullStoryOptions,
@@ -40,9 +42,17 @@ export class FSHttpClient implements IFSHttpClient {
         fsReq?: FSRequestOptions,
     ): Promise<FSResponse<RSP>> {
         return new Promise<FSResponse<RSP>>((resolve, reject) => {
+            console.log(opts);
+
             // TODO(sabrina): add fsReq.integration_src to the request
+            let connectionEvent = 'secureConnect';
             if (!opts.agent) {
-                opts.agent = defaultHttpsAgent;
+                if (opts.protocol === 'http:') {
+                    connectionEvent = 'connect';
+                    opts.agent = defaultHttpAgent;
+                } else {
+                    opts.agent = defaultHttpsAgent;
+                }
             }
 
             const req = https.request(opts);
@@ -50,7 +60,7 @@ export class FSHttpClient implements IFSHttpClient {
 
             req.once('socket', (socket) => {
                 if (socket.connecting) {
-                    socket.once('secureConnect', //always use https
+                    socket.once(connectionEvent,
                         () => {
                             body && req.write(JSON.stringify(body));
                             req.end();
