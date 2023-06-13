@@ -1,5 +1,5 @@
 {
     "!include": "shared/openapi-gen.config.json",
-    "inputSpec": "specs/users.swagger.json",
+    "inputSpec": "specs/users.sdk.swagger.json",
     "resourceName": "users"
 }

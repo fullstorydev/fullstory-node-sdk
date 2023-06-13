@@ -34,7 +34,7 @@ public class FullstoryTypescriptGeneratorTest {
 
     final CodegenConfigurator configurator = new CodegenConfigurator()
         .setGeneratorName("fullstory-typescript")
-        .setInputSpec("../specs/users.swagger.json")
+        .setInputSpec("../specs/users.sdk.swagger.json")
         .setOutputDir("out")
         .setSchemaMappings(sm)
         .setAdditionalProperties(ap);

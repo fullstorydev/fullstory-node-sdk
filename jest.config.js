@@ -5,5 +5,8 @@ module.exports = {
     'moduleNameMapper': {
         '@model/(.*)': '<rootDir>/src/model/$1',
         '@api/(.*)': '<rootDir>/src/api/$1'
-    }
+    },
+    'testRegex': [
+        '(\\.|/)(test|spec)\\.[jt]sx?$'
+    ]
 };

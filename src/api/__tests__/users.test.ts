@@ -3,9 +3,9 @@ import { CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, Crea
 
 import { FSApiError, FSErrorName, FSUnknownError } from '../../errors';
 import { UsersApi, UsersBatchImportApi } from '../index';
+import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
-const defaultHost = 'api.fullstory.com';
 const basePath = '/v2beta/users';
 const expectedHeaders = { accept: 'application/json' };
 
@@ -14,7 +14,7 @@ jest.mock('../../http', () => {
     return {
         ...jest.createMockFromModule<any>('../../http'),
         // so we can spy on "request"
-        FSHttpClient: class {
+        FSHttpClientImpl: class {
             request = mockRequest;
         },
     };
@@ -50,7 +50,7 @@ describe('FullStory Users API', () => {
 
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/123123' },
+            makeMockReq(basePath, 'GET', '/123123'),
             undefined,
             undefined
         );
@@ -81,7 +81,7 @@ describe('FullStory Users API', () => {
 
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '?uid=test_user_1&email=test_user_1%40test.com' },
+            makeMockReq(basePath, 'GET', '?uid=test_user_1&email=test_user_1%40test.com'),
             undefined,
             undefined
         );
@@ -107,7 +107,7 @@ describe('FullStory Users API', () => {
         const user = users.createUser(mockReq);
 
         expect(mockRequest).toBeCalledWith(
-            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath },
+            makeMockReq(basePath, 'POST', '', expectedHeaders),
             mockReq,
             undefined
         );
@@ -137,7 +137,7 @@ describe('FullStory Users API', () => {
         const user = users.updateUser('12341234', mockReq);
 
         expect(mockRequest).toBeCalledWith(
-            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath + '/12341234' },
+            makeMockReq(basePath, 'POST', '/12341234', expectedHeaders),
             mockReq,
             undefined
         );
@@ -156,7 +156,7 @@ describe('FullStory Users API', () => {
         const user = users.deleteUser('12341234');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'DELETE', path: basePath + '/12341234' },
+            makeMockReq(basePath, 'DELETE', '/12341234'),
             undefined,
             undefined
         );
@@ -172,7 +172,7 @@ describe('FullStory Users API', () => {
         const user = users.deleteUserByUid('test-user-id-1');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'DELETE', path: basePath + '?uid=test-user-id-1' },
+            makeMockReq(basePath, 'DELETE', '?uid=test-user-id-1'),
             undefined,
             undefined
         );
@@ -248,7 +248,7 @@ describe('FullStory Batch Users API', () => {
         const job = batchUsers.createBatchUserImportJob(mockReq);
 
         expect(mockRequest).toBeCalledWith(
-            { headers: expectedHeaders, hostname: defaultHost, method: 'POST', path: basePath + '/batch' },
+            makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
             mockReq,
             undefined
         );
@@ -278,7 +278,7 @@ describe('FullStory Batch Users API', () => {
         const job = batchUsers.getBatchUserImportStatus('abcd1234');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234'),
             undefined,
             undefined
         );
@@ -306,7 +306,7 @@ describe('FullStory Batch Users API', () => {
         const job = batchUsers.getBatchUserImports('abcd1234');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/imports' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports'),
             undefined,
             undefined
         );
@@ -338,7 +338,7 @@ describe('FullStory Batch Users API', () => {
         const job = batchUsers.getBatchUserImportErrors('abcd1234', 'next_page_token');
 
         expect(mockRequest).toBeCalledWith(
-            { headers: {}, hostname: defaultHost, method: 'GET', path: basePath + '/batch/abcd1234/errors?next_page_token=next_page_token' },
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?next_page_token=next_page_token'),
             undefined,
             undefined
         );
