@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 import { CreateEventsRequest, JobStatus } from '@model/index';
+import { create } from 'domain';
 import * as dotenv from 'dotenv';
 
 import { Events } from '../events';
@@ -8,6 +9,7 @@ dotenv.config();
 const { RUN_SMOKE_TESTS, FS_API_KEY } = process.env;
 
 const BATCH_JOB_TIMEOUT = 10000; // wait for 10 seconds for the job to finish
+const INTEGRATION_SRC = 'NodeJS SDK Smoke Test';
 
 describe('FullStory Events API', () => {
     if (!RUN_SMOKE_TESTS || !FS_API_KEY) {
@@ -17,6 +19,7 @@ describe('FullStory Events API', () => {
 
     const events = new Events({
         apiKey: `Basic ${FS_API_KEY}`,
+        integration_src: INTEGRATION_SRC
     });
 
     //TODO(sabrina): make sure errors are thrown on error responses (like 401s)
@@ -45,7 +48,6 @@ describe('FullStory Events API', () => {
         };
 
         const created = await events.create(createEventsReq);
-
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -101,13 +103,17 @@ describe('FullStory Events API', () => {
                 expect(imported).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
-                            ...createReq1
+                            name: createReq1.name,
+                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
+                            properties: createReq1.properties
                         }),
                         expect.objectContaining({
-                            ...createReq2
+                            name: createReq2.name,
+                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                         expect.objectContaining({
-                            ...createReq3
+                            name: createReq3.name,
+                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                     ])
                 );
