@@ -3,7 +3,7 @@ import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, 
 
 import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
-import { addIntegrationSrc } from './utils/integrationSrc';
+import { maybeAddIntegrationSrc } from './utils/integrationSrc';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -59,7 +59,7 @@ class BatchEventsRequester implements IBatchEventRequester {
 
     async requestCreateJob(requests: CreateBatchEventsImportJobRequest): Promise<CreateBatchEventsImportJobResponse> {
         for (const req of requests.requests) {
-            req.context = addIntegrationSrc(req.context, this.fsOpts.integration_src);
+            req.context = maybeAddIntegrationSrc(req.context, this.fsOpts.integration_src);
         }
         const rsp = await this.batchEventsImpl.createBatchEventsImportJob(requests);
         // make sure job metadata exist
@@ -110,7 +110,7 @@ export class Events implements IEvents {
     }
 
     async create(body: CreateEventsRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateEventsResponse>> {
-        body.context = addIntegrationSrc(body.context, options?.integration_src);
+        body.context = maybeAddIntegrationSrc(body.context, options?.integration_src);
         return this.eventsImpl.createEvents(body, includeSchema, options);
     }
 
