@@ -96,7 +96,7 @@ describe('FullStory Users API', () => {
         } catch (err) {
             // Or user may be already gone
             expect(err).toBeInstanceOf(FSApiError);
-            expect(err).toHaveProperty('httpCode', 404);
+            expect(err).toHaveProperty('httpStatusCode', 404);
         }
     });
 
