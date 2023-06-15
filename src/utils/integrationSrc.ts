@@ -13,11 +13,8 @@ export function maybeAddIntegrationSrc<T extends { integration?: string; }>(obj:
         } as T;
     }
 
-    if (obj.integration) {
-        // do not override if integration already exist
-        return obj;
+    if (!obj.integration) {
+        obj.integration = integrationSrc;
     }
-
-    obj.integration = integrationSrc;
     return obj;
 }
