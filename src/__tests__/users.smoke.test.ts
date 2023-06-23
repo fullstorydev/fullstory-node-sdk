@@ -44,15 +44,13 @@ describe('FullStory Users API', () => {
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
         expect(created.body).toHaveProperty('id');
-        console.log('created', created);
+
         // Get User
         const id = created.body?.id;
-        console.log('id', id);
         if (!id) {
             throw new Error('expected crated user to have ID');
         }
         const got = await users.get(id);
-        console.log('got', got);
         expect(got).toHaveProperty('httpStatusCode', 200);
         expect(got).toHaveProperty('httpHeaders');
         expect(got).toHaveProperty('body');
