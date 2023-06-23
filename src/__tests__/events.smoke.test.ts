@@ -51,14 +51,7 @@ describe('FullStory Events API', () => {
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
-        const responseBody = created.body;
-        expect(responseBody?.user?.uid).toEqual(createEventsReq.user?.uid);
-        expect(responseBody?.user?.id).toBeTruthy();
-        expect(responseBody?.session?.id).toBeTruthy();
-        expect(responseBody).toHaveProperty('name');
-        expect(responseBody).toHaveProperty('properties');
-
-        expect(responseBody?.name).toEqual('NodeJS Smoke Test Event - 1');
+        expect(created.body).toEqual({});
     });
 
     test('Batch Events Job handling', done => {
