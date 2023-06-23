@@ -2,8 +2,6 @@ import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from '
 import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatusResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
 import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
-import { FSParserError } from './errors';
-import { FSBaseError } from './errors/base';
 import { FSInvalidArgumentError } from './errors/invalidArgument';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
@@ -118,8 +116,8 @@ export class Users implements IUsers {
         return this.usersImpl.getUser(id, includeSchema, options);
     }
 
-    async create(body: CreateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(body, includeSchema, options);
+    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(body, options);
     }
 
     async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
@@ -136,8 +134,8 @@ export class Users implements IUsers {
         throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
-    async update(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(id, body, includeSchema, options);
+    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(id, body, options);
     }
 
     batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions): BatchUsersJob {

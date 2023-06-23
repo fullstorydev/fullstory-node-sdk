@@ -31,20 +31,16 @@ export class UsersApi {
     }
 
     /**
-     * Creates a user with the specified details
+     * Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).
      * @summary Create User
      * @param body
-     * @param includeSchema Whether to include the schema in the response.
     */
-    public async createUser(body: CreateUserRequest, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
+    public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
-        if (includeSchema !== undefined) {
-            queryParams.set('include_schema', String(includeSchema));
-        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported
@@ -239,18 +235,14 @@ export class UsersApi {
      * @summary Update User
      * @param id The FullStory assigned user ID
      * @param body
-     * @param includeSchema Whether to include the schema in the response.
     */
-    public async updateUser(id: string, body: UpdateUserRequest, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
+    public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
-        if (includeSchema !== undefined) {
-            queryParams.set('include_schema', String(includeSchema));
-        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported

@@ -10,7 +10,7 @@ import { SessionIdRequest } from '@model/events/SessionIdRequest';
 import { UserIdRequest } from '@model/events/UserIdRequest';
 import { Schema } from '@model/varsapi/Schema';
 /**
- * @interface CreateEventsRequest The request payload for events to be created
+ * @interface CreateEventsRequest
  */
 export interface CreateEventsRequest {
     'user'?: UserIdRequest;

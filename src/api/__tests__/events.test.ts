@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, CreateEventsResponse, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
+import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
 
 import { EventsApi, EventsBatchImportApi } from '..';
 import { makeMockReq } from './util';
@@ -38,12 +38,9 @@ describe('FullStory Events API', () => {
             },
             name: 'nodejs-sdk-event-1',
         };
-        const mockEvent: CreateEventsResponse = {
-            ...createReq
-        };
         mockRequest.mockReturnValue({
             httpStatusCode: 200,
-            body: mockEvent,
+            body: {},
         });
 
         const event = events.createEvents(createReq);
@@ -57,7 +54,7 @@ describe('FullStory Events API', () => {
 
         await expect(event).resolves.toEqual({
             httpStatusCode: 200,
-            body: mockEvent,
+            body: {},
         });
     });
 });

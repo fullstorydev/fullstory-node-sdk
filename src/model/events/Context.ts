@@ -14,7 +14,6 @@ import { MobileContext } from '@model/events/MobileContext';
  */
 export interface Context {
     'integration'?: string;
-    'custom_annotations'?: { [key: string]: string; };
     'browser'?: BrowserContext;
     'mobile'?: MobileContext;
     'device'?: DeviceContext;
