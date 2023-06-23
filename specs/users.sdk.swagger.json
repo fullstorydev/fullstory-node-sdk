@@ -230,7 +230,7 @@
       },
       "post": {
         "summary": "Create User",
-        "description": "Creates a user with the specified details",
+        "description": "Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).",
         "operationId": "CreateUser",
         "responses": {
           "200": {
@@ -308,13 +308,6 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateUserRequest"
             }
-          },
-          {
-            "name": "include_schema",
-            "description": "Whether to include the schema in the response.",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -326,7 +319,7 @@
     "/v2beta/users/batch": {
       "post": {
         "summary": "Create Batch Import",
-        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`.",
+        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
         "operationId": "CreateBatchUserImportJob",
         "responses": {
           "200": {
@@ -788,8 +781,7 @@
             "description": "The FullStory assigned user ID",
             "in": "path",
             "required": true,
-            "type": "string",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "include_schema",
@@ -883,7 +875,6 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "int64",
             "x-fullstory-sdk-description-override": "The FullStory-generated id for the user."
           }
         ],
@@ -971,8 +962,7 @@
             "description": "The FullStory assigned user ID",
             "in": "path",
             "required": true,
-            "type": "string",
-            "format": "int64"
+            "type": "string"
           },
           {
             "name": "body",
@@ -981,13 +971,6 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.UpdateUserRequest"
             }
-          },
-          {
-            "name": "include_schema",
-            "description": "Whether to include the schema in the response.",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -1104,7 +1087,7 @@
     "fullstory.v2.users.BatchUserImportRequest": {
       "type": "object",
       "example": {
-        "id": 123,
+        "id": "123",
         "uid": "xyz123",
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
@@ -1117,7 +1100,6 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID"
         },
         "uid": {
@@ -1163,7 +1145,6 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID",
           "maxLength": 256
         },
@@ -1217,7 +1198,6 @@
         "requests": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportRequest"
           },
           "description": "The list of users and their information that should be imported in this batch request"
@@ -1288,52 +1268,15 @@
     "fullstory.v2.users.CreateUserResponse": {
       "type": "object",
       "example": {
-        "id": "987654321",
-        "uid": "xyz123",
-        "display_name": "Daniel Falko",
-        "email": "daniel.falko@example.com",
-        "properties": {
-          "pricing_plan": "paid",
-          "popup_help": true,
-          "total_spent": 14.50
-        }
+        "id": "987654321"
       },
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID"
-        },
-        "uid": {
-          "type": "string",
-          "description": "The application-specific ID you've given to the user",
-          "maxLength": 256
-        },
-        "display_name": {
-          "type": "string",
-          "description": "The nice-looking name for this user",
-          "maxLength": 256
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address associated with this user",
-          "maxLength": 128
-        },
-        "properties": {
-          "type": "object",
-          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
-          "maxProperties": 500
-        },
-        "schema": {
-          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
-        },
-        "type_conflicts": {
-          "type": "object",
-          "description": "Any fields that are associated with multiple types."
         }
       },
-      "description": "Request payload for creating a user",
+      "description": "Server response for creating a user",
       "required": [
         "id"
       ]
@@ -1380,14 +1323,13 @@
         "results": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportErrorsResponse.FailedUserImport"
           },
           "description": "Page of user import failures for the batch import"
         },
         "total_records": {
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "description": "The total number of failures for the specified user import"
         },
         "next_page_token": {
@@ -1470,14 +1412,13 @@
         "results": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.BatchUserImportResponse"
           },
           "description": "Page of user import responses for the batch import"
         },
         "total_records": {
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
@@ -1507,7 +1448,6 @@
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID"
         },
         "uid": {
@@ -1576,14 +1516,13 @@
         "results": {
           "type": "array",
           "items": {
-            "type": "object",
             "$ref": "#/definitions/fullstory.v2.users.GetUserResponse"
           },
           "description": "The list of users that match the input filter criteria"
         },
         "total_records": {
           "type": "integer",
-          "format": "uint64",
+          "format": "int32",
           "description": "The total number of users that matched the filter criteria"
         },
         "next_page_token": {
@@ -1644,50 +1583,13 @@
     "fullstory.v2.users.UpdateUserResponse": {
       "type": "object",
       "example": {
-        "id": "987654321",
-        "uid": "xyz123",
-        "display_name": "Daniel Falko",
-        "email": "daniel.falko@example.com",
-        "properties": {
-          "pricing_plan": "paid",
-          "popup_help": true,
-          "total_spent": 14.50
-        }
+        "id": "987654321"
       },
       "properties": {
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID",
           "maxLength": 256
-        },
-        "uid": {
-          "type": "string",
-          "description": "The application-specific ID you've given to the user",
-          "maxLength": 256
-        },
-        "display_name": {
-          "type": "string",
-          "description": "The nice-looking name for this user",
-          "maxLength": 256
-        },
-        "email": {
-          "type": "string",
-          "description": "The email address associated with this user",
-          "maxLength": 128
-        },
-        "properties": {
-          "type": "object",
-          "description": "Properties that provide additional information about your user.\n - Up to 500 unique properties are allowed.\n - Property names must be a sequence of alphanumeric characters A-Z, a-z, or 0-9 and underscores (\"_\").\n - Property names must start with an alphabetic character (A-Z or a-z).\n - The maximum property name length is 512 characters.\n - Property values may also contain nested objects. Properties within nested objects must still conform to the naming requirements. For nested objects, the property name including the dotted concatenation of all its parent properties must still be under the length limit of 512 characters.\n - Property values have a maximum size of 8192 bytes. If the value for the property is larger than this limit, the property will be rejected.",
-          "maxProperties": 500
-        },
-        "schema": {
-          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
-        },
-        "type_conflicts": {
-          "type": "object",
-          "description": "Any fields that are associated with multiple types."
         }
       },
       "description": "Server response payload for updating a user",
