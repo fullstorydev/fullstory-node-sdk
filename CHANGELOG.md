@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0-beta.4
+
+- [#38](https://github.com/fullstorydev/fullstory-node-sdk/pull/38)
+  - Developer enhancements: allowing APIs to point to a different environment for development and testing.
+
+- [#39](https://github.com/fullstorydev/fullstory-node-sdk/pull/39)
+  - Pass `integration_src` to server APIs
+
+- [#40](https://github.com/fullstorydev/fullstory-node-sdk/pull/40)
+  - Update server API interface: create user, update user, and create event APIs will return response bodies with `id`s only.
+
 ## 1.0.0-beta.3
 
 - [#36](https://github.com/fullstorydev/fullstory-node-sdk/pull/36)
