@@ -5,7 +5,7 @@
  * Do not edit manually.
  */
 
-import { CreateEventsResponse } from '@model/events/CreateEventsResponse';
+import { BatchCreateEventsResponse } from '@model/events/BatchCreateEventsResponse';
 /**
  * @interface GetBatchEventsImportsResponse Server response for retrieving batch events imported
  */
@@ -13,7 +13,7 @@ export interface GetBatchEventsImportsResponse {
     /**
      * Page of events import responses for the batch import
      */
-    'results'?: Array<CreateEventsResponse>;
+    'results'?: Array<BatchCreateEventsResponse>;
     /**
      * Total number of records in this batch import
      */

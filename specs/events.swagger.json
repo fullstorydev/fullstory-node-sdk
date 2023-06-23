@@ -24,7 +24,7 @@
     "/v2beta/events": {
       "post": {
         "summary": "Create Events",
-        "description": "Creates one event with the specified details.",
+        "description": "Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).",
         "operationId": "CreateEvents",
         "responses": {
           "200": {
@@ -102,13 +102,6 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
             }
-          },
-          {
-            "name": "include_schema",
-            "description": "Whether to include the schema in the response.",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -120,7 +113,7 @@
     "/v2beta/events/batch": {
       "post": {
         "summary": "Create Events Batch Import",
-        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`.",
+        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
         "operationId": "CreateBatchEventsImportJob",
         "responses": {
           "200": {
@@ -528,6 +521,66 @@
         "code"
       ]
     },
+    "fullstory.v2.events.BatchCreateEventsResponse": {
+      "type": "object",
+      "example": {
+        "user": {
+          "uid": "xyz123",
+          "id": "123456789"
+        },
+        "session": {
+          "id": "123456"
+        },
+        "context": {
+          "integration": "segment",
+          "browser": {
+            "url": "https://store.mondaymorning.com",
+            "user_agent": "square/pos",
+            "referrer_url": ""
+          }
+        },
+        "name": "Support Ticket",
+        "timestamp": "2022-03-15T14:23:23Z",
+        "properties": {
+          "id": 424242,
+          "priority": "Normal",
+          "source": "Email",
+          "title": "Account locked out"
+        }
+      },
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/fullstory.v2.events.UserIdResponse"
+        },
+        "session": {
+          "$ref": "#/definitions/fullstory.v2.events.SessionIdResponse"
+        },
+        "context": {
+          "$ref": "#/definitions/fullstory.v2.events.Context"
+        },
+        "name": {
+          "type": "string",
+          "description": "The event's name."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional. The event's timestamp, defaults to current time."
+        },
+        "properties": {
+          "type": "object",
+          "description": "Optional. The custom event's payload."
+        },
+        "schema": {
+          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
+          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
+        }
+      },
+      "description": "Server response for created events",
+      "required": [
+        "name"
+      ]
+    },
     "fullstory.v2.events.BrowserContext": {
       "type": "object",
       "example": {
@@ -562,12 +615,6 @@
         "integration": {
           "type": "string"
         },
-        "custom_annotations": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
         "browser": {
           "$ref": "#/definitions/fullstory.v2.events.BrowserContext"
         },
@@ -597,7 +644,6 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -623,7 +669,6 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -689,7 +734,6 @@
         },
         "context": {
           "integration": "segment",
-          "custom_annotations": { },
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
@@ -733,71 +777,12 @@
           "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
         }
       },
-      "description": "The request payload for events to be created",
       "required": [
         "name"
       ]
     },
     "fullstory.v2.events.CreateEventsResponse": {
-      "type": "object",
-      "example": {
-        "user": {
-          "uid": "xyz123",
-          "id": "123456789"
-        },
-        "session": {
-          "id": "123456"
-        },
-        "context": {
-          "integration": "segment",
-          "custom_annotations": { },
-          "browser": {
-            "url": "https://store.mondaymorning.com",
-            "user_agent": "square/pos",
-            "referrer_url": ""
-          }
-        },
-        "name": "Support Ticket",
-        "timestamp": "2022-03-15T14:23:23Z",
-        "properties": {
-          "id": 424242,
-          "priority": "Normal",
-          "source": "Email",
-          "title": "Account locked out"
-        }
-      },
-      "properties": {
-        "user": {
-          "$ref": "#/definitions/fullstory.v2.events.UserIdResponse"
-        },
-        "session": {
-          "$ref": "#/definitions/fullstory.v2.events.SessionIdResponse"
-        },
-        "context": {
-          "$ref": "#/definitions/fullstory.v2.events.Context"
-        },
-        "name": {
-          "type": "string",
-          "description": "The event's name."
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Optional. The event's timestamp, defaults to current time."
-        },
-        "properties": {
-          "type": "object",
-          "description": "Optional. The custom event's payload."
-        },
-        "schema": {
-          "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
-        }
-      },
-      "description": "Server response for created events",
-      "required": [
-        "name"
-      ]
+      "type": "object"
     },
     "fullstory.v2.events.DeviceContext": {
       "type": "object",
@@ -867,7 +852,6 @@
               },
               "context": {
                 "integration": "segment",
-                "custom_annotations": { },
                 "browser": {
                   "url": "https://store.mondaymorning.com",
                   "user_agent": "square/pos",
@@ -898,7 +882,7 @@
         },
         "total_records": {
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "description": "The total number of failures for the specified events import"
         },
         "next_page_token": {
@@ -923,7 +907,6 @@
           },
           "context": {
             "integration": "segment",
-            "custom_annotations": { },
             "browser": {
               "url": "https://store.mondaymorning.com",
               "user_agent": "square/pos",
@@ -974,7 +957,6 @@
             },
             "context": {
               "integration": "segment",
-              "custom_annotations": { },
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -998,13 +980,13 @@
         "results": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+            "$ref": "#/definitions/fullstory.v2.events.BatchCreateEventsResponse"
           },
           "description": "Page of events import responses for the batch import"
         },
         "total_records": {
           "type": "integer",
-          "format": "int64",
+          "format": "int32",
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
@@ -1103,7 +1085,6 @@
       "example": {
         "context": {
           "integration": "segment",
-          "custom_annotations": { },
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
@@ -1121,7 +1102,7 @@
     "fullstory.v2.events.UserIdRequest": {
       "type": "object",
       "example": {
-        "id": 123456789
+        "id": "123456789"
       },
       "properties": {
         "uid": {
@@ -1131,7 +1112,6 @@
         },
         "id": {
           "type": "string",
-          "format": "int64",
           "description": "The FullStory assigned user ID."
         }
       },
@@ -1141,12 +1121,11 @@
       "type": "object",
       "example": {
         "uid": "xyz123",
-        "id": 123456789
+        "id": "123456789"
       },
       "properties": {
         "id": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
         "uid": {
           "type": "string"

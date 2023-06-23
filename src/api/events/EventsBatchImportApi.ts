@@ -31,7 +31,7 @@ export class EventsBatchImportApi {
     }
 
     /**
-     * Creates a batch events import job with the given list of event information.  The maximum number of request objects that can be included in a single batch request is `50,000`.
+     * Creates a batch events import job with the given list of event information.  The maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).
      * @summary Create Events Batch Import
      * @param body The request payloads contains the list of events to be imported
     */

@@ -10,7 +10,7 @@
 import { OutgoingHttpHeaders } from 'node:http';
 import { RequestOptions } from 'node:https';
 
-import { CreateEventsResponse , CreateEventsRequest , ErrorResponse } from '@model/index';
+import { CreateEventsRequest , ErrorResponse } from '@model/index';
 
 import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
@@ -31,20 +31,16 @@ export class EventsApi {
     }
 
     /**
-     * Creates one event with the specified details.
+     * Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).
      * @summary Create Events
      * @param body
-     * @param includeSchema Whether to include the schema in the response.
     */
-    public async createEvents(body: CreateEventsRequest, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<CreateEventsResponse>> {
+    public async createEvents(body: CreateEventsRequest, options?: FSRequestOptions): Promise<FSResponse<void>> {
         const apiPath = `${this.basePath}/v2beta/events`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
-        if (includeSchema !== undefined) {
-            queryParams.set('include_schema', String(includeSchema));
-        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported
@@ -66,7 +62,7 @@ export class EventsApi {
         };
 
         try {
-            return await this.httpClient.request<CreateEventsRequest, CreateEventsResponse>(requestOptions, body, options);
+            return await this.httpClient.request<CreateEventsRequest, void>(requestOptions, body, options);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error

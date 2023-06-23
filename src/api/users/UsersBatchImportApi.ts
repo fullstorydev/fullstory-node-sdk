@@ -31,7 +31,7 @@ export class UsersBatchImportApi {
     }
 
     /**
-     * Creates a batch user import job with the given list of users\' information. Users are upserted (created if they do not exist or updated if they do exist).  ### Payload Limits  The number of request objects that can be included in a single batch request is `50,000`.
+     * Creates a batch user import job with the given list of users\' information. Users are upserted (created if they do not exist or updated if they do exist).  ### Payload Limits  The number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).
      * @summary Create Batch Import
      * @param body
     */
