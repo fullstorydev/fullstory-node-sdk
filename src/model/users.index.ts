@@ -22,5 +22,6 @@ export * from '@model/job/JobStatus';
 export * from '@model/job/JobStatusResponse';
 export * from '@model/users/ListUsersResponse';
 export * from '@model/varsapi/Schema';
+export * from '@model/varsapi/TypeConflict';
 export * from '@model/users/UpdateUserRequest';
 export * from '@model/users/UpdateUserResponse';

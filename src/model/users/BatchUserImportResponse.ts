@@ -6,6 +6,7 @@
  */
 
 import { Schema } from '@model/varsapi/Schema';
+import { TypeConflict } from '@model/varsapi/TypeConflict';
 /**
  * @interface BatchUserImportResponse Server response for a batch user imported
  */
@@ -37,9 +38,6 @@ export interface BatchUserImportResponse {
      */
     'properties'?: object;
     'schema'?: Schema;
-    /**
-     * Any fields that are associated with multiple types.
-     */
-    'type_conflicts'?: object;
+    'type_conflicts'?: TypeConflict;
 }
 

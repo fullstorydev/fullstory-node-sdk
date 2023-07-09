@@ -581,7 +581,7 @@
             "type": "string"
           },
           {
-            "name": "next_page_token",
+            "name": "page_token",
             "description": "The token that can be used in a request to fetch the next page of results",
             "in": "query",
             "required": false,
@@ -681,7 +681,7 @@
             "type": "string"
           },
           {
-            "name": "next_page_token",
+            "name": "page_token",
             "description": "The token that can be used in a request to fetch the next page of results",
             "in": "query",
             "required": false,
@@ -1094,7 +1094,7 @@
         "properties": {
           "pricing_plan": "paid",
           "popup_help": true,
-          "total_spent": 14.50
+          "total_spent": 14.55
         }
       },
       "properties": {
@@ -1139,7 +1139,7 @@
         "properties": {
           "pricing_plan": "paid",
           "popup_help": true,
-          "total_spent": 14.50
+          "total_spent": 14.55
         }
       },
       "properties": {
@@ -1173,7 +1173,7 @@
           "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
         },
         "type_conflicts": {
-          "type": "object",
+          "$ref": "#/definitions/fullstory.v2.varsapi.TypeConflict",
           "description": "Any fields that are associated with multiple types."
         }
       },
@@ -1235,7 +1235,7 @@
         "properties": {
           "pricing_plan": "paid",
           "popup_help": true,
-          "total_spent": 14.50
+          "total_spent": 14.55
         }
       },
       "properties": {
@@ -1298,7 +1298,7 @@
               "properties": {
                 "pricing_plan": "paid",
                 "popup_help": true,
-                "total_spent": 14.50
+                "total_spent": 14.55
               }
             }
           },
@@ -1355,7 +1355,7 @@
           "properties": {
             "pricing_plan": "paid",
             "popup_help": true,
-            "total_spent": 14.50
+            "total_spent": 14.55
           }
         }
       },
@@ -1391,7 +1391,7 @@
             "properties": {
               "pricing_plan": "paid",
               "popup_help": true,
-              "total_spent": 14.50
+              "total_spent": 14.55
             }
           },
           {
@@ -1401,7 +1401,7 @@
             "properties": {
               "pricing_plan": "paid",
               "popup_help": true,
-              "total_spent": 14.50
+              "total_spent": 14.55
             }
           }
         ],
@@ -1442,7 +1442,7 @@
         "properties": {
           "pricing_plan": "paid",
           "popup_help": true,
-          "total_spent": 14.50
+          "total_spent": 14.55
         }
       },
       "properties": {
@@ -1479,7 +1479,7 @@
           "description": "A mapping from fields to their types, whether inferred automatically or declared in the request."
         },
         "type_conflicts": {
-          "type": "object",
+          "$ref": "#/definitions/fullstory.v2.varsapi.TypeConflict",
           "description": "Any fields that are associated with multiple types."
         },
         "app_url": {
@@ -1505,7 +1505,7 @@
             "properties": {
               "pricing_plan": "paid",
               "popup_help": true,
-              "total_spent": 14.50
+              "total_spent": 14.55
             }
           }
         ],
@@ -1549,7 +1549,7 @@
         "properties": {
           "pricing_plan": "paid",
           "popup_help": true,
-          "total_spent": 14.50
+          "total_spent": 14.55
         }
       },
       "properties": {
@@ -1603,6 +1603,15 @@
         "properties": {
           "type": "object",
           "description": "A mapping of field names to their corresponding types."
+        }
+      }
+    },
+    "fullstory.v2.varsapi.TypeConflict": {
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "Any fields that are associated with multiple types."
         }
       }
     },

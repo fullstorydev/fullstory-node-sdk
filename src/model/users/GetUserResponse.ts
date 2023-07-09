@@ -6,6 +6,7 @@
  */
 
 import { Schema } from '@model/varsapi/Schema';
+import { TypeConflict } from '@model/varsapi/TypeConflict';
 /**
  * @interface GetUserResponse Server response payload for retrieving a single user
  */
@@ -41,10 +42,7 @@ export interface GetUserResponse {
      */
     'properties'?: object;
     'schema'?: Schema;
-    /**
-     * Any fields that are associated with multiple types.
-     */
-    'type_conflicts'?: object;
+    'type_conflicts'?: TypeConflict;
     /**
      * A link to the FullStory app segments page, focused on this user.
      */

@@ -376,7 +376,7 @@
             "type": "string"
           },
           {
-            "name": "next_page_token",
+            "name": "page_token",
             "description": "The token that can be used in a request to fetch the next page of results",
             "in": "query",
             "required": false,
@@ -476,7 +476,7 @@
             "type": "string"
           },
           {
-            "name": "next_page_token",
+            "name": "page_token",
             "description": "The token that can be used in a request to fetch the next page of results",
             "in": "query",
             "required": false,
@@ -532,7 +532,6 @@
           "id": "123456"
         },
         "context": {
-          "integration": "segment",
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
@@ -612,9 +611,6 @@
         }
       },
       "properties": {
-        "integration": {
-          "type": "string"
-        },
         "browser": {
           "$ref": "#/definitions/fullstory.v2.events.BrowserContext"
         },
@@ -635,15 +631,10 @@
       "example": {
         "requests": [
           {
-            "user": {
-              "uid": "xyz123",
-              "id": "123456789"
-            },
             "session": {
-              "use_most_recent": true
+              "id": "123:456"
             },
             "context": {
-              "integration": "segment",
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -661,14 +652,12 @@
           },
           {
             "user": {
-              "uid": "xyz1234",
-              "id": "1234567890"
+              "uid": "xyz1234"
             },
             "session": {
               "use_most_recent": true
             },
             "context": {
-              "integration": "segment",
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -726,14 +715,10 @@
     "fullstory.v2.events.CreateEventsRequest": {
       "type": "object",
       "example": {
-        "user": {
-          "uid": "xyz123"
-        },
         "session": {
-          "use_most_recent": true
+          "id": "123:456"
         },
         "context": {
-          "integration": "segment",
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
@@ -766,7 +751,7 @@
         "timestamp": {
           "type": "string",
           "format": "date-time",
-          "description": "Optional. The event's timestamp, defaults to current time."
+          "description": "Optional. The event's timestamp, if not provided, defaults to current time. It is recommended to always set the timestamp."
         },
         "properties": {
           "type": "object",
@@ -851,7 +836,6 @@
                 "use_most_recent": true
               },
               "context": {
-                "integration": "segment",
                 "browser": {
                   "url": "https://store.mondaymorning.com",
                   "user_agent": "square/pos",
@@ -906,7 +890,6 @@
             "use_most_recent": true
           },
           "context": {
-            "integration": "segment",
             "browser": {
               "url": "https://store.mondaymorning.com",
               "user_agent": "square/pos",
@@ -956,7 +939,6 @@
               "id": "123456"
             },
             "context": {
-              "integration": "segment",
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
@@ -1053,7 +1035,7 @@
     "fullstory.v2.events.SessionIdRequest": {
       "type": "object",
       "example": {
-        "use_most_recent": true
+        "id": "123:456"
       },
       "properties": {
         "id": {
@@ -1062,7 +1044,7 @@
         },
         "use_most_recent": {
           "type": "boolean",
-          "description": "Associate events with the most recent session captured from the user, the session much be within the past 30 minutes."
+          "description": "Associate events with the most recent session captured from the user.\n\nIf set to `true`, a `user` is required. The user must have a session within the past 30 minutes, otherwise the events will be created for the user without a session.\n\nIt is recommended to use `session.id` instead, when creating events for a specific session."
         }
       },
       "description": "The session identifier."
@@ -1084,7 +1066,6 @@
       "type": "object",
       "example": {
         "context": {
-          "integration": "segment",
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
@@ -1107,7 +1088,7 @@
       "properties": {
         "uid": {
           "type": "string",
-          "description": "The application-specific ID you've given to the user",
+          "description": "The application-specific ID you've given to the user.",
           "maxLength": 256
         },
         "id": {
@@ -1115,7 +1096,7 @@
           "description": "The FullStory assigned user ID."
         }
       },
-      "description": "The user identifier. Required if `session.use_most_recent` is set to `true` in the request."
+      "description": "The user identifier.\n\nIf `session.id` is provided, the `session.id` is enough to identify a session for which to create the event, and `user` will not be accepted.\n\nIf `session.use_most_recent` is set to `true`, one and only one`user` field is required."
     },
     "fullstory.v2.events.UserIdResponse": {
       "type": "object",

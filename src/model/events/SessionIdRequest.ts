@@ -14,7 +14,11 @@ export interface SessionIdRequest {
      */
     'id'?: string;
     /**
-     * Associate events with the most recent session captured from the user, the session much be within the past 30 minutes.
+     * Associate events with the most recent session captured from the user.
+     *
+     *If set to `true`, a `user` is required. The user must have a session within the past 30 minutes, otherwise the events will be created for the user without a session.
+     *
+     *It is recommended to use `session.id` instead, when creating events for a specific session.
      */
     'use_most_recent'?: boolean;
 }
