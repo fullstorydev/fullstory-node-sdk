@@ -19,7 +19,7 @@ describe('FullStory Events API', () => {
 
     const events = new Events({
         apiKey: `Basic ${FS_API_KEY}`,
-        integration_src: INTEGRATION_SRC
+        integrationSource: INTEGRATION_SRC
     });
 
     //TODO(sabrina): make sure errors are thrown on error responses (like 401s)

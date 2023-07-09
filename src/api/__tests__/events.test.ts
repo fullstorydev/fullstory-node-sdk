@@ -33,8 +33,7 @@ describe('FullStory Events API', () => {
             user: { id: 'test_user_id' },
             session: { id: 'test_session_id' },
             context: {
-                integration: 'nodejs-sdk-test',
-                //todo more context here
+                //TODO(sabrina): add more context here
             },
             name: 'nodejs-sdk-event-1',
         };
