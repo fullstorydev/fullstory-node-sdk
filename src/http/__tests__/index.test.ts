@@ -9,6 +9,8 @@ import { FSApiError, FSErrorName, FSParserError, isFSError } from '../../errors'
 import { FSHttpClientImpl } from '../index';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
+const MOCK_IDEMPOTENCY_KEY = 'MOCK_IDEMPOTENCY_KEY';
+const MOCK_INTEGRATION_SOURCE = 'MOCK_INTEGRATION_SOURCE';
 const testHost = 'api.fullstory.test';
 const testServer = 'https://' + testHost;
 const testPath = '/test';
@@ -120,5 +122,28 @@ describe('FSHttpClient', () => {
                 expect(e.cause).toHaveProperty('message', expect.stringMatching(new RegExp('Unexpected token . in JSON at position')));
             }
         }
+    }, 2000);
+
+    test('request with headers', async () => {
+        const mockReply = {
+            id: '12345',
+        };
+        const mockBody = { requestData: 'test request data' };
+        mockEndpoint()
+            .reply(200, (_, body) => {
+                // make sure request body is received
+                expect(body).toBe(JSON.stringify(mockBody));
+
+                return JSON.stringify(mockReply);
+            })
+            .matchHeader('Idempotency-Key', MOCK_IDEMPOTENCY_KEY)
+            .matchHeader('Integration-Source', MOCK_INTEGRATION_SOURCE);
+
+        const promise = client.request<any, GetUserResponse>(mockReqOpts, mockBody, { idempotencyKey: MOCK_IDEMPOTENCY_KEY, integrationSource: MOCK_INTEGRATION_SOURCE });
+        await expect(promise).resolves.toEqual({
+            httpStatusCode: 200,
+            httpHeaders: {},
+            body: mockReply
+        });
     }, 2000);
 });

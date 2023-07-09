@@ -11,6 +11,8 @@ import { FSRequestOptions, FullStoryOptions } from './options';
 const defaultHttpsAgent = new https.Agent({ keepAlive: true });
 const defaultHttpAgent = new http.Agent({ keepAlive: true });
 
+const integrationSourceKey = 'Integration-Source';
+const idempotencyKey = 'Idempotency-Key';
 export interface FSResponse<T> {
     httpStatusCode?: number;
     httpHeaders?: IncomingHttpHeaders & {
@@ -55,10 +57,17 @@ export class FSHttpClientImpl implements FSHttpClient {
 
             const req = https.request(opts);
             req.setHeader('Authorization', this.opts.apiKey);
-            if (!req.hasHeader('Integration-Source') && fsReq?.integration_src) {
-                req.setHeader('Integration-Source', fsReq.integration_src);
-            } else if (!req.hasHeader('Integration-Source') && this.opts.integration_src) {
-                req.setHeader('Integration-Source', this.opts.integration_src);
+            // TODO(sabrina): make opts object to be able to update headers so we can add them easier
+            if (!req.hasHeader(integrationSourceKey) && fsReq?.integrationSource) {
+                // first check per request opt if any
+                req.setHeader(integrationSourceKey, fsReq.integrationSource);
+            } else if (!req.hasHeader(integrationSourceKey) && this.opts.integrationSource) {
+                // fall back to opts for the whole client if any
+                req.setHeader(integrationSourceKey, this.opts.integrationSource);
+            }
+            if (!req.hasHeader(idempotencyKey) && fsReq?.idempotencyKey) {
+                // only allow per-request idempotency key
+                req.setHeader(idempotencyKey, fsReq.idempotencyKey);
             }
 
             console.log(req.getHeader('Integration-Source'));
