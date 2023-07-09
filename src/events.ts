@@ -3,7 +3,6 @@ import { BatchCreateEventsResponse, CreateBatchEventsImportJobRequest, CreateBat
 
 import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
-import { maybeAddIntegrationSrc } from './utils/integrationSrc';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -41,8 +40,8 @@ export type IBatchEventsJob = IBatchJob<CreateEventsRequest, BatchCreateEventsRe
 export type IEvents = IBatchEventsApi & IEventsApi;
 
 class BatchEventsJob extends BatchJob<CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, BatchCreateEventsResponse, FailedEventsImport> {
-    constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}) {
-        super(requests, new BatchEventsRequester(fsOpts), opts);
+    constructor(fsOpts: FullStoryOptions, requests: CreateEventsRequest[] = [], opts: BatchJobOptions = {}, includeSchema = false) {
+        super(requests, new BatchEventsRequester(fsOpts, includeSchema), opts);
     }
 }
 
@@ -51,17 +50,16 @@ export type IBatchEventRequester = IBatchRequester<CreateBatchEventsImportJobReq
 class BatchEventsRequester implements IBatchEventRequester {
     protected readonly batchEventsImpl: FSBatchEventsApi;
     protected readonly fsOpts: FullStoryOptions;
+    protected readonly includeSchema: boolean;
 
-    constructor(fsOpts: FullStoryOptions) {
+    constructor(fsOpts: FullStoryOptions, includeSchema: boolean) {
         this.fsOpts = fsOpts;
+        this.includeSchema = includeSchema;
         this.batchEventsImpl = new FSBatchEventsApi(fsOpts);
     }
 
     async requestCreateJob(requests: CreateBatchEventsImportJobRequest): Promise<CreateBatchEventsImportJobResponse> {
-        for (const req of requests.requests) {
-            req.context = maybeAddIntegrationSrc(req.context, this.fsOpts.integration_src);
-        }
-        const rsp = await this.batchEventsImpl.createBatchEventsImportJob(requests);
+        const rsp = await this.batchEventsImpl.createBatchEventsImportJob(requests, this.fsOpts);
         // make sure job metadata exist
         const job = rsp.body;
         if (!job?.job?.id) {
@@ -70,8 +68,8 @@ class BatchEventsRequester implements IBatchEventRequester {
         return job;
     }
 
-    async requestImports(id: string, nextPageToken?: string): Promise<GetBatchEventsImportsResponse> {
-        const res = await this.batchEventsImpl.getBatchEventsImports(id, nextPageToken);
+    async requestImports(id: string, pageToken?: string): Promise<GetBatchEventsImportsResponse> {
+        const res = await this.batchEventsImpl.getBatchEventsImports(id, pageToken, this.includeSchema, this.fsOpts);
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with expected body');
@@ -79,8 +77,8 @@ class BatchEventsRequester implements IBatchEventRequester {
         return results;
     }
 
-    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
-        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id, nextPageToken);
+    async requestImportErrors(id: string, pageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
+        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id, pageToken);
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with expected body');
@@ -110,11 +108,10 @@ export class Events implements IEvents {
     }
 
     async create(body: CreateEventsRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
-        body.context = maybeAddIntegrationSrc(body.context, options?.integration_src);
         return this.eventsImpl.createEvents(body, options);
     }
 
-    batchCreate(requests?: CreateEventsRequest[] | undefined, jobOptions?: BatchJobOptions | undefined): BatchEventsJob {
-        return new BatchEventsJob(this.opts, requests, jobOptions);
+    batchCreate(requests?: CreateEventsRequest[] | undefined, jobOptions?: BatchJobOptions | undefined, includeSchema?: boolean): BatchEventsJob {
+        return new BatchEventsJob(this.opts, requests, jobOptions, includeSchema);
     }
 }

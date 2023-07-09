@@ -55,7 +55,13 @@ export class FSHttpClientImpl implements FSHttpClient {
 
             const req = https.request(opts);
             req.setHeader('Authorization', this.opts.apiKey);
+            if (!req.hasHeader('Integration-Source') && fsReq?.integration_src) {
+                req.setHeader('Integration-Source', fsReq.integration_src);
+            } else if (!req.hasHeader('Integration-Source') && this.opts.integration_src) {
+                req.setHeader('Integration-Source', this.opts.integration_src);
+            }
 
+            console.log(req.getHeader('Integration-Source'));
             req.once('socket', (socket) => {
                 if (socket.connecting) {
                     socket.once(connectionEvent,

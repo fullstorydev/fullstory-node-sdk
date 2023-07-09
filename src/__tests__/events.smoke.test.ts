@@ -97,16 +97,13 @@ describe('FullStory Events API', () => {
                     expect.arrayContaining([
                         expect.objectContaining({
                             name: createReq1.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                             properties: createReq1.properties
                         }),
                         expect.objectContaining({
                             name: createReq2.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                         expect.objectContaining({
                             name: createReq3.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                     ])
                 );

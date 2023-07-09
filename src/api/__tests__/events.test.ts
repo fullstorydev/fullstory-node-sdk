@@ -164,6 +164,60 @@ describe('FullStory Batch Events API', () => {
         });
     });
 
+    test('get job imports with page_token', async () => {
+        const mockRsp: GetBatchEventsImportsResponse = {
+            results: [
+                { name: 'NodeJS Test Batch 1' },
+                { name: 'NodeJS Test Batch 2' }
+            ]
+        };
+
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+
+        const job = batchEvents.getBatchEventsImports('abcd1234', 't123');
+
+        expect(mockRequest).toBeCalledWith(
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?page_token=t123'),
+            undefined,
+            undefined
+        );
+
+        await expect(job).resolves.toEqual({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+    });
+
+    test('get job imports with schema', async () => {
+        const mockRsp: GetBatchEventsImportsResponse = {
+            results: [
+                { name: 'NodeJS Test Batch 1' },
+                { name: 'NodeJS Test Batch 2' }
+            ]
+        };
+
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+
+        const job = batchEvents.getBatchEventsImports('abcd1234', undefined, true);
+
+        expect(mockRequest).toBeCalledWith(
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?include_schema=true'),
+            undefined,
+            undefined
+        );
+
+        await expect(job).resolves.toEqual({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+    });
+
     test('get job errors', async () => {
         const mockJob: GetBatchEventsImportErrorsResponse = {
             results: [
@@ -184,10 +238,10 @@ describe('FullStory Batch Events API', () => {
             body: mockJob,
         });
 
-        const job = batchEvents.getBatchEventsImportErrors('abcd1234', 'next_page_token');
+        const job = batchEvents.getBatchEventsImportErrors('abcd1234', 'page_token');
 
         expect(mockRequest).toBeCalledWith(
-            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?next_page_token=next_page_token'),
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?page_token=page_token'),
             undefined,
             undefined
         );

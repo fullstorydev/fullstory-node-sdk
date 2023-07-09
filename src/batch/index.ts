@@ -6,14 +6,15 @@ import { JobMetadata, JobStatus } from '@model/index';
 
 import { FSUnknownError, isFSError } from '../errors';
 import { toError } from '../errors/base';
+import { FSRequestOptions } from '../http';
 import { withDelay, withRetry } from '../utils/retry';
 
 export interface IBatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
     requestCreateJob(req: REQ): Promise<RSP>;
 
-    requestImports(id: string, nextPageToken?: string): Promise<IMPORTS_RSP>;
+    requestImports(id: string, pageToken?: string): Promise<IMPORTS_RSP>;
 
-    requestImportErrors(id: string, nextPageToken?: string): Promise<ERRORS_RSP>;
+    requestImportErrors(id: string, pageToken?: string): Promise<ERRORS_RSP>;
 
     requestJobStatus(id: string): Promise<STATUS_RSP>;
 }
@@ -44,7 +45,7 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
 };
 
 export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
-    readonly options: Required<BatchJobOptions>;
+    readonly options: Required<BatchJobOptions> & FSRequestOptions;
     requests: REQUEST[];
 
     readonly metadata?: JobMetadata;
@@ -131,7 +132,7 @@ export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
 }
 
 export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, IMPORT, FAILURE>{
-    readonly options: Required<BatchJobOptions>;
+    readonly options: Required<BatchJobOptions> & FSRequestOptions;
     requests: REQUEST[] = [];
 
     metadata?: JobMetadata | undefined;
@@ -155,7 +156,7 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
         requests: REQUEST[] = [],
         // TODO(sabrina):these could be better typed
         private requester: IBatchRequester<{ requests: REQUEST[]; }, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
-        opts: BatchJobOptions = {},
+        opts: BatchJobOptions & FSRequestOptions = {},
     ) {
         this.requests.push(...requests);
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
