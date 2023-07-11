@@ -317,6 +317,62 @@ describe('FullStory Batch Users API', () => {
         });
     });
 
+    test('get job imports with schema', async () => {
+        const mockRsp: GetBatchUserImportsResponse = {
+            total_records: 2,
+            next_page_token: '',
+            results: [
+                { id: '12341234' },
+                { id: '43214321' }
+            ]
+        };
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+
+        const job = batchUsers.getBatchUserImports('abcd1234', undefined, true);
+
+        expect(mockRequest).toBeCalledWith(
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?include_schema=true'),
+            undefined,
+            undefined
+        );
+
+        await expect(job).resolves.toEqual({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+    });
+
+    test('get job imports with page_token', async () => {
+        const mockRsp: GetBatchUserImportsResponse = {
+            total_records: 2,
+            next_page_token: '',
+            results: [
+                { id: '12341234' },
+                { id: '43214321' }
+            ]
+        };
+        mockRequest.mockReturnValue({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+
+        const job = batchUsers.getBatchUserImports('abcd1234', 't123');
+
+        expect(mockRequest).toBeCalledWith(
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?page_token=t123'),
+            undefined,
+            undefined
+        );
+
+        await expect(job).resolves.toEqual({
+            httpStatusCode: 200,
+            body: mockRsp,
+        });
+    });
+
     test('get job errors', async () => {
         const mockJob: GetBatchUserImportErrorsResponse = {
             total_records: 2,
@@ -335,10 +391,10 @@ describe('FullStory Batch Users API', () => {
             body: mockJob,
         });
 
-        const job = batchUsers.getBatchUserImportErrors('abcd1234', 'next_page_token');
+        const job = batchUsers.getBatchUserImportErrors('abcd1234', 'page_token');
 
         expect(mockRequest).toBeCalledWith(
-            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?next_page_token=next_page_token'),
+            makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?page_token=page_token'),
             undefined,
             undefined
         );

@@ -74,17 +74,17 @@ export class UsersBatchImportApi {
      * Get the error message and code for any users that failed from a user import job.
      * @summary Get Batch Import Errors
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
-     * @param nextPageToken The token that can be used in a request to fetch the next page of results
+     * @param pageToken The token that can be used in a request to fetch the next page of results
     */
-    public async getBatchUserImportErrors(jobId: string, nextPageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
+    public async getBatchUserImportErrors(jobId: string, pageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
-        if (nextPageToken !== undefined) {
-            queryParams.set('next_page_token', nextPageToken);
+        if (pageToken !== undefined) {
+            queryParams.set('page_token', pageToken);
         }
 
         const queryStr = queryParams.toString();
@@ -144,18 +144,18 @@ export class UsersBatchImportApi {
      * Get the FullStory uid and user details for successful users imported from a batch user import job.
      * @summary Get Batch Imported Users
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
-     * @param nextPageToken The token that can be used in a request to fetch the next page of results
+     * @param pageToken The token that can be used in a request to fetch the next page of results
      * @param includeSchema Whether to include schemas in the response.
     */
-    public async getBatchUserImports(jobId: string, nextPageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportsResponse>> {
+    public async getBatchUserImports(jobId: string, pageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportsResponse>> {
         const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
-        if (nextPageToken !== undefined) {
-            queryParams.set('next_page_token', nextPageToken);
+        if (pageToken !== undefined) {
+            queryParams.set('page_token', pageToken);
         }
         if (includeSchema !== undefined) {
             queryParams.set('include_schema', String(includeSchema));

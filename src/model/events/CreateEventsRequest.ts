@@ -21,7 +21,7 @@ export interface CreateEventsRequest {
      */
     'name': string;
     /**
-     * Optional. The event's timestamp, defaults to current time.
+     * Optional. The event's timestamp, if not provided, defaults to current time. It is recommended to always set the timestamp.
      */
     'timestamp'?: string;
     /**

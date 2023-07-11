@@ -19,7 +19,7 @@ describe('FullStory Events API', () => {
 
     const events = new Events({
         apiKey: `Basic ${FS_API_KEY}`,
-        integration_src: INTEGRATION_SRC
+        integrationSource: INTEGRATION_SRC
     });
 
     //TODO(sabrina): make sure errors are thrown on error responses (like 401s)
@@ -97,16 +97,13 @@ describe('FullStory Events API', () => {
                     expect.arrayContaining([
                         expect.objectContaining({
                             name: createReq1.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                             properties: createReq1.properties
                         }),
                         expect.objectContaining({
                             name: createReq2.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                         expect.objectContaining({
                             name: createReq3.name,
-                            context: expect.objectContaining({ integration: INTEGRATION_SRC }),
                         }),
                     ])
                 );

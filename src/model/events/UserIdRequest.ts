@@ -6,11 +6,15 @@
  */
 
 /**
- * @interface UserIdRequest The user identifier. Required if `session.use_most_recent` is set to `true` in the request.
+ * @interface UserIdRequest The user identifier.
+ *
+ *If `session.id` is provided, the `session.id` is enough to identify a session for which to create the event, and `user` will not be accepted.
+ *
+ *If `session.use_most_recent` is set to `true`, one and only one`user` field is required.
  */
 export interface UserIdRequest {
     /**
-     * The application-specific ID you've given to the user
+     * The application-specific ID you've given to the user.
      */
     'uid'?: string;
     /**

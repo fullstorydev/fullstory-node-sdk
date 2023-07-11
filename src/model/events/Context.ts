@@ -13,7 +13,6 @@ import { MobileContext } from '@model/events/MobileContext';
  * @interface Context The context in which the events are attached to.
  */
 export interface Context {
-    'integration'?: string;
     'browser'?: BrowserContext;
     'mobile'?: MobileContext;
     'device'?: DeviceContext;

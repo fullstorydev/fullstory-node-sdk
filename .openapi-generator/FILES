@@ -20,3 +20,4 @@ src/model/users/ListUsersResponse.ts
 src/model/users/UpdateUserRequest.ts
 src/model/users/UpdateUserResponse.ts
 src/model/varsapi/Schema.ts
+src/model/varsapi/TypeConflict.ts

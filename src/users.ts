@@ -49,21 +49,25 @@ export type IBatchUsersJob = IBatchJob<BatchUserImportRequest, BatchUserImportRe
 export type IUsers = IBatchUsersApi & IUsersApi;
 
 class BatchUsersJob extends BatchJob<BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
-    constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: BatchJobOptions = {}) {
-        super(requests, new BatchUsersRequester(fsOpts), opts);
+    constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: BatchJobOptions = {}, includeSchema = false) {
+        super(requests, new BatchUsersRequester(fsOpts, includeSchema), opts);
     }
 }
 export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
 
 class BatchUsersRequester implements IBatchUsersRequester {
     protected readonly batchUsersImpl: FSUsersBatchApi;
+    protected readonly fsOpts: FullStoryOptions;
+    protected readonly includeSchema: boolean;
 
-    constructor(fsOpts: FullStoryOptions) {
+    constructor(fsOpts: FullStoryOptions, includeSchema: boolean) {
+        this.fsOpts = fsOpts;
+        this.includeSchema = includeSchema;
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
     async requestCreateJob(request: CreateBatchUserImportJobRequest): Promise<CreateBatchUserImportJobResponse> {
-        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request);
+        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request, this.fsOpts);
         // make sure job metadata and id exist
         const job = rsp.body;
         if (!job?.job?.id) {
@@ -72,8 +76,8 @@ class BatchUsersRequester implements IBatchUsersRequester {
         return job;
     }
 
-    async requestImports(id: string, nextPageToken?: string): Promise<GetBatchUserImportsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImports(id, nextPageToken);
+    async requestImports(id: string, pageToken?: string): Promise<GetBatchUserImportsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImports(id, pageToken, this.includeSchema, this.fsOpts);
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any expected body');
@@ -81,8 +85,8 @@ class BatchUsersRequester implements IBatchUsersRequester {
         return results;
     }
 
-    async requestImportErrors(id: string, nextPageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImportErrors(id, nextPageToken);
+    async requestImportErrors(id: string, pageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImportErrors(id, pageToken, this.fsOpts);
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any results');
@@ -91,7 +95,7 @@ class BatchUsersRequester implements IBatchUsersRequester {
     }
 
     async requestJobStatus(id: string): Promise<JobStatusResponse> {
-        const rsp = await this.batchUsersImpl.getBatchUserImportStatus(id);
+        const rsp = await this.batchUsersImpl.getBatchUserImportStatus(id, this.fsOpts);
         const body = rsp.body;
         if (!body) {
             throw new Error('API did not response with any results');
@@ -138,7 +142,7 @@ export class Users implements IUsers {
         return this.usersImpl.updateUser(id, body, options);
     }
 
-    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions): BatchUsersJob {
-        return new BatchUsersJob(this.opts, requests, jobOptions);
+    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
+        return new BatchUsersJob(this.opts, requests, jobOptions, includeSchema);
     }
 }
