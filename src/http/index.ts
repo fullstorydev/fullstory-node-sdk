@@ -69,7 +69,6 @@ export class FSHttpClientImpl implements FSHttpClient {
                 req.setHeader(idempotencyKey, fsReq.idempotencyKey);
             }
 
-            console.log(req.getHeader('Integration-Source'));
             req.once('socket', (socket) => {
                 if (socket.connecting) {
                     socket.once(connectionEvent,
