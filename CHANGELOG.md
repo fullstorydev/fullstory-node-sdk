@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-beta.5
+
+- [#44](https://github.com/fullstorydev/fullstory-node-sdk/pull/44)
+  - Fix query parameter to use `page_token` instead of `next_page-token`.
+  - Allow batch jobs for users and events to request for `include_schema`.
+  - Move `Integration-Source` from request/query parameters into request headers.
+  - Add `Idempotency-Key` into request headers.
+
 ## 1.0.0-beta.4
 
 - [#38](https://github.com/fullstorydev/fullstory-node-sdk/pull/38)
