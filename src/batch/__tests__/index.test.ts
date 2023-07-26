@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 
 const MOCK_JOB_RSP: CreateBatchUserImportJobResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() } };
-const MOCK_JOB__PROCESSING: JobStatusResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() }, imports: 0, errors: 0 };
+const MOCK_JOB_PROCESSING: JobStatusResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() }, imports: 0, errors: 0 };
 const MOCK_JOB_FAILED: JobStatusResponse = { job: { id: 'test', status: JobStatus.Failed, created: new Date().toISOString(), finished: new Date().toISOString() }, imports: 0, errors: 0 };
 const MOCK_JOB_COMPLETED: JobStatusResponse = { job: { id: 'test', status: JobStatus.Completed, created: new Date().toISOString(), finished: new Date().toISOString() }, imports: 0, errors: 0 };
 
@@ -43,7 +43,7 @@ describe('BatchJob', () => {
 
     test('on processing should be called', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
-        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB__PROCESSING);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_PROCESSING);
 
         const baseJob = new BatchJob([], mockRequester, {});
         baseJob.on('processing', _ => {
@@ -156,6 +156,95 @@ describe('BatchJob', () => {
             expect(errors).toHaveLength(4);
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
             expect(mockRequester.requestJobStatus).toHaveBeenCalledTimes(4);
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('restart 2 times', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('something unrecoverable'); });
+        let restarts = 0;
+        const baseJob = new BatchJob([], mockRequester, {});
+
+        baseJob.on('done', () => {
+            throw Error('done should not have been called');
+        });
+        baseJob.on('abort', (errors) => {
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
+            expect(mockRequester.requestJobStatus).toHaveBeenCalledTimes(restarts + 1);
+            if (restarts < 2) {
+                restarts++;
+                baseJob.restart();
+            } else {
+                expect(errors).toHaveLength(restarts + 1);
+                done();
+            }
+        });
+        baseJob.execute();
+    }, 10000); // TODO(sabrina): use jest fake timers
+
+    test('invalid restart with job Id requests', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('something unrecoverable'); });
+
+        const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.on('abort', () => {
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
+            expect(() => baseJob.restart('wrong id')).toThrow('the current job already has an different id, can not mutate jobId');
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('brand new job can restart with job Id', done => {
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
+        mockRequester.requestImports = jest.fn(async _ => {
+            return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
+        });
+
+        const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.restart('test');
+
+        baseJob.on('done', () => {
+            expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(0);
+            expect(mockRequester.requestJobStatus).toHaveBeenCalledTimes(1);
+            expect(mockRequester.requestImports).toHaveBeenCalledTimes(1);
+            expect(baseJob.requests).toHaveLength(0); // don't have original requests info
+            expect(baseJob.getId()).toEqual('test');
+            expect(baseJob.getStatus()).toEqual(JobStatus.Completed);
+            expect(baseJob.getImports()).toEqual([{ id: 'fake' }]);
+            done();
+        });
+    }, 30000);
+
+    test('restart does nothing when job had completed', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
+        mockRequester.requestImports = jest.fn(async _ => {
+            return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
+        });
+
+        const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.on('done', () => {
+            baseJob.restart();
+            expect(baseJob).toStrictEqual(baseJob);
+            done();
+        });
+        baseJob.execute();
+    });
+
+    test('restart does nothing when job had failed', done => {
+        mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
+        mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_FAILED);
+        mockRequester.requestImportErrors = jest.fn(async _ => {
+            return { total_records: 1, results: [{ message: 'test message', code: 'test_error' }], next_page_token: '' };
+        });
+
+        const baseJob = new BatchJob([], mockRequester, {});
+        baseJob.on('done', () => {
+            baseJob.restart();
+            expect(baseJob).toStrictEqual(baseJob);
             done();
         });
         baseJob.execute();

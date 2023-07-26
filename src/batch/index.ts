@@ -63,9 +63,18 @@ export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
 
     /*
      * Starts to execute the job by invoking the create batch import API.
-     * Listen to the "error" event to be notified if any error occurs while creating the job.
+     * Listen to the "error" event before executing to be notified if any error occurs while creating the job.
      */
     execute(): void;
+
+    /*
+    * Restart an existing job with optional jobId.
+    * This restart the polling, useful when the job had timed out or unexpected error had occurred, etc.
+    * @param jobId An optional string if the original job object is not accessible anymore,
+    *  using the jobId on a brand new job only, the new job object will not have access to the original
+    *  array of requests.
+    */
+    restart(jobId?: string): void;
 
     /*
      * Get the current job Id.
@@ -162,6 +171,27 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
     }
 
+    restart(jobId?: string) {
+        if (!jobId && !this.getId()) {
+            throw new Error('unknown job id, no jobId in this job object nor jobId in restart request');
+        }
+        if (jobId && this.getId() && jobId != this.getId()) {
+            throw new Error('the current job already has an different id, can not mutate jobId');
+        }
+
+        // no need to poll if already completed
+        if (this._executionStatus == 'completed') {
+            return;
+        }
+
+        this.stopPolling();
+        jobId = jobId || this.getId();
+        if (jobId) {
+            this.setMetadata({ id: jobId, status: JobStatus.Processing, created: '' });
+        }
+        this._executionStatus = 'pending';
+        this.startPolling();
+    }
 
     getId(): string | undefined {
         return this.metadata?.id;
@@ -198,7 +228,6 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
             return;
         }
 
-        this._executionStatus = 'pending';
         withRetry(() => this.requester.requestCreateJob(this), this.handleError.bind(this), this.options.maxRetry)
             .then(response => {
                 // Successful response should always have ID.
@@ -206,6 +235,7 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
                 if (!response.job?.id) {
                     throw new FSUnknownError(`Unable to get job ID after creating a job, job metadata received: ${response}`);
                 }
+                this._executionStatus = 'pending';
                 this.setMetadata(response.job);
                 this.startPolling();
                 this.handleJobCreated();
