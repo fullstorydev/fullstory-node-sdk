@@ -1,8 +1,10 @@
+import { randomUUID } from 'node:crypto';
+
 import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
 
-import { FSApiError, FSErrorName, isFSError } from '../errors';
+import { FSApiError } from '../errors';
 import { Users } from '../users';
 
 dotenv.config();
@@ -24,8 +26,9 @@ describe('FullStory Users API', () => {
     test.todo('CRUD negatives');
 
     test('CRUD single user API round trip', async () => {
+        const uidSuffix = randomUUID();
         const createReq: CreateUserRequest = {
-            uid: 'nodejs_sdk_smoke_test_crud_1',
+            uid: 'nodejs_sdk_smoke_test_crud_' + uidSuffix,
             display_name: 'NodeJS Smoke Test User',
             email: 'donotreply@fullstory',
             properties: {
@@ -95,8 +98,9 @@ describe('FullStory Users API', () => {
     });
 
     test('Batch Users Job handling', done => {
+        const uidSuffix = randomUUID();
         const createReq1: CreateUserRequest = {
-            uid: 'nodejs_sdk_smoke_test_batch_2',
+            uid: 'nodejs_sdk_smoke_test_batch_' + uidSuffix,
             display_name: 'NodeJS Smoke Test User',
             email: 'donotreply@fullstory',
             properties: {

@@ -1,9 +1,10 @@
 import { describe, expect, test } from '@jest/globals';
-import { CreateEventsRequest, JobStatus } from '@model/index';
-import { create } from 'domain';
+import { CreateEventsRequest, ErrorResponse, JobStatus } from '@model/index';
+import { randomUUID } from 'crypto';
 import * as dotenv from 'dotenv';
 
-import { Events } from '../events';
+import { init } from '..';
+import { FSApiError, FSErrorName } from '../errors';
 
 dotenv.config();
 const { RUN_SMOKE_TESTS, FS_API_KEY } = process.env;
@@ -17,25 +18,87 @@ describe('FullStory Events API', () => {
         return;
     }
 
-    const events = new Events({
+    const { events, users } = init({
         apiKey: `Basic ${FS_API_KEY}`,
         integrationSource: INTEGRATION_SRC
     });
 
-    //TODO(sabrina): make sure errors are thrown on error responses (like 401s)
-    test.todo('CRUD negatives');
+    const uidSuffix = randomUUID();
 
-    test('Events API round trip', async () => {
+    test('Event with no name should reject with error', async () => {
+        try {
+            await events.create({
+                name: ''
+            });
+        } catch (e) {
+            expect(e).toBeInstanceOf(FSApiError);
+            const apiError = e as FSApiError;
+            expect(apiError.name).toBe(FSErrorName.ERROR_FULLSTORY);
+            expect(apiError.httpStatusCode).toBe(400);
+
+            expect((apiError.fsErrorPayload as ErrorResponse).code).toBe('invalid_argument');
+            expect((apiError.fsErrorPayload as ErrorResponse).message).toContain('events must have a non-empty name');
+        }
+    });
+
+    //TODO(sabrina): test for context and session identity
+
+    test('Create Events API should create a new with user.uid', async () => {
         // Create events
         const createEventsReq: CreateEventsRequest = {
-            user: { uid: 'nodejs_sdk_smoke_test_user_2' },
-            /*
-             * TODO(sabrina): add sessions and context to these events
-             * 'session'?: SessionIdRequest;
-             * 'context'?: Context;
-             */
+            user: { uid: 'nodejs_sdk_smoke_test_event_' + uidSuffix },
+            name: 'NodeJS Smoke Test Event - with user.uid',
+            properties: {
+                membership_tier: 'gold',
+                sign_up: {
+                    signed_up: true,
+                    signed_up_date: '2000-10-31T00:00:00Z',
+                    signed_up_d_str: '2000-10-31T00:00:00Z',
+                },
+                cell_num: '4041111111'
+            }
+        };
 
-            name: 'NodeJS Smoke Test Event - 1',
+        const created = await events.create(createEventsReq);
+        expect(created).toHaveProperty('httpStatusCode', 200);
+        expect(created).toHaveProperty('httpHeaders');
+        expect(created).toHaveProperty('body');
+        expect(created.body).toEqual({});
+    });
+
+    test('Create Events API for user.id', async () => {
+        // Setup user
+        const u = await users.create({
+            display_name: 'nodejs_sdk_smoke_test_display_' + uidSuffix
+        });
+        expect(u.body?.id).toBeTruthy();
+
+        // Create events
+        const createEventsReq: CreateEventsRequest = {
+            user: { id: u.body?.id },
+            name: 'NodeJS Smoke Test Event - with user.id',
+            properties: {
+                membership_tier: 'gold',
+                sign_up: {
+                    signed_up: true,
+                    signed_up_date: '2000-10-31T00:00:00Z',
+                    signed_up_d_str: '2000-10-31T00:00:00Z',
+                },
+                cell_num: '4041111111'
+            }
+        };
+
+        const created = await events.create(createEventsReq);
+        expect(created).toHaveProperty('httpStatusCode', 200);
+        expect(created).toHaveProperty('httpHeaders');
+        expect(created).toHaveProperty('body');
+        expect(created.body).toEqual({});
+    });
+
+    test('Create Events API should create new anonymous user', async () => {
+        // Create events
+        const createEventsReq: CreateEventsRequest = {
+            name: 'NodeJS Smoke Test Event - anonymous user',
             properties: {
                 membership_tier: 'gold',
                 sign_up: {
