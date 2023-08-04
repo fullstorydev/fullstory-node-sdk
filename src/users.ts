@@ -33,7 +33,7 @@ export interface IUsersApi {
 */
 export interface IBatchUsersApi {
     batchCreate(
-        requests?: Array<BatchUserImportRequest>,
+        request?: CreateBatchUserImportJobRequest,
         jobOptions?: BatchJobOptions
     ): BatchUsersJob;
 }
@@ -41,16 +41,16 @@ export interface IBatchUsersApi {
 /**
  * @interface IBatchUsersJob - a job for batch import users, providing job management and callbacks.
 */
-export type IBatchUsersJob = IBatchJob<BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>;
+export type IBatchUsersJob = IBatchJob<CreateBatchUserImportJobRequest, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>;
 
 /**
  * @interface IUsers - CRUD operations or batch import users.
 */
 export type IUsers = IBatchUsersApi & IUsersApi;
 
-class BatchUsersJob extends BatchJob<BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
-    constructor(fsOpts: FullStoryOptions, requests: BatchUserImportRequest[] = [], opts: BatchJobOptions = {}, includeSchema = false) {
-        super(requests, new BatchUsersRequester(fsOpts, includeSchema), opts);
+class BatchUsersJob extends BatchJob<CreateBatchUserImportJobRequest, BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
+    constructor(fsOpts: FullStoryOptions, request: CreateBatchUserImportJobRequest, opts: BatchJobOptions = {}, includeSchema = false) {
+        super(request, new BatchUsersRequester(fsOpts, includeSchema), opts);
     }
 }
 export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
@@ -66,8 +66,8 @@ class BatchUsersRequester implements IBatchUsersRequester {
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
-    async requestCreateJob(request: CreateBatchUserImportJobRequest): Promise<CreateBatchUserImportJobResponse> {
-        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request, this.fsOpts);
+    async requestCreateJob(req: CreateBatchUserImportJobRequest): Promise<CreateBatchUserImportJobResponse> {
+        const rsp = await this.batchUsersImpl.createBatchUserImportJob(req, this.fsOpts);
         // make sure job metadata and id exist
         const job = rsp.body;
         if (!job?.job?.id) {
@@ -142,7 +142,7 @@ export class Users implements IUsers {
         return this.usersImpl.updateUser(id, body, options);
     }
 
-    batchCreate(requests: BatchUserImportRequest[] = [], jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
-        return new BatchUsersJob(this.opts, requests, jobOptions, includeSchema);
+    batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
+        return new BatchUsersJob(this.opts, request, jobOptions, includeSchema);
     }
 }

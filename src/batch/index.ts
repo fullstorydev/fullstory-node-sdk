@@ -44,9 +44,9 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
     maxRetry: 3,
 };
 
-export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
+export interface IBatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, IMPORT, FAILURE> {
     readonly options: Required<BatchJobOptions> & FSRequestOptions;
-    requests: REQUEST[];
+    request: REQUEST;
 
     readonly metadata?: JobMetadata;
     readonly imports: IMPORT[];
@@ -57,7 +57,7 @@ export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
     * Add more request objects in the requests before the job executes.
     * @throws An error if job is already executed, or max number of items reached.
     */
-    add(requests: REQUEST[]): this;
+    add(...requests: SINGLE_REQ[]): this;
 
     // TODO(sabrina): allow removal of a specific request?
 
@@ -140,9 +140,9 @@ export interface IBatchJob<REQUEST, IMPORT, FAILURE> {
     on(type: 'abort', callback: (errors: Error[]) => void): this;
 }
 
-export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, IMPORT, FAILURE>{
+export class BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, SINGLE_REQ, IMPORT, FAILURE>{
     readonly options: Required<BatchJobOptions> & FSRequestOptions;
-    requests: REQUEST[] = [];
+    request: REQUEST;
 
     metadata?: JobMetadata | undefined;
     imports: IMPORT[] = [];
@@ -162,12 +162,12 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
     private _numRetries = 0;
 
     constructor(
-        requests: REQUEST[] = [],
+        request: REQUEST,
         // TODO(sabrina):these could be better typed
-        private requester: IBatchRequester<{ requests: REQUEST[]; }, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
+        private requester: IBatchRequester<REQUEST, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
         opts: BatchJobOptions & FSRequestOptions = {},
     ) {
-        this.requests.push(...requests);
+        this.request = request;
         this.options = Object.assign({}, DefaultBatchJobOpts, opts);
     }
 
@@ -209,12 +209,13 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
         return this.failedImports;
     }
 
-    add(requests: REQUEST[]) {
+    add(...requests: SINGLE_REQ[]) {
         if (this._executionStatus != 'not-started') {
             throw new Error('Job already executed, can not add more requests.');
         }
-        // TODO(sabrina): throw if max number of users reached
-        this.requests.push(...requests);
+        // TODO(sabrina): throw if max number of requests reached
+
+        this.request.requests.push(...requests);
         return this;
     }
 
@@ -228,7 +229,7 @@ export class BatchJob<REQUEST, CREATE_RSP extends { job?: JobMetadata; }, STATUS
             return;
         }
 
-        withRetry(() => this.requester.requestCreateJob(this), this.handleError.bind(this), this.options.maxRetry)
+        withRetry(() => this.requester.requestCreateJob(this.request), this.handleError.bind(this), this.options.maxRetry)
             .then(response => {
                 // Successful response should always have ID.
                 // If not, something wrong had happened in calling server API

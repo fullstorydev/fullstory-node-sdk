@@ -14,6 +14,7 @@ const mockRequester: jest.Mocked<IBatchUsersRequester> = {
 
 beforeEach(() => {
     jest.resetAllMocks();
+    // jest.useFakeTimers();
 });
 
 const MOCK_JOB_RSP: CreateBatchUserImportJobResponse = { job: { id: 'test', status: JobStatus.Processing, created: new Date().toISOString() } };
@@ -24,15 +25,15 @@ const MOCK_JOB_COMPLETED: JobStatusResponse = { job: { id: 'test', status: JobSt
 describe('BatchJob', () => {
     test('more requests can be added', () => {
         const req: BatchUserImportRequest = { display_name: 'test batch job' };
-        const baseJob = new BatchJob([req], mockRequester, {});
-        expect(baseJob.requests).toHaveLength(1);
-        baseJob.add([req, req]);
-        expect(baseJob.requests).toHaveLength(3);
+        const baseJob = new BatchJob({ requests: [req] }, mockRequester, {});
+        expect(baseJob.request.requests).toHaveLength(1);
+        baseJob.add(req, req);
+        expect(baseJob.request.requests).toHaveLength(3);
     });
 
     test('can execute', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('created', job => {
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
             expect(job.getId()).toEqual('test');
@@ -45,7 +46,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_PROCESSING);
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('processing', _ => {
             done();
         });
@@ -56,7 +57,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('test'); });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('error', _ => {
             done();
         });
@@ -78,7 +79,7 @@ describe('BatchJob', () => {
             }
         });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
 
         baseJob.on('done', (i, f) => {
             expect(i).toHaveLength(12);
@@ -99,7 +100,7 @@ describe('BatchJob', () => {
         const mockUser: BatchUserImportResponse = { id: 'test_user_id' };
         mockRequester.requestImports = jest.fn(async _ => { return { total_records: 3, results: [mockUser, mockUser, mockUser], next_page_token: '' }; });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', (i, f) => {
             expect(i).toHaveLength(3);
             expect(f).toHaveLength(0);
@@ -114,7 +115,7 @@ describe('BatchJob', () => {
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_FAILED);
         mockRequester.requestImportErrors = jest.fn(async _ => { return { total_records: 3, results: [mockFailed, mockFailed, mockFailed], next_page_token: '' }; });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', (i, f) => {
             expect(i).toHaveLength(0);
             expect(f).toHaveLength(3);
@@ -125,7 +126,7 @@ describe('BatchJob', () => {
 
     test('abort on error', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => { throw new Error('something unrecoverable'); });
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('abort', (errors) => {
             expect(errors).toHaveLength(1);
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
@@ -136,7 +137,7 @@ describe('BatchJob', () => {
 
     test('abort on max number of retry-able retries', done => {
         mockRequester.requestCreateJob = jest.fn(async _ => { throw new FSApiError('rate limited', 429); });
-        const baseJob = new BatchJob([], mockRequester, { pollInterval: 1, maxRetry: 4 });
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, { pollInterval: 1, maxRetry: 4 });
         baseJob.on('abort', (errors) => {
             expect(errors).toHaveLength(4);
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(4);
@@ -151,7 +152,7 @@ describe('BatchJob', () => {
             throw new FSApiError('rate limited', 429);
         });
 
-        const baseJob = new BatchJob([], mockRequester, { pollInterval: 1, maxRetry: 4 });
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, { pollInterval: 1, maxRetry: 4 });
         baseJob.on('abort', (errors) => {
             expect(errors).toHaveLength(4);
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
@@ -165,7 +166,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('something unrecoverable'); });
         let restarts = 0;
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
 
         baseJob.on('done', () => {
             throw Error('done should not have been called');
@@ -188,7 +189,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => { throw new Error('something unrecoverable'); });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('abort', () => {
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(1);
             expect(() => baseJob.restart('wrong id')).toThrow('the current job already has an different id, can not mutate jobId');
@@ -203,14 +204,14 @@ describe('BatchJob', () => {
             return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
         });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.restart('test');
 
         baseJob.on('done', () => {
             expect(mockRequester.requestCreateJob).toHaveBeenCalledTimes(0);
             expect(mockRequester.requestJobStatus).toHaveBeenCalledTimes(1);
             expect(mockRequester.requestImports).toHaveBeenCalledTimes(1);
-            expect(baseJob.requests).toHaveLength(0); // don't have original requests info
+            expect(baseJob.request.requests).toHaveLength(0); // don't have original requests info
             expect(baseJob.getId()).toEqual('test');
             expect(baseJob.getStatus()).toEqual(JobStatus.Completed);
             expect(baseJob.getImports()).toEqual([{ id: 'fake' }]);
@@ -225,7 +226,7 @@ describe('BatchJob', () => {
             return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
         });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', () => {
             baseJob.restart();
             expect(baseJob).toStrictEqual(baseJob);
@@ -241,7 +242,7 @@ describe('BatchJob', () => {
             return { total_records: 1, results: [{ message: 'test message', code: 'test_error' }], next_page_token: '' };
         });
 
-        const baseJob = new BatchJob([], mockRequester, {});
+        const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', () => {
             baseJob.restart();
             expect(baseJob).toStrictEqual(baseJob);
