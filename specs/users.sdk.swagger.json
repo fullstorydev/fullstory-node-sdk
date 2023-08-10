@@ -21,7 +21,7 @@
     "application/json"
   ],
   "paths": {
-    "/v2beta/users": {
+    "/v2/users": {
       "get": {
         "summary": "Get Users",
         "description": "Retrieve a list of users matching the supplied filter criteria",
@@ -316,7 +316,7 @@
         "x-fullstory-operation-ordering": 10
       }
     },
-    "/v2beta/users/batch": {
+    "/v2/users/batch": {
       "post": {
         "summary": "Create Batch Import",
         "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
@@ -406,7 +406,7 @@
         "x-fullstory-operation-ordering": 10
       }
     },
-    "/v2beta/users/batch/{job_id}": {
+    "/v2/users/batch/{job_id}": {
       "get": {
         "summary": "Get Batch Import Job Details",
         "description": "Get the status for a batch user import job with job details.",
@@ -495,7 +495,7 @@
         "x-fullstory-operation-ordering": 20
       }
     },
-    "/v2beta/users/batch/{job_id}/errors": {
+    "/v2/users/batch/{job_id}/errors": {
       "get": {
         "summary": "Get Batch Import Errors",
         "description": "Get the error message and code for any users that failed from a user import job.",
@@ -595,7 +595,7 @@
         "x-fullstory-operation-ordering": 40
       }
     },
-    "/v2beta/users/batch/{job_id}/imports": {
+    "/v2/users/batch/{job_id}/imports": {
       "get": {
         "summary": "Get Batch Imported Users",
         "description": "Get the FullStory uid and user details for successful users imported from a batch user import job.",
@@ -702,7 +702,7 @@
         "x-fullstory-operation-ordering": 30
       }
     },
-    "/v2beta/users/{id}": {
+    "/v2/users/{id}": {
       "get": {
         "summary": "Get User",
         "description": "Retrieve details for a single user",
@@ -888,6 +888,964 @@
         "summary": "Update User",
         "description": "Updates a user with the specified details",
         "operationId": "UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.UpdateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory assigned user ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.UpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-fullstory-operation-ordering": 40
+      }
+    },
+    "/v2beta/users": {
+      "get": {
+        "summary": "Get Users",
+        "description": "Retrieve a list of users matching the supplied filter criteria",
+        "operationId": "ListUsers2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.ListUsersResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uid",
+            "description": "The application-specific ID you've given to a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "description": "The email address associated with a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "display_name",
+            "description": "The nice-looking name for a user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "is_identified",
+            "description": "Whether or not a user is anonymous or identified",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "page_token",
+            "description": "The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include schemas in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-fullstory-operation-ordering": 30
+      },
+      "delete": {
+        "summary": "Delete User",
+        "description": "Delete a single user by uid.",
+        "operationId": "DeleteUserByUid2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.DeleteUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uid",
+            "description": "The application-specific ID you've given to the user",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "summary": "Create User",
+        "description": "Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "operationId": "CreateUser2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.CreateUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.CreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/users/batch": {
+      "post": {
+        "summary": "Create Batch Import",
+        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "operationId": "CreateBatchUserImportJob2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.CreateBatchUserImportJobResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.CreateBatchUserImportJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/users/batch/{job_id}": {
+      "get": {
+        "summary": "Get Batch Import Job Details",
+        "description": "Get the status for a batch user import job with job details.",
+        "operationId": "GetBatchUserImportStatus2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.job.JobStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 20
+      }
+    },
+    "/v2beta/users/batch/{job_id}/errors": {
+      "get": {
+        "summary": "Get Batch Import Errors",
+        "description": "Get the error message and code for any users that failed from a user import job.",
+        "operationId": "GetBatchUserImportErrors2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportErrorsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job that is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 40
+      }
+    },
+    "/v2beta/users/batch/{job_id}/imports": {
+      "get": {
+        "summary": "Get Batch Imported Users",
+        "description": "Get the FullStory uid and user details for successful users imported from a batch user import job.",
+        "operationId": "GetBatchUserImports2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.GetBatchUserImportsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job that is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include schemas in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Users",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 30
+      }
+    },
+    "/v2beta/users/{id}": {
+      "get": {
+        "summary": "Get User",
+        "description": "Retrieve details for a single user",
+        "operationId": "GetUser2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.GetUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory assigned user ID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-fullstory-operation-ordering": 20
+      },
+      "delete": {
+        "summary": "Delete User",
+        "description": "Delete a single user. `id` may be supplied as a path parameter, or `uid` as a query parameter. One or the other is required. ex: `/v2beta/users?uid={uid}` or `/v2beta/users/{id}`",
+        "operationId": "DeleteUser2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.users.DeleteUserResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The FullStory-generated id for the user - not required if `uid` is passed as a query parameter",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "x-fullstory-sdk-description-override": "The FullStory-generated id for the user."
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-fullstory-operation-ordering": 50,
+        "x-fullstory-sdk-description-override": "Delete a single user by FullStory generated user ID."
+      },
+      "post": {
+        "summary": "Update User",
+        "description": "Updates a user with the specified details",
+        "operationId": "UpdateUser2",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1316,7 +2274,7 @@
             }
           }
         ],
-        "total_records": 98,
+        "total_records": "98",
         "next_page_token": "asd543"
       },
       "properties": {
@@ -1328,8 +2286,7 @@
           "description": "Page of user import failures for the batch import"
         },
         "total_records": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
           "description": "The total number of failures for the specified user import"
         },
         "next_page_token": {
@@ -1405,7 +2362,7 @@
             }
           }
         ],
-        "total_records": 98,
+        "total_records": "98",
         "next_page_token": "asd543"
       },
       "properties": {
@@ -1417,8 +2374,7 @@
           "description": "Page of user import responses for the batch import"
         },
         "total_records": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
@@ -1509,7 +2465,7 @@
             }
           }
         ],
-        "total_records": 1200,
+        "total_records": "1200",
         "next_page_token": "asd543"
       },
       "properties": {
@@ -1521,8 +2477,7 @@
           "description": "The list of users that match the input filter criteria"
         },
         "total_records": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
           "description": "The total number of users that matched the filter criteria"
         },
         "next_page_token": {
@@ -1627,7 +2582,7 @@
   "securityDefinitions": {
     "ApiKeyAuth": {
       "type": "apiKey",
-      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\"",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions for requests which retrieve data. The header value takes the form \"Basic {YOUR_API_KEY}\"",
       "name": "Authorization",
       "in": "header"
     }

@@ -21,7 +21,7 @@
     "application/json"
   ],
   "paths": {
-    "/v2beta/events": {
+    "/v2/events": {
       "post": {
         "summary": "Create Events",
         "description": "Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).",
@@ -110,7 +110,7 @@
         "x-fullstory-operation-ordering": 10
       }
     },
-    "/v2beta/events/batch": {
+    "/v2/events/batch": {
       "post": {
         "summary": "Create Events Batch Import",
         "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
@@ -201,7 +201,7 @@
         "x-fullstory-operation-ordering": 10
       }
     },
-    "/v2beta/events/batch/{job_id}": {
+    "/v2/events/batch/{job_id}": {
       "get": {
         "summary": "Get Batch Import Job Details",
         "description": "Get the status for a batch events import job with job details.",
@@ -290,7 +290,7 @@
         "x-fullstory-operation-ordering": 20
       }
     },
-    "/v2beta/events/batch/{job_id}/errors": {
+    "/v2/events/batch/{job_id}/errors": {
       "get": {
         "summary": "Get Batch Import Errors",
         "description": "Get the error message and code for any events that failed from an events import job.",
@@ -390,11 +390,487 @@
         "x-fullstory-operation-ordering": 40
       }
     },
-    "/v2beta/events/batch/{job_id}/imports": {
+    "/v2/events/batch/{job_id}/imports": {
       "get": {
         "summary": "Get Batch Imported Events",
         "description": "Get the event details for successful events imported from a batch events import job.",
         "operationId": "GetBatchEventsImports",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "include_schema",
+            "description": "Whether to include the schema in the response.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 30
+      }
+    },
+    "/v2beta/events": {
+      "post": {
+        "summary": "Create Events",
+        "description": "Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "operationId": "CreateEvents2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/events/batch": {
+      "post": {
+        "summary": "Create Events Batch Import",
+        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "operationId": "CreateBatchEventsImportJob2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "The request payloads contains the list of events to be imported",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 10
+      }
+    },
+    "/v2beta/events/batch/{job_id}": {
+      "get": {
+        "summary": "Get Batch Import Job Details",
+        "description": "Get the status for a batch events import job with job details.",
+        "operationId": "GetBatchEventsImportStatus2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.job.JobStatusResponse"
+            }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 20
+      }
+    },
+    "/v2beta/events/batch/{job_id}/errors": {
+      "get": {
+        "summary": "Get Batch Import Errors",
+        "description": "Get the error message and code for any events that failed from an events import job.",
+        "operationId": "GetBatchEventsImportErrors2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.events.GetBatchEventsImportErrorsResponse"
+            }
+          },
+          "202": {
+            "description": "Returned when this API is called while the job is still processing.",
+            "schema": { }
+          },
+          "400": {
+            "description": "Returned when invalid input has been provided. Fix the issue and retry.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "uid is required",
+                "code": "required_field"
+              }
+            }
+          },
+          "401": {
+            "description": "Returned when access to the resource is unauthorized.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "access is unauthorized",
+                "code": "unauthorized"
+              }
+            }
+          },
+          "403": {
+            "description": "Returned when access is not allowed due to insufficient permissions.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "insufficient permissions",
+                "code": "forbidden"
+              }
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Requested resource does not exist",
+                "code": "resource_not_found"
+              }
+            }
+          },
+          "429": {
+            "description": "Returned when the client has exceeded the rate limit for this endpoint. A `Retry-After` header will be included with the response. This header will contain the number of seconds that you should wait before attempting to send another request.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Too many requests. Client has exceeded the rate limit for this endpoint.",
+                "code": "too_many_requests"
+              }
+            }
+          },
+          "500": {
+            "description": "Returned when a server error is encountered.",
+            "schema": {
+              "$ref": "#/definitions/fullstory.v2.apierror.ErrorResponse",
+              "example": {
+                "message": "Server error was encountered",
+                "code": "server_error"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_id",
+            "description": "ID that can be used to check the status and retrieve results for the batch import",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_token",
+            "description": "The token that can be used in a request to fetch the next page of results",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Events",
+          "Batch Import"
+        ],
+        "x-fullstory-operation-ordering": 40
+      }
+    },
+    "/v2beta/events/batch/{job_id}/imports": {
+      "get": {
+        "summary": "Get Batch Imported Events",
+        "description": "Get the event details for successful events imported from a batch events import job.",
+        "operationId": "GetBatchEventsImports2",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -535,7 +1011,7 @@
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
-            "referrer_url": ""
+            "initial_referrer": ""
           }
         },
         "name": "Support Ticket",
@@ -584,7 +1060,7 @@
       "type": "object",
       "example": {
         "url": "https://app.example.com",
-        "referrer_url": "https://referrer.example.com",
+        "initial_referrer": "https://referrer.example.com",
         "user_agent": "Example Browser User Agent"
       },
       "properties": {
@@ -594,7 +1070,7 @@
         "user_agent": {
           "type": "string"
         },
-        "referrer_url": {
+        "initial_referrer": {
           "type": "string"
         }
       },
@@ -606,8 +1082,8 @@
         "browser": {
           "url": "https://example.com"
         },
-        "device": {
-          "ip": "127.0.0.1"
+        "location": {
+          "ip_address": "127.0.0.1"
         }
       },
       "properties": {
@@ -638,7 +1114,7 @@
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
-                "referrer_url": ""
+                "initial_referrer": ""
               }
             },
             "name": "Support Ticket",
@@ -661,7 +1137,7 @@
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
-                "referrer_url": ""
+                "initial_referrer": ""
               }
             },
             "name": "Support Ticket",
@@ -722,7 +1198,7 @@
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
-            "referrer_url": ""
+            "initial_referrer": ""
           }
         },
         "name": "Support Ticket",
@@ -772,34 +1248,14 @@
     "fullstory.v2.events.DeviceContext": {
       "type": "object",
       "example": {
-        "manufacturer": "Device Manufacturer",
-        "serial_number": "ABC123",
-        "ip": "127.0.0.1"
+        "manufacturer": "Device Manufacturer"
       },
       "properties": {
-        "ip": {
-          "type": "string"
-        },
-        "platform": {
-          "type": "string"
-        },
-        "os_version": {
-          "type": "string"
-        },
         "manufacturer": {
           "type": "string"
         },
         "model": {
           "type": "string"
-        },
-        "serial_number": {
-          "type": "string"
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         },
         "screen_width": {
           "type": "integer",
@@ -839,7 +1295,7 @@
                 "browser": {
                   "url": "https://store.mondaymorning.com",
                   "user_agent": "square/pos",
-                  "referrer_url": ""
+                  "initial_referrer": ""
                 }
               },
               "name": "Support Ticket",
@@ -853,7 +1309,7 @@
             }
           }
         ],
-        "total_records": 98,
+        "total_records": "98",
         "next_page_token": "asd543"
       },
       "properties": {
@@ -865,8 +1321,7 @@
           "description": "Page of events import failures for the batch import"
         },
         "total_records": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
           "description": "The total number of failures for the specified events import"
         },
         "next_page_token": {
@@ -893,7 +1348,7 @@
             "browser": {
               "url": "https://store.mondaymorning.com",
               "user_agent": "square/pos",
-              "referrer_url": ""
+              "initial_referrer": ""
             }
           },
           "name": "Support Ticket",
@@ -942,7 +1397,7 @@
               "browser": {
                 "url": "https://store.mondaymorning.com",
                 "user_agent": "square/pos",
-                "referrer_url": ""
+                "initial_referrer": ""
               }
             },
             "name": "Support Ticket",
@@ -955,7 +1410,7 @@
             }
           }
         ],
-        "total_records": 98,
+        "total_records": "98",
         "next_page_token": "asd543"
       },
       "properties": {
@@ -967,8 +1422,7 @@
           "description": "Page of events import responses for the batch import"
         },
         "total_records": {
-          "type": "integer",
-          "format": "int32",
+          "type": "string",
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
@@ -981,20 +1435,21 @@
     "fullstory.v2.events.LocationContext": {
       "type": "object",
       "example": {
-        "country_code": "US",
-        "region_code": "US",
-        "city_name": "Atlanta"
+        "country": "US",
+        "region": "US",
+        "city": "Atlanta",
+        "ip_address": "127.0.0.1"
       },
       "properties": {
-        "country_code": {
+        "country": {
           "type": "string",
           "description": "ISO 3166-1 alpha-2 standard country code."
         },
-        "region_code": {
+        "region": {
           "type": "string",
           "description": "ISO-3166-2 standard region code."
         },
-        "city_name": {
+        "city": {
           "type": "string",
           "description": "Name of the city."
         },
@@ -1005,6 +1460,9 @@
         "longitude": {
           "type": "number",
           "format": "double"
+        },
+        "ip_address": {
+          "type": "string"
         }
       },
       "description": "The location context in which the events are attached to."
@@ -1069,7 +1527,7 @@
           "browser": {
             "url": "https://store.mondaymorning.com",
             "user_agent": "square/pos",
-            "referrer_url": ""
+            "initial_referrer": ""
           }
         }
       },
@@ -1216,7 +1674,7 @@
   "securityDefinitions": {
     "ApiKeyAuth": {
       "type": "apiKey",
-      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions. The header value takes the form \"Basic {YOUR_API_KEY}\".",
+      "description": "The HTTP API requires an API key that you can generate from the FullStory app. The API key must have Admin or Architect level permissions for requests which retrieve data. The header value takes the form \"Basic {YOUR_API_KEY}\".",
       "name": "Authorization",
       "in": "header"
     }
