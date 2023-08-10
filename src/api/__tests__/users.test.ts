@@ -6,7 +6,7 @@ import { UsersApi, UsersBatchImportApi } from '../index';
 import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
-const basePath = '/v2beta/users';
+const basePath = '/v2/users';
 const expectedHeaders = { accept: 'application/json' };
 
 const mockRequest = jest.fn<any>();
