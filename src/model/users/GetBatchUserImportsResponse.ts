@@ -17,7 +17,7 @@ export interface GetBatchUserImportsResponse {
     /**
      * Total number of records in this batch import
      */
-    'total_records': number;
+    'total_records': string;
     /**
      * The token that can be used in a subsequent request to fetch the next page of import results
      */

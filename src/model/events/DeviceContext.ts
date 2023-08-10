@@ -9,13 +9,8 @@
  * @interface DeviceContext The device context in which the events are attached to.
  */
 export interface DeviceContext {
-    'ip'?: string;
-    'platform'?: string;
-    'os_version'?: string;
     'manufacturer'?: string;
     'model'?: string;
-    'serial_number'?: string;
-    'features'?: Array<string>;
     'screen_width'?: number;
     'screen_height'?: number;
     'viewport_width'?: number;

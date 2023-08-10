@@ -36,7 +36,7 @@ export class UsersApi {
      * @param body
     */
     public async createUser(body: CreateUserRequest, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users`;
+        const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
@@ -76,7 +76,7 @@ export class UsersApi {
      * @param id The FullStory-generated id for the user.
     */
     public async deleteUser(id: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
-        const apiPath = `${this.basePath}/v2beta/users/{id}`
+        const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
@@ -109,7 +109,7 @@ export class UsersApi {
      * @param uid The application-specific ID you've given to the user
     */
     public async deleteUserByUid(uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>> {
-        const apiPath = `${this.basePath}/v2beta/users`;
+        const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
@@ -145,7 +145,7 @@ export class UsersApi {
      * @param includeSchema Whether to include the schema in the response.
     */
     public async getUser(id: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/{id}`
+        const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 
@@ -186,7 +186,7 @@ export class UsersApi {
      * @param includeSchema Whether to include schemas in the response.
     */
     public async listUsers(uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users`;
+        const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
@@ -237,7 +237,7 @@ export class UsersApi {
      * @param body
     */
     public async updateUser(id: string, body: UpdateUserRequest, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/{id}`
+        const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
 

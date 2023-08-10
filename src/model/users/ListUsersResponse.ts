@@ -17,7 +17,7 @@ export interface ListUsersResponse {
     /**
      * The total number of users that matched the filter criteria
      */
-    'total_records': number;
+    'total_records': string;
     /**
      * The token that can be used in a subsequent request with the same filter criteria to fetch the next page of users
      */

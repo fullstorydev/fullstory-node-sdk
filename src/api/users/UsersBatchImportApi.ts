@@ -36,7 +36,7 @@ export class UsersBatchImportApi {
      * @param body
     */
     public async createBatchUserImportJob(body: CreateBatchUserImportJobRequest, options?: FSRequestOptions): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/batch`;
+        const apiPath = `${this.basePath}/v2/users/batch`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
@@ -77,7 +77,7 @@ export class UsersBatchImportApi {
      * @param pageToken The token that can be used in a request to fetch the next page of results
     */
     public async getBatchUserImportErrors(jobId: string, pageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/errors`
+        const apiPath = `${this.basePath}/v2/users/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
 
@@ -113,7 +113,7 @@ export class UsersBatchImportApi {
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
     */
     public async getBatchUserImportStatus(jobId: string, options?: FSRequestOptions): Promise<FSResponse<JobStatusResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}`
+        const apiPath = `${this.basePath}/v2/users/batch/{job_id}`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
 
@@ -148,7 +148,7 @@ export class UsersBatchImportApi {
      * @param includeSchema Whether to include schemas in the response.
     */
     public async getBatchUserImports(jobId: string, pageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportsResponse>> {
-        const apiPath = `${this.basePath}/v2beta/users/batch/{job_id}/imports`
+        const apiPath = `${this.basePath}/v2/users/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
 

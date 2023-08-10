@@ -36,7 +36,7 @@ export class EventsApi {
      * @param body
     */
     public async createEvents(body: CreateEventsRequest, options?: FSRequestOptions): Promise<FSResponse<void>> {
-        const apiPath = `${this.basePath}/v2beta/events`;
+        const apiPath = `${this.basePath}/v2/events`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();

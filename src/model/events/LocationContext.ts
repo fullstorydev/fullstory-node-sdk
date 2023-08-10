@@ -12,16 +12,17 @@ export interface LocationContext {
     /**
      * ISO 3166-1 alpha-2 standard country code.
      */
-    'country_code'?: string;
+    'country'?: string;
     /**
      * ISO-3166-2 standard region code.
      */
-    'region_code'?: string;
+    'region'?: string;
     /**
      * Name of the city.
      */
-    'city_name'?: string;
+    'city'?: string;
     'latitude'?: number;
     'longitude'?: number;
+    'ip_address'?: string;
 }
 

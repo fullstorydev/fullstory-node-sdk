@@ -17,7 +17,7 @@ export interface GetBatchUserImportErrorsResponse {
     /**
      * The total number of failures for the specified user import
      */
-    'total_records': number;
+    'total_records': string;
     /**
      * The token that can be used in a subsequent request to fetch the next page of import failures
      */
