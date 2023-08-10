@@ -2,12 +2,14 @@ package com.fullstory.typescript;
 
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.tags.Tag;
+
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.model.*;
 import org.openapitools.codegen.utils.CamelizeOption;
 import org.openapitools.codegen.languages.AbstractTypeScriptClientCodegen;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.io.File;
 
@@ -16,11 +18,14 @@ import static org.openapitools.codegen.utils.StringUtils.camelize;
 public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodegen {
   // the server API resource name
   public static final String RESOURCE_NAME = "resourceName";
+  // should skip any prefixes, useful when there's no need to generate beta paths
+  public static final String SKIP_OPERATIONS = "skipOperations";
 
   // source folder where to write the files, relative to root
   protected String sourceFolder = "src";
   protected String fsPrefix = "fullstory.v2";
-  protected String resourceName = "unkown";
+  protected String resourceName = "";
+  protected Map<String, List<String>> skipGenerateOperation = new HashMap<>();
 
   private static final String DESCRIPTION_OVERRIDE_KEY = "x-fullstory-sdk-description-override";
 
@@ -66,6 +71,8 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
 
     this.cliOptions.add(new CliOption(RESOURCE_NAME,
         "The resource name for the FullStory server API."));
+    this.cliOptions.add(new CliOption(SKIP_OPERATIONS,
+        "Skip generating any operations with provided method + path prefix, provide comma separated key value pairs, if more than one operation needs to be provided.\n Format: {POST=[/path/prefix/to/ignore],*=[/ignore/all/methods]}"));
   }
 
   @Override
@@ -77,6 +84,16 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
 
     if (additionalProperties.containsKey(RESOURCE_NAME)) {
       this.resourceName = String.valueOf(additionalProperties.get(RESOURCE_NAME)) + ".";
+    }
+
+    if (additionalProperties.containsKey(SKIP_OPERATIONS)) {
+      Object skips = additionalProperties.get(SKIP_OPERATIONS);
+
+      try {
+        this.skipGenerateOperation = (Map<String, List<String>>) skips;
+      } catch (ClassCastException e) {
+        throw new RuntimeException("Unable to parse skipOperations, please make sure the value provided is valid.", e);
+      }
     }
 
     supportingFiles
@@ -251,7 +268,41 @@ public class FullstoryTypescriptGenerator extends AbstractTypeScriptClientCodege
     // TODO(sarbina): maybe use toApiImport?
     operationMap.put("importPath", toApiFolderName(operationMap.getPathPrefix()));
 
+    if (this.skipGenerateOperation.size() == 0) {
+      return operations;
+    }
+
+    Set<Map.Entry<String, List<String>>> skipGenerateOperationEntries = this.skipGenerateOperation.entrySet();
+    this.filterOperations(operations, op -> {
+      for (Map.Entry<String, List<String>> entry : skipGenerateOperationEntries) {
+        // method match or wild card for all methods
+        if (entry.getKey() == "*" || entry.getKey() == op.httpMethod) {
+          for (String prefix : entry.getValue()) {
+            if (op.path.startsWith(prefix)) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    });
+
     return operations;
+
+  }
+
+  // mutate the operations to filter any unwanted operations
+  void filterOperations(OperationsMap operations, Predicate<CodegenOperation> shouldSkip) {
+
+    List<CodegenOperation> codeGenOps = operations.getOperations().getOperation();
+
+    for (int i = 0; i < codeGenOps.size(); i++) {
+      CodegenOperation o = codeGenOps.get(i);
+      if (shouldSkip.test(o)) {
+        codeGenOps.remove(i);
+      }
+
+    }
   }
 
   @Override

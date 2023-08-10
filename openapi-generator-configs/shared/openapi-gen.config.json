@@ -3,5 +3,8 @@
     "outputDir": ".",
     "schemaMappings": {
         "google.protobuf.NullValue": "null"
+    },
+    "skipOperations": {
+        "*": [ "/v2beta" ]
     }
 }
