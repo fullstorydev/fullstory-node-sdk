@@ -5,7 +5,7 @@ import { EventsApi, EventsBatchImportApi } from '..';
 import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
-const basePath = '/v2beta/events';
+const basePath = '/v2/events';
 const expectedHeaders = { accept: 'application/json' };
 
 const mockRequest = jest.fn();

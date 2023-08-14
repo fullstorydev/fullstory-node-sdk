@@ -11,6 +11,6 @@
 export interface BrowserContext {
     'url'?: string;
     'user_agent'?: string;
-    'referrer_url'?: string;
+    'initial_referrer'?: string;
 }
 

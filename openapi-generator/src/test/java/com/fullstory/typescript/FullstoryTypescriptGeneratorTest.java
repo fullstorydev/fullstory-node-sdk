@@ -6,8 +6,6 @@ import org.openapitools.codegen.ClientOptInput;
 import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.config.CodegenConfigurator;
 
-import java.util.*;
-
 /***
  * This test allows you to easily launch your code generation software under a
  * debugger.
@@ -26,18 +24,8 @@ public class FullstoryTypescriptGeneratorTest {
   // this allows you to easily set break points in FullstoryTypescriptGenerator.
   @Test
   public void launchCodeGenerator() {
-    Map<String, String> sm = new HashMap<>();
-    sm.put("google.protobuf.NullValue", "null");
-
-    Map<String, Object> ap = new HashMap<>();
-    ap.put(FullstoryTypescriptGenerator.RESOURCE_NAME, "users");
-
-    final CodegenConfigurator configurator = new CodegenConfigurator()
-        .setGeneratorName("fullstory-typescript")
-        .setInputSpec("../specs/users.sdk.swagger.json")
-        .setOutputDir("out")
-        .setSchemaMappings(sm)
-        .setAdditionalProperties(ap);
+    final CodegenConfigurator configurator = CodegenConfigurator
+        .fromFile("src/test/java/com/fullstory/typescript/test.config.json");
 
     final ClientOptInput clientOptInput = configurator.toClientOptInput();
     DefaultGenerator generator = new DefaultGenerator();

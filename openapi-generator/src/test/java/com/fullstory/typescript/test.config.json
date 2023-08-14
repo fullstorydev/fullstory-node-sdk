@@ -1,0 +1,13 @@
+{
+    "generatorName": "fullstory-typescript",
+    "inputSpec": "../specs/users.sdk.swagger.json",
+    "outputDir": "out",
+    "resourceName": "users",
+    "schemaMappings": {
+        "google.protobuf.NullValue": "null"
+    },
+    "skipOperations": {
+        "*": [ "/v2beta" ],
+        "POST": [ "/v2beta" ]
+    }
+}
