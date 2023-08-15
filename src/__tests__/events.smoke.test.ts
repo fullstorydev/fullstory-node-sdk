@@ -143,6 +143,10 @@ describe('FullStory Events API', () => {
             .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
+
+        events
+            .batchCreate().restart('asdf');
+
         job.on('processing', (job) => {
             console.log('processing...', job.getId());
             expect(job.getId()).toBeTruthy();

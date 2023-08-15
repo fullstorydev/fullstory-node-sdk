@@ -120,6 +120,29 @@ describe('FullStory Users API', () => {
             display_name: 'NodeJS Smoke Test User 3'
         };
 
+        const requests = [
+            {
+                uid: 'user123',
+                display_name: 'Display Name',
+                email: 'user123@example.com',
+                properties: {
+                    pricing_plan: 'paid',
+                    popup_help: true,
+                    total_spent: 14.5,
+                },
+            },
+            {
+                uid: 'user456',
+            },
+            {
+                uid: 'user789',
+                display_name: 'A New User',
+            },
+        ];
+
+        // create a job object
+        const j = users.batchCreate({ requests });
+
         // Create A Job
         const job = users
             .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
