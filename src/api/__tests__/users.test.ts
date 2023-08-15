@@ -291,7 +291,7 @@ describe('FullStory Batch Users API', () => {
 
     test('get job imports', async () => {
         const mockRsp: GetBatchUserImportsResponse = {
-            total_records: 2,
+            total_records: '2',
             next_page_token: '',
             results: [
                 { id: '12341234' },
@@ -319,7 +319,7 @@ describe('FullStory Batch Users API', () => {
 
     test('get job imports with schema', async () => {
         const mockRsp: GetBatchUserImportsResponse = {
-            total_records: 2,
+            total_records: '2',
             next_page_token: '',
             results: [
                 { id: '12341234' },
@@ -347,7 +347,7 @@ describe('FullStory Batch Users API', () => {
 
     test('get job imports with page_token', async () => {
         const mockRsp: GetBatchUserImportsResponse = {
-            total_records: 2,
+            total_records: '2',
             next_page_token: '',
             results: [
                 { id: '12341234' },
@@ -375,7 +375,7 @@ describe('FullStory Batch Users API', () => {
 
     test('get job errors', async () => {
         const mockJob: GetBatchUserImportErrorsResponse = {
-            total_records: 2,
+            total_records: '2',
             next_page_token: '',
             results: [
                 {

@@ -73,9 +73,9 @@ describe('BatchJob', () => {
         let i = 0;
         mockRequester.requestImports = jest.fn(async _ => {
             if (i < 3) {
-                return { total_records: 3, results: [rsp, rsp, rsp], next_page_token: `test.token.${++i}` };
+                return { total_records: '3', results: [rsp, rsp, rsp], next_page_token: `test.token.${++i}` };
             } else {
-                return { total_records: 3, results: [rsp, rsp, rsp], next_page_token: '' };
+                return { total_records: '3', results: [rsp, rsp, rsp], next_page_token: '' };
             }
         });
 
@@ -98,7 +98,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
         const mockUser: BatchUserImportResponse = { id: 'test_user_id' };
-        mockRequester.requestImports = jest.fn(async _ => { return { total_records: 3, results: [mockUser, mockUser, mockUser], next_page_token: '' }; });
+        mockRequester.requestImports = jest.fn(async _ => { return { total_records: '3', results: [mockUser, mockUser, mockUser], next_page_token: '' }; });
 
         const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', (i, f) => {
@@ -113,7 +113,7 @@ describe('BatchJob', () => {
         const mockFailed: FailedUserImport = { message: 'test message', code: 'test_error', user: { id: 'test_user_id' } };
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_FAILED);
-        mockRequester.requestImportErrors = jest.fn(async _ => { return { total_records: 3, results: [mockFailed, mockFailed, mockFailed], next_page_token: '' }; });
+        mockRequester.requestImportErrors = jest.fn(async _ => { return { total_records: '3', results: [mockFailed, mockFailed, mockFailed], next_page_token: '' }; });
 
         const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
         baseJob.on('done', (i, f) => {
@@ -201,7 +201,7 @@ describe('BatchJob', () => {
     test('brand new job can restart with job Id', done => {
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
         mockRequester.requestImports = jest.fn(async _ => {
-            return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
+            return { total_records: '1', results: [{ id: 'fake' }], next_page_token: '' };
         });
 
         const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
@@ -223,7 +223,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_COMPLETED);
         mockRequester.requestImports = jest.fn(async _ => {
-            return { total_records: 1, results: [{ id: 'fake' }], next_page_token: '' };
+            return { total_records: '1', results: [{ id: 'fake' }], next_page_token: '' };
         });
 
         const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
@@ -239,7 +239,7 @@ describe('BatchJob', () => {
         mockRequester.requestCreateJob = jest.fn(async _ => MOCK_JOB_RSP);
         mockRequester.requestJobStatus = jest.fn(async _ => MOCK_JOB_FAILED);
         mockRequester.requestImportErrors = jest.fn(async _ => {
-            return { total_records: 1, results: [{ message: 'test message', code: 'test_error' }], next_page_token: '' };
+            return { total_records: '1', results: [{ message: 'test message', code: 'test_error' }], next_page_token: '' };
         });
 
         const baseJob = new BatchJob({ requests: [] }, mockRequester, {});
