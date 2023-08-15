@@ -2,7 +2,7 @@
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/fullstorydev/fullstory-node-sdk/tree/main.svg?style=svg&circle-token=ff82bccfd4023cd504f7b59ec5bd537bc875ec79)](https://dl.circleci.com/status-badge/redirect/gh/fullstorydev/fullstory-node-sdk/tree/main)
 
-> This package is in beta preview. It relies on unreleased beta API endpoints that may contain breaking changes without notice, do not use in production.
+> This package is in beta preview. It may contain breaking changes without notice, do not use in production.
 
 The Official FullStory server API client SDK for NodeJS. The SDK is designed for easy usage to make server-to-server HTTP API requests. For more information visit our [developer site](https://developer.fullstory.com/server/v2/getting-started/).
 
@@ -53,7 +53,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     properties: {
       pricing_plan: 'paid',
       popup_help: true,
-      total_spent: 14.5,
+      total_spent: 14.55,
     },
   });
   ```
@@ -108,11 +108,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
       context: {
         web: {
           url: 'https://www.example.com',
-          referrer_url: 'https://www.referrer.com',
-        },
-        device: {
-          ip: '127.0.0.1',
-          serial_number: 'ABC',
+          initial_referrer: 'https://www.referrer.com',
         },
         location: {
           latitude: 33.80177165865808,
@@ -157,13 +153,13 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = users.batchCreate(requests);
+  const job = users.batchCreate({ requests });
 
   // you can add more requests before executing
-  job.add([
+  job.add(
     { display_name: 'Someone Else' },
     { display_name: 'Last User' },
-  ]);
+  );
   ```
 
 - [Create a batch events import job](https://developer.fullstory.com/server/v2/events/create-batch-events-import-job/)
@@ -193,25 +189,22 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = events.batchCreate(requests);
+  const job = events.batchCreate({ requests });
 
   // you can add more requests before executing
-  job.add([
-    {
+  job.add({
       user: {
         id: '999999',
       },
       name: 'Events - 1',
       timestamp: '2022-03-15T14:23:23Z',
-    },
-        {
+    },{
       user: {
         id: '100000',
       },
       name: 'Events - 2',
       timestamp: '2022-03-15T14:23:23Z',
-    },
-  ]);
+    });
   ```
 
 - Batch Import Options
@@ -282,6 +275,20 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
     > Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
+- Restart a job
+  ```ts
+  // restart failed job
+  const job = events.batchCreate({ requests });
+  job.on('abort', () => {
+    // if should restart
+    baseJob.restart();
+  });
+  
+  // Or
+  // restart a failed job with a job id
+  const job = events.batchCreate().restart('your-job-id');
+  ```
+  
 ### Multiple batch import jobs
 
   It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.

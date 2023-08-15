@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-beta.6
+
+- [#46](https://github.com/fullstorydev/fullstory-node-sdk/pull/46) improvements to the smoke tests
+- [#47](https://github.com/fullstorydev/fullstory-node-sdk/pull/47) add function to allow `restart` a created job.
+- [#48](https://github.com/fullstorydev/fullstory-node-sdk/pull/48) update batch job to no longer send extra fields to the APIs
+- [#49](https://github.com/fullstorydev/fullstory-node-sdk/pull/49) update all APIs to use `/v2` endpoints
+
 ## 1.0.0-beta.5
 
 - [#44](https://github.com/fullstorydev/fullstory-node-sdk/pull/44)
