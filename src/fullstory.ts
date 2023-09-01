@@ -1,18 +1,18 @@
-import { Events, IBatchEventsApi, IEventsApi } from './events';
+import { Events, EventsImpl } from './events';
 import { FullStoryOptions } from './http';
-import { IBatchUsersApi, IUsersApi, Users } from './users';
+import { Users, UsersImpl } from './users';
 
 export interface FullStoryClient {
-    readonly users: IBatchUsersApi & IUsersApi;
-    readonly events: IBatchEventsApi & IEventsApi;
+    readonly users: Users;
+    readonly events: Events;
 }
 
 export class FullStoryImpl implements FullStoryClient {
-    readonly users: IBatchUsersApi & IUsersApi;
-    readonly events: IBatchEventsApi & IEventsApi;
+    readonly users: Users;
+    readonly events: Events;
 
     constructor(private opts: FullStoryOptions) {
-        this.users = new Users(opts);
-        this.events = new Events(opts);
+        this.users = new UsersImpl(opts);
+        this.events = new EventsImpl(opts);
     }
 }

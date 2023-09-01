@@ -1,7 +1,7 @@
 import { UsersApi as FSUsersApi, UsersBatchImportApi as FSUsersBatchApi } from '@api/index';
 import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, CreateUserRequest, CreateUserResponse, FailedUserImport, GetBatchEventsImportErrorsResponse, GetBatchUserImportErrorsResponse, GetBatchUserImportsResponse, GetUserResponse, JobStatusResponse, ListUsersResponse, UpdateUserRequest, UpdateUserResponse } from '@model/index';
 
-import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
+import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSInvalidArgumentError } from './errors/invalidArgument';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
@@ -10,9 +10,9 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 ////////////////////////////////////
 
 /**
- * @interface IUsersApi - single CRUD operations for a user.
+ * @interface UsersApi - single CRUD operations for a user.
 */
-export interface IUsersApi {
+export interface UsersApi {
     get(...req: Parameters<typeof FSUsersApi.prototype.getUser>): Promise<FSResponse<GetUserResponse>>;
 
     create(...req: Parameters<typeof FSUsersApi.prototype.createUser>): Promise<FSResponse<CreateUserResponse>>;
@@ -29,9 +29,9 @@ export interface IUsersApi {
 ////////////////////////////////////
 
 /**
- * @interface IBatchUsersApi - batch import users.
+ * @interface BatchUsersApi - batch import users.
 */
-export interface IBatchUsersApi {
+export interface BatchUsersApi {
     batchCreate(
         request?: CreateBatchUserImportJobRequest,
         jobOptions?: BatchJobOptions
@@ -39,23 +39,23 @@ export interface IBatchUsersApi {
 }
 
 /**
- * @interface IBatchUsersJob - a job for batch import users, providing job management and callbacks.
+ * @interface BatchUsersJob - a job for batch import users, providing job management and callbacks.
 */
-export type IBatchUsersJob = IBatchJob<CreateBatchUserImportJobRequest, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>;
+export type BatchUsersJob = BatchJob<CreateBatchUserImportJobRequest, BatchUserImportRequest, BatchUserImportResponse, FailedUserImport>;
 
 /**
- * @interface IUsers - CRUD operations or batch import users.
+ * @interface Users - CRUD operations or batch import users.
 */
-export type IUsers = IBatchUsersApi & IUsersApi;
+export type Users = BatchUsersApi & UsersApi;
 
-class BatchUsersJob extends BatchJob<CreateBatchUserImportJobRequest, BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
+class BatchUsersJobImpl extends BatchJobImpl<CreateBatchUserImportJobRequest, BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
     constructor(fsOpts: FullStoryOptions, request: CreateBatchUserImportJobRequest, opts: BatchJobOptions = {}, includeSchema = false) {
-        super(request, new BatchUsersRequester(fsOpts, includeSchema), opts);
+        super(request, new BatchUsersRequesterImpl(fsOpts, includeSchema), opts);
     }
 }
-export type IBatchUsersRequester = IBatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
+export type BatchUsersRequester = BatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
 
-class BatchUsersRequester implements IBatchUsersRequester {
+class BatchUsersRequesterImpl implements BatchUsersRequester {
     protected readonly batchUsersImpl: FSUsersBatchApi;
     protected readonly fsOpts: FullStoryOptions;
     protected readonly includeSchema: boolean;
@@ -108,7 +108,7 @@ class BatchUsersRequester implements IBatchUsersRequester {
 //  Exported User Interface
 ////////////////////////////////////
 
-export class Users implements IUsers {
+export class UsersImpl implements Users {
     protected readonly usersImpl: FSUsersApi;
 
     constructor(private opts: FullStoryOptions) {
@@ -143,6 +143,6 @@ export class Users implements IUsers {
     }
 
     batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
-        return new BatchUsersJob(this.opts, request, jobOptions, includeSchema);
+        return new BatchUsersJobImpl(this.opts, request, jobOptions, includeSchema);
     }
 }
