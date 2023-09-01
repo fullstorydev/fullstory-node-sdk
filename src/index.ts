@@ -12,9 +12,9 @@ export function init(opts: FullStoryOptions): FullStoryClient {
 
 export { BatchJobOptions } from './batch';
 export { FSError, FSErrorName, isFSError } from './errors';
-export { IBatchEventsJob as BatchEventsJob, IEvents as Events } from './events';
+export { BatchEventsJob, Events } from './events';
 export { FullStoryClient } from './fullstory';
 export { FullStoryOptions } from './http';
-export { IBatchUsersJob as BatchUsersJob, IUsers as Users } from './users';
+export { BatchUsersJob, Users } from './users';
 export * from '@api/index';
 export * from '@model/index';

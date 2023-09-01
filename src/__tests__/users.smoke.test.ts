@@ -4,13 +4,14 @@ import { describe, expect, test } from '@jest/globals';
 import { CreateUserRequest, JobStatus, UpdateUserRequest } from '@model/index';
 import * as dotenv from 'dotenv';
 
+import { init } from '..';
 import { FSApiError } from '../errors';
-import { Users } from '../users';
 
 dotenv.config();
 const { RUN_SMOKE_TESTS, FS_API_KEY } = process.env;
 
 const BATCH_JOB_TIMEOUT = 10000; // wait for 10 seconds for the job to finish
+const INTEGRATION_SRC = 'NodeJS SDK Smoke Test';
 
 describe('FullStory Users API', () => {
     if (!RUN_SMOKE_TESTS || !FS_API_KEY) {
@@ -18,8 +19,9 @@ describe('FullStory Users API', () => {
         return;
     }
 
-    const users = new Users({
+    const { users } = init({
         apiKey: `Basic ${FS_API_KEY}`,
+        integrationSource: INTEGRATION_SRC
     });
 
     //TODO(sabrina): make sure errors are thrown on error responses (like 401s)

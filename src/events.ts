@@ -1,7 +1,7 @@
 import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } from '@api/index';
 import { BatchCreateEventsResponse, CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatusResponse } from '@model/index';
 
-import { BatchJob, BatchJobOptions, IBatchJob, IBatchRequester } from './batch';
+import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
@@ -9,9 +9,9 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 ////////////////////////////////////
 
 /**
- * @interface IEventsApi - create events within a single context.
+ * @interface EventsApi - create events within a single context.
 */
-export interface IEventsApi {
+export interface EventsApi {
     create(...req: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<void>>;
 }
 
@@ -20,9 +20,9 @@ export interface IEventsApi {
 ////////////////////////////////////
 
 /**
- * @interface IBatchEventsApi - batch import events across multiple context.
+ * @interface BatchEventsApi - batch import events across multiple context.
 */
-export interface IBatchEventsApi {
+export interface BatchEventsApi {
     batchCreate(
         request?: CreateBatchEventsImportJobRequest,
         jobOptions?: BatchJobOptions
@@ -30,24 +30,24 @@ export interface IBatchEventsApi {
 }
 
 /**
- * @interface IBatchEventsJob - a job for batch import events, providing job management and callbacks.
+ * @interface BatchEventsJob - a job for batch import events, providing job management and callbacks.
 */
-export type IBatchEventsJob = IBatchJob<CreateBatchEventsImportJobRequest, CreateEventsRequest, BatchCreateEventsResponse, FailedEventsImport>;
+export type BatchEventsJob = BatchJob<CreateBatchEventsImportJobRequest, CreateEventsRequest, BatchCreateEventsResponse, FailedEventsImport>;
 
 /**
  * @interface IEvents - create or batch import events.
 */
-export type IEvents = IBatchEventsApi & IEventsApi;
+export type Events = BatchEventsApi & EventsApi;
 
-class BatchEventsJob extends BatchJob<CreateBatchEventsImportJobRequest, CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, BatchCreateEventsResponse, FailedEventsImport> {
+class BatchEventsJobImpl extends BatchJobImpl<CreateBatchEventsImportJobRequest, CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, BatchCreateEventsResponse, FailedEventsImport> {
     constructor(fsOpts: FullStoryOptions, request: CreateBatchEventsImportJobRequest, opts: BatchJobOptions = {}, includeSchema = false) {
-        super(request, new BatchEventsRequester(fsOpts, includeSchema), opts);
+        super(request, new BatchEventsRequesterImpl(fsOpts, includeSchema), opts);
     }
 }
 
-export type IBatchEventRequester = IBatchRequester<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, GetBatchEventsImportsResponse, GetBatchEventsImportErrorsResponse>;
+export type BatchEventRequester = BatchRequester<CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, GetBatchEventsImportsResponse, GetBatchEventsImportErrorsResponse>;
 
-class BatchEventsRequester implements IBatchEventRequester {
+class BatchEventsRequesterImpl implements BatchEventRequester {
     protected readonly batchEventsImpl: FSBatchEventsApi;
     protected readonly fsOpts: FullStoryOptions;
     protected readonly includeSchema: boolean;
@@ -100,7 +100,7 @@ class BatchEventsRequester implements IBatchEventRequester {
 //  Exported User Interface
 ////////////////////////////////////
 
-export class Events implements IEvents {
+export class EventsImpl implements Events {
     protected readonly eventsImpl: FSEventsApi;
 
     constructor(private opts: FullStoryOptions) {
@@ -112,6 +112,6 @@ export class Events implements IEvents {
     }
 
     batchCreate(request: CreateBatchEventsImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchEventsJob {
-        return new BatchEventsJob(this.opts, request, jobOptions, includeSchema);
+        return new BatchEventsJobImpl(this.opts, request, jobOptions, includeSchema);
     }
 }

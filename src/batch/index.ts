@@ -9,7 +9,7 @@ import { toError } from '../errors/base';
 import { FSRequestOptions } from '../http';
 import { withDelay, withRetry } from '../utils/retry';
 
-export interface IBatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
+export interface BatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
     requestCreateJob(req: REQ): Promise<RSP>;
 
     requestImports(id: string, pageToken?: string): Promise<IMPORTS_RSP>;
@@ -44,7 +44,7 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
     maxRetry: 3,
 };
 
-export interface IBatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, IMPORT, FAILURE> {
+export interface BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, IMPORT, FAILURE> {
     readonly options: Required<BatchJobOptions> & FSRequestOptions;
     request: REQUEST;
 
@@ -140,7 +140,7 @@ export interface IBatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_R
     on(type: 'abort', callback: (errors: Error[]) => void): this;
 }
 
-export class BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements IBatchJob<REQUEST, SINGLE_REQ, IMPORT, FAILURE>{
+export class BatchJobImpl<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, CREATE_RSP extends { job?: JobMetadata; }, STATUS_RSP extends { job?: JobMetadata; }, IMPORT, FAILURE> implements BatchJob<REQUEST, SINGLE_REQ, IMPORT, FAILURE>{
     readonly options: Required<BatchJobOptions> & FSRequestOptions;
     request: REQUEST;
 
@@ -164,7 +164,7 @@ export class BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, C
     constructor(
         request: REQUEST,
         // TODO(sabrina):these could be better typed
-        private requester: IBatchRequester<REQUEST, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
+        private requester: BatchRequester<REQUEST, CREATE_RSP, STATUS_RSP, { results?: IMPORT[], next_page_token?: string; }, { results?: FAILURE[], next_page_token?: string; }>,
         opts: BatchJobOptions & FSRequestOptions = {},
     ) {
         this.request = request;
