@@ -25,12 +25,16 @@ describe('FullStory Events API', () => {
 
     const uidSuffix = randomUUID();
 
+
+
+
     test('Event with no name should reject with error', async () => {
+        users
+            .withRequestOptions({ idempotencyKey: '' })
+            .create();
         try {
             await events.create({
-                body: {
-                    name: ''
-                }
+                name: ''
             });
         } catch (e) {
             expect(e).toBeInstanceOf(FSApiError);
@@ -61,7 +65,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create(createEventsReq);
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -71,9 +75,7 @@ describe('FullStory Events API', () => {
     test('Create Events API for user.id', async () => {
         // Setup user
         const u = await users.create({
-            body: {
-                display_name: 'nodejs_sdk_smoke_test_display_' + uidSuffix
-            }
+            display_name: 'nodejs_sdk_smoke_test_display_' + uidSuffix
         });
         expect(u.body?.id).toBeTruthy();
 
@@ -92,7 +94,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create(createEventsReq);
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -114,7 +116,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create(createEventsReq);
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -144,7 +146,8 @@ describe('FullStory Events API', () => {
 
         // Create A Job
         const job = events
-            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
+            .withBatchJobOptions({ pollInterval: 1000 })
+            .batchCreate({ requests: [createReq1] })
             .add(createReq2, createReq3);
 
         job.on('processing', (job) => {
