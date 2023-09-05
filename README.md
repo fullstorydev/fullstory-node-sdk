@@ -29,6 +29,8 @@ yarn add @fullstory/server-api-client
 
 Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
 
+Additional options may be provided, such as an optional `integrationSource` string, that will be applied to all requests.
+
 ```ts
 import { init } from '@fullstory/server-api-client';
 
@@ -126,6 +128,15 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     });
   ```
 
+#### Per-Request Options
+- Use `withRequestOptions` to apply options for a single request.
+
+  ```ts
+  const createResponse = await users
+      .withRequestOptions({ idempotencyKey: 'YOUR_KEY' })
+      .create({...});
+  ```
+
 #### Batch Import Job
 
 - [Create a batch users import job](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
@@ -207,19 +218,6 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     });
   ```
 
-- Batch Import Options
-
-  Each job can be created with different options:
-
-  ```ts
-  const options = {
-    // poll job status every one minute
-    pollInterval: 60000,
-    // retry 5 times on API errors before aborting
-    maxRetry: 5,
-  }
-  ```
-
 - Adding listeners for a batch import job and executing the job
 
   1. When the job's execute method is called, an API request is made to the server to create the import the job:
@@ -288,7 +286,31 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   // restart a failed job with a job id
   const job = events.batchCreate().restart('your-job-id');
   ```
-  
+
+#### Per-Job Options
+- Batch Import Options
+
+  Each job can be created with different options:
+
+  ```ts
+  const options = {
+    // poll job status every one minute
+    pollInterval: 60000,
+    // retry 5 times on API errors before aborting
+    maxRetry: 5,
+  }
+  ```
+
+- Use `withBatchJobOptions` to apply options for a single job.
+- Additionally, use `withRequestOptions` to apply options for a all requests made from the job object.
+
+  ```ts
+    const createResponse = await users
+        .withBatchJobOptions({ pollInterval: 5000 })
+        .withRequestOptions({ idempotencyKey: 'YOUR_KEY' })
+        .batchCreate(...)
+  ```
+
 ### Multiple batch import jobs
 
   It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.
