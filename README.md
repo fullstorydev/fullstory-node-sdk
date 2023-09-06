@@ -29,8 +29,6 @@ yarn add @fullstory/server-api-client
 
 Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
 
-Additional options may be provided, such as an optional `integrationSource` string, that will be applied to all requests.
-
 ```ts
 import { init } from '@fullstory/server-api-client';
 
@@ -281,7 +279,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 #### Per-Job Options
 - Batch Import Options
 
-  Each job can be created with different options:
+  Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
 
   ```ts
   const options = {
