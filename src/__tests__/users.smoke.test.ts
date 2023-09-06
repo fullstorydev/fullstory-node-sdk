@@ -143,11 +143,11 @@ describe('FullStory Users API', () => {
         ];
 
         // create a job object
-        users.batchCreate({ requests });
+        users.batchCreate({ body: { requests } });
 
         // Create A Job
         const job = users
-            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
+            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.execute();

@@ -95,7 +95,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate(createJobReq);
+        const job = events.batchCreate({ body: createJobReq });
         expect(mockJobCreate).toBeCalledTimes(0);
         job.on('abort', (errs: Error[]) => {
             throw errs;
@@ -137,7 +137,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate(createJobReq, { pollInterval: 1000, maxRetry: 5 }, {});
+        const job = events.batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 }, {});
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
@@ -176,7 +176,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate(createJobReq, {}, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
+        const job = events.batchCreate({ body: createJobReq }, {}, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {

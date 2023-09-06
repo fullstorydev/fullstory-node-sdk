@@ -33,10 +33,12 @@ export interface UsersApi {
 */
 export interface BatchUsersApi {
     batchCreate(
-        body: CreateBatchUserImportJobRequest,
+        request: {
+            body: CreateBatchUserImportJobRequest,
+            includeSchema?: boolean,
+        },
         jobOptions?: BatchJobOptions,
         reqOptions?: FSRequestOptions,
-        includeSchema?: boolean,
     ): BatchUsersJob;
 }
 
@@ -145,10 +147,7 @@ export class UsersImpl implements Users {
         return this.usersImpl.updateUser(request, options);
     }
 
-    // batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, options?: BatchJobOptions & FSRequestOptions, includeSchema?: boolean): BatchUsersJob {
-    //     return new BatchUsersJobImpl({ ...this.opts, ...options }, request, options, includeSchema);
-    // }
-    batchCreate(body: CreateBatchUserImportJobRequest, jobOptions?: BatchJobOptions, reqOptions?: FSRequestOptions, includeSchema?: boolean): BatchUsersJob {
-        return new BatchUsersJobImpl({ ...this.opts, ...reqOptions }, body, jobOptions, includeSchema);
+    batchCreate(request: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions, reqOptions?: FSRequestOptions): BatchUsersJob {
+        return new BatchUsersJobImpl({ ...this.opts, ...reqOptions }, request.body, jobOptions, request.includeSchema);
     }
 }
