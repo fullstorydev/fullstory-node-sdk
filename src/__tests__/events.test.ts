@@ -48,35 +48,27 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const event1 = events.withRequestOptions({}).create(createReq);
+        const event1 = events.create({ body: createReq });
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            createReq,
-            { apiKey: 'Basic ' + MOCK_API_KEY } // default to always include just the API key
+            { body: createReq },
+            { apiKey: 'Basic MOCK_API_KEY' },
         );
         await expect(event1).resolves.toEqual({
             httpStatusCode: 200,
             body: {},
         });
 
-        const event2 = events.withRequestOptions({ idempotencyKey: MOCK_IDEMPOTENT_KEY }).create(createReq);
+        const event2 = events.create({ body: createReq }, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            createReq,
-            { apiKey: 'Basic MOCK_API_KEY', idempotencyKey: MOCK_IDEMPOTENT_KEY },
+            { body: createReq },
+            {
+                apiKey: 'Basic MOCK_API_KEY',
+                idempotencyKey: MOCK_IDEMPOTENT_KEY
+            },
         );
         await expect(event2).resolves.toEqual({
-            httpStatusCode: 200,
-            body: {},
-        });
-
-        const event3 = events.create(createReq);
-        expect(mockRequest).toBeCalledWith(
-            // TODO(sabrina): find out why the accept headers is not passed for GETs
-            createReq,
-            { apiKey: 'Basic MOCK_API_KEY' },
-        );
-        await expect(event3).resolves.toEqual({
             httpStatusCode: 200,
             body: {},
         });
@@ -110,12 +102,12 @@ describe('FullStory Events API', () => {
         });
         job.on('done', () => {
             expect(mockJobCreate).toHaveBeenLastCalledWith(
-                createJobReq,
+                { body: createJobReq },
                 { apiKey: 'Basic ' + MOCK_API_KEY }
             );
 
             expect(mockJobStatus).toHaveBeenLastCalledWith(
-                MOCK_JOB_ID,
+                { jobId: MOCK_JOB_ID },
                 { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             done();
@@ -145,16 +137,16 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.withBatchJobOptions({ pollInterval: 1000, maxRetry: 5 }).batchCreate(createJobReq);
+        const job = events.batchCreate(createJobReq, { pollInterval: 1000, maxRetry: 5 }, {});
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
             expect(mockJobCreate).toBeCalledWith(
-                createJobReq,
+                { body: createJobReq },
                 { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             expect(mockJobStatus).toBeCalledWith(
-                MOCK_JOB_ID,
+                { jobId: MOCK_JOB_ID },
                 { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             done();
@@ -184,16 +176,16 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.withBatchJobOptions({}).withRequestOptions({ idempotencyKey: MOCK_IDEMPOTENT_KEY }).batchCreate(createJobReq);
+        const job = events.batchCreate(createJobReq, {}, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
             expect(mockJobStatus).toHaveBeenLastCalledWith(
-                MOCK_JOB_ID,
+                { jobId: MOCK_JOB_ID },
                 { apiKey: 'Basic ' + MOCK_API_KEY, idempotencyKey: MOCK_IDEMPOTENT_KEY }
             );
             expect(mockJobCreate).toHaveBeenLastCalledWith(
-                createJobReq,
+                { body: createJobReq },
                 { apiKey: 'Basic ' + MOCK_API_KEY, idempotencyKey: MOCK_IDEMPOTENT_KEY }
             );
             done();

@@ -128,15 +128,6 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     });
   ```
 
-#### Per-Request Options
-- Use `withRequestOptions` to apply options for a single request.
-
-  ```ts
-  const createResponse = await users
-      .withRequestOptions({ idempotencyKey: 'YOUR_KEY' })
-      .create({...});
-  ```
-
 #### Batch Import Job
 
 - [Create a batch users import job](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
@@ -299,16 +290,11 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     // retry 5 times on API errors before aborting
     maxRetry: 5,
   }
-  ```
-
-- Use `withBatchJobOptions` to apply options for a single job.
-- Additionally, use `withRequestOptions` to apply options for a all requests made from the job object.
-
-  ```ts
-    const createResponse = await users
-        .withBatchJobOptions({ pollInterval: 5000 })
-        .withRequestOptions({ idempotencyKey: 'YOUR_KEY' })
-        .batchCreate(...)
+  
+  const createResponse = await users.batchCreate(
+    { requests: [{ uid: 'user123' }]},
+    { pollInterval: 5000 },
+    { idempotencyKey: 'YOUR_KEY' }); // used for creating the import job
   ```
 
 ### Multiple batch import jobs

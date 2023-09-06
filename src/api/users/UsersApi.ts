@@ -10,7 +10,7 @@
 import { OutgoingHttpHeaders } from 'node:http';
 import { RequestOptions } from 'node:https';
 
-import { GetUserResponse , ListUsersResponse , CreateUserResponse , UpdateUserResponse , CreateUserRequest , UpdateUserRequest , ErrorResponse } from '@model/index';
+import { GetUserResponse, ListUsersResponse, CreateUserResponse, UpdateUserResponse, CreateUserRequest, UpdateUserRequest, ErrorResponse } from '@model/index';
 
 import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
@@ -35,8 +35,8 @@ export class UsersApi {
      * @summary Create User
      * @param body
     */
-    public async createUser(request: { body: CreateUserRequest,  }, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
-        const { body,  } = request;
+    public async createUser(request: { body: CreateUserRequest, }, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
+        const { body, } = request;
         const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
@@ -76,8 +76,8 @@ export class UsersApi {
      * @summary Delete User
      * @param id The FullStory-generated id for the user.
     */
-    public async deleteUser(request: { id: string,  }, options?: FSRequestOptions): Promise<FSResponse<void>> {
-        const { id,  } = request;
+    public async deleteUser(request: { id: string, }, options?: FSRequestOptions): Promise<FSResponse<void>> {
+        const { id, } = request;
         const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
@@ -110,8 +110,8 @@ export class UsersApi {
      * @summary Delete User
      * @param uid The application-specific ID you've given to the user
     */
-    public async deleteUserByUid(request: { uid?: string,  }, options?: FSRequestOptions): Promise<FSResponse<void>> {
-        const { uid,  } = request;
+    public async deleteUserByUid(request: { uid?: string, }, options?: FSRequestOptions): Promise<FSResponse<void>> {
+        const { uid, } = request;
         const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
@@ -147,8 +147,8 @@ export class UsersApi {
      * @param id The FullStory assigned user ID
      * @param includeSchema Whether to include the schema in the response.
     */
-    public async getUser(request: { id: string, includeSchema?: boolean,  }, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
-        const { id, includeSchema,  } = request;
+    public async getUser(request: { id: string, includeSchema?: boolean, }, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
+        const { id, includeSchema, } = request;
         const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);
@@ -189,8 +189,8 @@ export class UsersApi {
      * @param pageToken The token indicating the page of users to fetch. The same filter criteria should be supplied. This value should not be specified when requesting the first page of users.
      * @param includeSchema Whether to include schemas in the response.
     */
-    public async listUsers(request: { uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean,  }, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
-        const { uid, email, displayName, isIdentified, pageToken, includeSchema,  } = request;
+    public async listUsers(request: { uid?: string, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean, }, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
+        const { uid, email, displayName, isIdentified, pageToken, includeSchema, } = request;
         const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
@@ -241,8 +241,8 @@ export class UsersApi {
      * @param id The FullStory assigned user ID
      * @param body
     */
-    public async updateUser(request: { id: string, body: UpdateUserRequest,  }, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
-        const { id, body,  } = request;
+    public async updateUser(request: { id: string, body: UpdateUserRequest, }, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
+        const { id, body, } = request;
         const apiPath = `${this.basePath}/v2/users/{id}`
             .replace('{' + 'id' + '}', encodeURIComponent(String(id)));
         const url = new URL(apiPath);

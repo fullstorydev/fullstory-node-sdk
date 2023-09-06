@@ -33,8 +33,10 @@ export interface UsersApi {
 */
 export interface BatchUsersApi {
     batchCreate(
-        request?: CreateBatchUserImportJobRequest,
-        jobOptions?: BatchJobOptions
+        body: CreateBatchUserImportJobRequest,
+        jobOptions?: BatchJobOptions,
+        reqOptions?: FSRequestOptions,
+        includeSchema?: boolean,
     ): BatchUsersJob;
 }
 
@@ -116,19 +118,19 @@ export class UsersImpl implements Users {
     }
 
     //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
-    async get(request: { id: string, includeSchema?: boolean; }, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
+    async get(request: { id: string, includeSchema?: boolean; }, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
         return this.usersImpl.getUser(request, options);
     }
 
-    async create(request: { body: CreateUserRequest; }, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
+    async create(request: { body: CreateUserRequest; }, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
         return this.usersImpl.createUser(request, options);
     }
 
-    async list(request: { uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, includeSchema?: boolean; }, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
+    async list(request: { uid?: string | undefined, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean; }, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
         return this.usersImpl.listUsers(request, options);
     }
 
-    async delete(request: { id?: string, uid?: string; }, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
+    async delete(request: { id?: string, uid?: string; }, options?: FSRequestOptions): Promise<FSResponse<void>> {
         const { id, uid } = request;
         if (id && !uid) {
             return this.usersImpl.deleteUser({ id }, options);
@@ -139,11 +141,14 @@ export class UsersImpl implements Users {
         throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
-    async update(request: { id: string, body: UpdateUserRequest; }, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
+    async update(request: { id: string, body: UpdateUserRequest; }, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
         return this.usersImpl.updateUser(request, options);
     }
 
-    batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
-        return new BatchUsersJobImpl(this.opts, request, jobOptions, includeSchema);
+    // batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, options?: BatchJobOptions & FSRequestOptions, includeSchema?: boolean): BatchUsersJob {
+    //     return new BatchUsersJobImpl({ ...this.opts, ...options }, request, options, includeSchema);
+    // }
+    batchCreate(body: CreateBatchUserImportJobRequest, jobOptions?: BatchJobOptions, reqOptions?: FSRequestOptions, includeSchema?: boolean): BatchUsersJob {
+        return new BatchUsersJobImpl({ ...this.opts, ...reqOptions }, body, jobOptions, includeSchema);
     }
 }

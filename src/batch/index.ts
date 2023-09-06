@@ -46,6 +46,7 @@ export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
 
 export interface BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, IMPORT, FAILURE> {
     readonly options: Required<BatchJobOptions> & FSRequestOptions;
+    includeSchema?: boolean;
     request: REQUEST;
 
     readonly metadata?: JobMetadata;

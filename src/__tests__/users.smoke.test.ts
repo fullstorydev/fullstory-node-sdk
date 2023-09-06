@@ -44,7 +44,7 @@ describe('FullStory Users API', () => {
         };
 
         // Create User
-        const created = await users.create({ body: createReq });
+        const created = await users.create({ body: createReq }, { idempotencyKey: 'test_client_sdk_create_user_1_' + uidSuffix });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -55,7 +55,7 @@ describe('FullStory Users API', () => {
         if (!id) {
             throw new Error('expected crated user to have ID');
         }
-        const got = await users.get({ id });
+        const got = await users.get({ id, includeSchema: true });
         expect(got).toHaveProperty('httpStatusCode', 200);
         expect(got).toHaveProperty('httpHeaders');
         expect(got).toHaveProperty('body');
@@ -143,7 +143,7 @@ describe('FullStory Users API', () => {
         ];
 
         // create a job object
-        const j = users.batchCreate({ requests });
+        users.batchCreate({ requests });
 
         // Create A Job
         const job = users
