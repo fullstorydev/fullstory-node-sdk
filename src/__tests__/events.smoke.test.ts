@@ -25,13 +25,7 @@ describe('FullStory Events API', () => {
 
     const uidSuffix = randomUUID();
 
-
-
-
     test('Event with no name should reject with error', async () => {
-        users
-            .withRequestOptions({ idempotencyKey: '' })
-            .create();
         try {
             await events.create({
                 name: ''
@@ -146,8 +140,7 @@ describe('FullStory Events API', () => {
 
         // Create A Job
         const job = events
-            .withBatchJobOptions({ pollInterval: 1000 })
-            .batchCreate({ requests: [createReq1] })
+            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.on('processing', (job) => {

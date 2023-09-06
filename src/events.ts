@@ -3,7 +3,6 @@ import { BatchCreateEventsResponse, CreateBatchEventsImportJobRequest, CreateBat
 
 import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
-import { WithJobOptions, WithRequestOptions } from './options';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -13,7 +12,7 @@ import { WithJobOptions, WithRequestOptions } from './options';
  * @interface EventsApi - create events within a single context.
 */
 export interface EventsApi {
-    create(body: CreateEventsRequest): Promise<FSResponse<void>>;
+    create(...req: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<void>>;
 }
 
 ////////////////////////////////////
@@ -25,8 +24,8 @@ export interface EventsApi {
 */
 export interface BatchEventsApi {
     batchCreate(
-        body?: CreateBatchEventsImportJobRequest,
-        includeSchema?: boolean,
+        request?: CreateBatchEventsImportJobRequest,
+        jobOptions?: BatchJobOptions
     ): BatchEventsJob;
 }
 
@@ -36,12 +35,12 @@ export interface BatchEventsApi {
 export type BatchEventsJob = BatchJob<CreateBatchEventsImportJobRequest, CreateEventsRequest, BatchCreateEventsResponse, FailedEventsImport>;
 
 /**
- * @interface Events - create or batch import events.
+ * @interface IEvents - create or batch import events.
 */
-export type Events = BatchEventsApi & EventsApi & WithRequestOptions<EventsApi> & WithJobOptions<BatchEventsApi>;
+export type Events = BatchEventsApi & EventsApi;
 
 class BatchEventsJobImpl extends BatchJobImpl<CreateBatchEventsImportJobRequest, CreateEventsRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, BatchCreateEventsResponse, FailedEventsImport> {
-    constructor(fsOpts: FullStoryOptions, request: CreateBatchEventsImportJobRequest = { requests: [] }, opts: BatchJobOptions = {}, includeSchema = false) {
+    constructor(fsOpts: FullStoryOptions, request: CreateBatchEventsImportJobRequest, opts: BatchJobOptions = {}, includeSchema = false) {
         super(request, new BatchEventsRequesterImpl(fsOpts, includeSchema), opts);
     }
 }
@@ -79,7 +78,7 @@ class BatchEventsRequesterImpl implements BatchEventRequester {
     }
 
     async requestImportErrors(id: string, pageToken?: string): Promise<GetBatchEventsImportErrorsResponse> {
-        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id, pageToken, this.fsOpts);
+        const res = await this.batchEventsImpl.getBatchEventsImportErrors(id, pageToken);
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with expected body');
@@ -88,7 +87,7 @@ class BatchEventsRequesterImpl implements BatchEventRequester {
     }
 
     async requestJobStatus(id: string): Promise<JobStatusResponse> {
-        const rsp = await this.batchEventsImpl.getBatchEventsImportStatus(id, this.fsOpts);
+        const rsp = await this.batchEventsImpl.getBatchEventsImportStatus(id);
         const body = rsp.body;
         if (!body) {
             throw new Error('API did not response with any results');
@@ -102,25 +101,17 @@ class BatchEventsRequesterImpl implements BatchEventRequester {
 ////////////////////////////////////
 
 export class EventsImpl implements Events {
-    protected readonly eventsImpl: FSEventsApi; // pure API impl
+    protected readonly eventsImpl: FSEventsApi;
 
-    constructor(protected opts: FullStoryOptions, protected jobOptions: BatchJobOptions = {}) {
+    constructor(private opts: FullStoryOptions) {
         this.eventsImpl = new FSEventsApi(opts);
     }
 
-    withRequestOptions(ro: FSRequestOptions) {
-        return new EventsImpl(Object.assign({}, this.opts, ro));
+    async create(body: CreateEventsRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
+        return this.eventsImpl.createEvents(body, options);
     }
 
-    withBatchJobOptions(bo: BatchJobOptions) {
-        return new EventsImpl(Object.assign({}, this.opts), bo);
-    }
-
-    async create(body: CreateEventsRequest): Promise<FSResponse<void>> {
-        return this.eventsImpl.createEvents(body, this.opts);
-    }
-
-    batchCreate(body?: CreateBatchEventsImportJobRequest, includeSchema?: boolean): BatchEventsJob {
-        return new BatchEventsJobImpl(this.opts, body, this.jobOptions, includeSchema);
+    batchCreate(request: CreateBatchEventsImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchEventsJob {
+        return new BatchEventsJobImpl(this.opts, request, jobOptions, includeSchema);
     }
 }

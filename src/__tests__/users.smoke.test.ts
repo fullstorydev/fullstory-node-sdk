@@ -147,8 +147,7 @@ describe('FullStory Users API', () => {
 
         // Create A Job
         const job = users
-            .withBatchJobOptions({ pollInterval: 1000 })
-            .batchCreate({ requests: [createReq1] })
+            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.execute();
