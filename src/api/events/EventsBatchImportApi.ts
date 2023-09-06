@@ -35,7 +35,8 @@ export class EventsBatchImportApi {
      * @summary Create Events Batch Import
      * @param body The request payloads contains the list of events to be imported
     */
-    public async createBatchEventsImportJob(body: CreateBatchEventsImportJobRequest, options?: FSRequestOptions): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
+    public async createBatchEventsImportJob(request: { body: CreateBatchEventsImportJobRequest,  }, options?: FSRequestOptions): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
+        const { body,  } = request;
         const apiPath = `${this.basePath}/v2/events/batch`;
         const url = new URL(apiPath);
 
@@ -76,7 +77,8 @@ export class EventsBatchImportApi {
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param pageToken The token that can be used in a request to fetch the next page of results
     */
-    public async getBatchEventsImportErrors(jobId: string, pageToken?: string, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportErrorsResponse>> {
+    public async getBatchEventsImportErrors(request: { jobId: string, pageToken?: string,  }, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportErrorsResponse>> {
+        const { jobId, pageToken,  } = request;
         const apiPath = `${this.basePath}/v2/events/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -112,7 +114,8 @@ export class EventsBatchImportApi {
      * @summary Get Batch Import Job Details
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
     */
-    public async getBatchEventsImportStatus(jobId: string, options?: FSRequestOptions): Promise<FSResponse<JobStatusResponse>> {
+    public async getBatchEventsImportStatus(request: { jobId: string,  }, options?: FSRequestOptions): Promise<FSResponse<JobStatusResponse>> {
+        const { jobId,  } = request;
         const apiPath = `${this.basePath}/v2/events/batch/{job_id}`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);
@@ -147,7 +150,8 @@ export class EventsBatchImportApi {
      * @param pageToken The token that can be used in a request to fetch the next page of results
      * @param includeSchema Whether to include the schema in the response.
     */
-    public async getBatchEventsImports(jobId: string, pageToken?: string, includeSchema?: boolean, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportsResponse>> {
+    public async getBatchEventsImports(request: { jobId: string, pageToken?: string, includeSchema?: boolean,  }, options?: FSRequestOptions): Promise<FSResponse<GetBatchEventsImportsResponse>> {
+        const { jobId, pageToken, includeSchema,  } = request;
         const apiPath = `${this.basePath}/v2/events/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
         const url = new URL(apiPath);

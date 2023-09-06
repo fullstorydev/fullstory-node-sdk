@@ -35,7 +35,8 @@ export class EventsApi {
      * @summary Create Events
      * @param body
     */
-    public async createEvents(body: CreateEventsRequest, options?: FSRequestOptions): Promise<FSResponse<void>> {
+    public async createEvents(request: { body: CreateEventsRequest,  }, options?: FSRequestOptions): Promise<FSResponse<void>> {
+        const { body,  } = request;
         const apiPath = `${this.basePath}/v2/events`;
         const url = new URL(apiPath);
 

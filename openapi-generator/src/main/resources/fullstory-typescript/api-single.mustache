@@ -50,7 +50,8 @@ export class {{classname}} {
      {{/allParams}}
      {{! TODO(sabrina): @throws error }}
     */
-    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+    public async {{nickname}}(request: { {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}} }, options?: FSRequestOptions): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+        {{#allParams.0}}const { {{#allParams}}{{paramName}}, {{/allParams}} } = request;{{/allParams.0}}
         const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
             .replace('{' + '{{baseName}}' + '}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
         const url = new URL(apiPath);
