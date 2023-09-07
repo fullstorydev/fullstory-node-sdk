@@ -24,7 +24,7 @@
     "/v2/events": {
       "post": {
         "summary": "Create Events",
-        "description": "Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates one event with the specified details.",
         "operationId": "CreateEvents",
         "responses": {
           "200": {
@@ -102,6 +102,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -113,7 +120,7 @@
     "/v2/events/batch": {
       "post": {
         "summary": "Create Events Batch Import",
-        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a batch events import job with the given list of event information.",
         "operationId": "CreateBatchEventsImportJob",
         "responses": {
           "200": {
@@ -192,6 +199,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for marking the request to be idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -500,7 +514,7 @@
     "/v2beta/events": {
       "post": {
         "summary": "Create Events",
-        "description": "Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates one event with the specified details.",
         "operationId": "CreateEvents2",
         "responses": {
           "200": {
@@ -578,6 +592,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -589,7 +610,7 @@
     "/v2beta/events/batch": {
       "post": {
         "summary": "Create Events Batch Import",
-        "description": "Creates a batch events import job with the given list of event information.\n\nThe maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a batch events import job with the given list of event information.",
         "operationId": "CreateBatchEventsImportJob2",
         "responses": {
           "200": {
@@ -668,6 +689,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.events.CreateBatchEventsImportJobRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for marking the request to be idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -999,30 +1027,6 @@
     },
     "fullstory.v2.events.BatchCreateEventsResponse": {
       "type": "object",
-      "example": {
-        "user": {
-          "uid": "xyz123",
-          "id": "123456789"
-        },
-        "session": {
-          "id": "123456"
-        },
-        "context": {
-          "browser": {
-            "url": "https://store.mondaymorning.com",
-            "user_agent": "square/pos",
-            "initial_referrer": ""
-          }
-        },
-        "name": "Support Ticket",
-        "timestamp": "2022-03-15T14:23:23Z",
-        "properties": {
-          "id": 424242,
-          "priority": "Normal",
-          "source": "Email",
-          "title": "Account locked out"
-        }
-      },
       "properties": {
         "user": {
           "$ref": "#/definitions/fullstory.v2.events.UserIdResponse"
@@ -1035,20 +1039,29 @@
         },
         "name": {
           "type": "string",
+          "example": "Support Ticket",
           "description": "The event's name."
         },
         "timestamp": {
           "type": "string",
-          "format": "date-time",
-          "description": "Optional. The event's timestamp, defaults to current time."
+          "format": "ISO 8601 string",
+          "example": "2022-03-15T14:23:23Z",
+          "description": "Optional. The event's timestamp represented in ISO 8601 format. If not provided, the current FullStory server time will be used."
         },
         "properties": {
           "type": "object",
+          "example": {
+            "id": 424242,
+            "priority": "Normal",
+            "source": "Email",
+            "title": "Account locked out"
+          },
           "description": "Optional. The custom event's payload."
         },
         "schema": {
           "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
+          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "Server response for created events",
@@ -1058,99 +1071,45 @@
     },
     "fullstory.v2.events.BrowserContext": {
       "type": "object",
-      "example": {
-        "url": "https://app.example.com",
-        "initial_referrer": "https://referrer.example.com",
-        "user_agent": "Example Browser User Agent"
-      },
       "properties": {
         "url": {
-          "type": "string"
+          "type": "string",
+          "example": "https://app.example.com"
         },
         "user_agent": {
-          "type": "string"
+          "type": "string",
+          "example": "Example_User_Agent"
         },
         "initial_referrer": {
-          "type": "string"
+          "type": "string",
+          "example": "https://referrer.example.com"
         }
       },
       "description": "The browser context in which the events are attached to."
     },
     "fullstory.v2.events.Context": {
       "type": "object",
-      "example": {
-        "browser": {
-          "url": "https://example.com"
-        },
-        "location": {
-          "ip_address": "127.0.0.1"
-        }
-      },
       "properties": {
         "browser": {
           "$ref": "#/definitions/fullstory.v2.events.BrowserContext"
         },
         "mobile": {
-          "$ref": "#/definitions/fullstory.v2.events.MobileContext"
+          "$ref": "#/definitions/fullstory.v2.events.MobileContext",
+          "x-fullstory-doc-example-ignore": true
         },
         "device": {
-          "$ref": "#/definitions/fullstory.v2.events.DeviceContext"
+          "$ref": "#/definitions/fullstory.v2.events.DeviceContext",
+          "x-fullstory-doc-example-ignore": true
         },
         "location": {
-          "$ref": "#/definitions/fullstory.v2.events.LocationContext"
+          "$ref": "#/definitions/fullstory.v2.events.LocationContext",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "The context in which the events are attached to."
     },
     "fullstory.v2.events.CreateBatchEventsImportJobRequest": {
       "type": "object",
-      "example": {
-        "requests": [
-          {
-            "session": {
-              "id": "123:456"
-            },
-            "context": {
-              "browser": {
-                "url": "https://store.mondaymorning.com",
-                "user_agent": "square/pos",
-                "initial_referrer": ""
-              }
-            },
-            "name": "Support Ticket",
-            "timestamp": "2022-03-15T14:23:23Z",
-            "properties": {
-              "id": 424242,
-              "priority": "Normal",
-              "source": "Email",
-              "title": "Account locked out"
-            }
-          },
-          {
-            "user": {
-              "uid": "xyz1234"
-            },
-            "session": {
-              "use_most_recent": true
-            },
-            "context": {
-              "browser": {
-                "url": "https://store.mondaymorning.com",
-                "user_agent": "square/pos",
-                "initial_referrer": ""
-              }
-            },
-            "name": "Support Ticket",
-            "timestamp": "2022-03-15T14:24:23Z",
-            "properties": {
-              "id": 424243,
-              "priority": "Normal",
-              "source": "Email",
-              "title": "Account locked out"
-            }
-          }
-        ]
-      },
       "properties": {
         "requests": {
           "type": "array",
@@ -1160,7 +1119,9 @@
           "description": "The list of event requests that should be imported"
         },
         "shared": {
-          "$ref": "#/definitions/fullstory.v2.events.SharedData"
+          "$ref": "#/definitions/fullstory.v2.events.SharedData",
+          "description": "If there is any `shared` data from the original import request that may have caused conflict with data from within this event.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "The request payloads contains the list of events to be imported",
@@ -1170,14 +1131,6 @@
     },
     "fullstory.v2.events.CreateBatchEventsImportJobResponse": {
       "type": "object",
-      "example": {
-        "job": {
-          "id": "abc123=",
-          "status": "PROCESSING",
-          "created": "2019-04-18T14:36:11.123Z",
-          "finished": null
-        }
-      },
       "properties": {
         "job": {
           "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
@@ -1190,29 +1143,10 @@
     },
     "fullstory.v2.events.CreateEventsRequest": {
       "type": "object",
-      "example": {
-        "session": {
-          "id": "123:456"
-        },
-        "context": {
-          "browser": {
-            "url": "https://store.mondaymorning.com",
-            "user_agent": "square/pos",
-            "initial_referrer": ""
-          }
-        },
-        "name": "Support Ticket",
-        "timestamp": "2022-03-15T14:23:23Z",
-        "properties": {
-          "id": 424242,
-          "priority": "Normal",
-          "source": "Email",
-          "title": "Account locked out"
-        }
-      },
       "properties": {
         "user": {
-          "$ref": "#/definitions/fullstory.v2.events.UserIdRequest"
+          "$ref": "#/definitions/fullstory.v2.events.UserIdRequest",
+          "x-fullstory-doc-example-ignore": true
         },
         "session": {
           "$ref": "#/definitions/fullstory.v2.events.SessionIdRequest"
@@ -1222,20 +1156,29 @@
         },
         "name": {
           "type": "string",
+          "example": "Support Ticket",
           "description": "The event's name."
         },
         "timestamp": {
           "type": "string",
-          "format": "date-time",
-          "description": "Optional. The event's timestamp, if not provided, defaults to current time. It is recommended to always set the timestamp."
+          "format": "ISO 8601 string",
+          "example": "2022-03-15T14:23:23Z",
+          "description": "Optional. The event's timestamp represented in ISO 8601 format. If not provided, the current FullStory server time will be used. It is recommended to always set the timestamp."
         },
         "properties": {
           "type": "object",
+          "example": {
+            "id": 424242,
+            "priority": "Normal",
+            "source": "Email",
+            "title": "Account locked out"
+          },
           "description": "Optional. The custom event's payload."
         },
         "schema": {
           "$ref": "#/definitions/fullstory.v2.varsapi.Schema",
-          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference."
+          "description": "Optional. Schema declaration, to define the structure of the data, the schema will override FullStory's default type inference.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "required": [
@@ -1247,12 +1190,10 @@
     },
     "fullstory.v2.events.DeviceContext": {
       "type": "object",
-      "example": {
-        "manufacturer": "Device Manufacturer"
-      },
       "properties": {
         "manufacturer": {
-          "type": "string"
+          "type": "string",
+          "example": "Device Manufacturer"
         },
         "model": {
           "type": "string"
@@ -1278,40 +1219,6 @@
     },
     "fullstory.v2.events.GetBatchEventsImportErrorsResponse": {
       "type": "object",
-      "example": {
-        "results": [
-          {
-            "message": "time stamp out of range",
-            "code": "event_validation_failed",
-            "event": {
-              "user": {
-                "uid": "xyz123",
-                "id": "123456789"
-              },
-              "session": {
-                "use_most_recent": true
-              },
-              "context": {
-                "browser": {
-                  "url": "https://store.mondaymorning.com",
-                  "user_agent": "square/pos",
-                  "initial_referrer": ""
-                }
-              },
-              "name": "Support Ticket",
-              "timestamp": "2012-03-15T14:23:23Z",
-              "properties": {
-                "id": 424242,
-                "priority": "Normal",
-                "source": "Email",
-                "title": "Account locked out"
-              }
-            }
-          }
-        ],
-        "total_records": "98",
-        "next_page_token": "asd543"
-      },
       "properties": {
         "results": {
           "type": "array",
@@ -1333,34 +1240,6 @@
     },
     "fullstory.v2.events.GetBatchEventsImportErrorsResponse.FailedEventsImport": {
       "type": "object",
-      "example": {
-        "message": "time stamp out of range",
-        "code": "event_validation_failed",
-        "event": {
-          "user": {
-            "uid": "xyz123",
-            "id": "123456789"
-          },
-          "session": {
-            "use_most_recent": true
-          },
-          "context": {
-            "browser": {
-              "url": "https://store.mondaymorning.com",
-              "user_agent": "square/pos",
-              "initial_referrer": ""
-            }
-          },
-          "name": "Support Ticket",
-          "timestamp": "2012-03-15T14:23:23Z",
-          "properties": {
-            "id": 424242,
-            "priority": "Normal",
-            "source": "Email",
-            "title": "Account locked out"
-          }
-        }
-      },
       "properties": {
         "message": {
           "type": "string",
@@ -1376,43 +1255,14 @@
         },
         "shared": {
           "$ref": "#/definitions/fullstory.v2.events.SharedData",
-          "description": "If there is any `shared` data from the original import request that may have caused conflict with data from within this event."
+          "description": "If there is any `shared` data from the original import request that may have caused conflict with data from within this event.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "Server response for failed batch events"
     },
     "fullstory.v2.events.GetBatchEventsImportsResponse": {
       "type": "object",
-      "example": {
-        "results": [
-          {
-            "user": {
-              "uid": "xyz123",
-              "id": "123456789"
-            },
-            "session": {
-              "id": "123456"
-            },
-            "context": {
-              "browser": {
-                "url": "https://store.mondaymorning.com",
-                "user_agent": "square/pos",
-                "initial_referrer": ""
-              }
-            },
-            "name": "Support Ticket",
-            "timestamp": "2022-03-15T14:23:23Z",
-            "properties": {
-              "id": 424242,
-              "priority": "Normal",
-              "source": "Email",
-              "title": "Account locked out"
-            }
-          }
-        ],
-        "total_records": "98",
-        "next_page_token": "asd543"
-      },
       "properties": {
         "results": {
           "type": "array",
@@ -1423,10 +1273,12 @@
         },
         "total_records": {
           "type": "string",
+          "example": 98,
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
           "type": "string",
+          "example": "asd543=",
           "description": "The token that can be used in a subsequent request to fetch the next page of import results"
         }
       },
@@ -1434,23 +1286,20 @@
     },
     "fullstory.v2.events.LocationContext": {
       "type": "object",
-      "example": {
-        "country": "US",
-        "region": "US",
-        "city": "Atlanta",
-        "ip_address": "127.0.0.1"
-      },
       "properties": {
         "country": {
           "type": "string",
+          "example": "US",
           "description": "ISO 3166-1 alpha-2 standard country code."
         },
         "region": {
           "type": "string",
+          "example": "GA",
           "description": "ISO-3166-2 standard region code."
         },
         "city": {
           "type": "string",
+          "example": "Atlanta",
           "description": "Name of the city."
         },
         "latitude": {
@@ -1462,27 +1311,26 @@
           "format": "double"
         },
         "ip_address": {
-          "type": "string"
+          "type": "string",
+          "example": "127.0.0.1"
         }
       },
       "description": "The location context in which the events are attached to."
     },
     "fullstory.v2.events.MobileContext": {
       "type": "object",
-      "example": {
-        "app_id": "com.company.example",
-        "app_name": "example app",
-        "app_version": "1.0.0"
-      },
       "properties": {
         "app_id": {
-          "type": "string"
+          "type": "string",
+          "example": "com.company.example"
         },
         "app_version": {
-          "type": "string"
+          "type": "string",
+          "example": "1.0.0"
         },
         "app_name": {
-          "type": "string"
+          "type": "string",
+          "example": "example app"
         },
         "build_variant": {
           "type": "string"
@@ -1492,29 +1340,27 @@
     },
     "fullstory.v2.events.SessionIdRequest": {
       "type": "object",
-      "example": {
-        "id": "123:456"
-      },
       "properties": {
         "id": {
           "type": "string",
+          "example": "123456789:123456789",
           "description": "The FullStory generated identifier for the session to associate the event with."
         },
         "use_most_recent": {
           "type": "boolean",
-          "description": "Associate events with the most recent session captured from the user.\n\nIf set to `true`, a `user` is required. The user must have a session within the past 30 minutes, otherwise the events will be created for the user without a session.\n\nIt is recommended to use `session.id` instead, when creating events for a specific session."
+          "example": true,
+          "description": "Associate events with the most recent session captured from the user.\n\nIf set to `true`, a `user` is required. The user must have a session within the past 30 minutes, otherwise the events will be created for the user without a session.\n\nIt is recommended to use `session.id` instead, when creating events for a specific session.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "The session identifier."
     },
     "fullstory.v2.events.SessionIdResponse": {
       "type": "object",
-      "example": {
-        "id": "123456"
-      },
       "properties": {
         "id": {
           "type": "string",
+          "example": "123456789:123456789",
           "description": "The FullStory generated identifier for the session to associate the event with."
         }
       },
@@ -1522,15 +1368,6 @@
     },
     "fullstory.v2.events.SharedData": {
       "type": "object",
-      "example": {
-        "context": {
-          "browser": {
-            "url": "https://store.mondaymorning.com",
-            "user_agent": "square/pos",
-            "initial_referrer": ""
-          }
-        }
-      },
       "properties": {
         "context": {
           "$ref": "#/definitions/fullstory.v2.events.Context"
@@ -1540,34 +1377,31 @@
     },
     "fullstory.v2.events.UserIdRequest": {
       "type": "object",
-      "example": {
-        "id": "123456789"
-      },
       "properties": {
         "uid": {
           "type": "string",
+          "example": "xyz123",
           "description": "The application-specific ID you've given to the user.",
           "maxLength": 256
         },
         "id": {
           "type": "string",
-          "description": "The FullStory assigned user ID."
+          "example": "123456789",
+          "description": "The FullStory-assigned user ID. This value is returned in a `POST /v2/users` (create user) response."
         }
       },
       "description": "The user identifier.\n\nIf `session.id` is provided, the `session.id` is enough to identify a session for which to create the event, and `user` will not be accepted.\n\nIf `session.use_most_recent` is set to `true`, one and only one`user` field is required."
     },
     "fullstory.v2.events.UserIdResponse": {
       "type": "object",
-      "example": {
-        "uid": "xyz123",
-        "id": "123456789"
-      },
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "example": "123456789"
         },
         "uid": {
-          "type": "string"
+          "type": "string",
+          "example": "xyz123"
         }
       },
       "description": "The user identifier"
