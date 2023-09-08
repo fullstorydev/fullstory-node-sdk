@@ -12,7 +12,7 @@ import { RequestOptions } from 'node:https';
 
 import { JobStatusResponse , CreateBatchUserImportJobRequest , GetBatchUserImportsResponse , GetBatchUserImportErrorsResponse , CreateBatchUserImportJobResponse , ErrorResponse } from '@model/index';
 
-import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
+import { FSHttpClientImpl, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
 
 export class UsersBatchImportApi {
@@ -35,7 +35,7 @@ export class UsersBatchImportApi {
      * @summary Create Batch Import
      * @param body
     */
-    public async createBatchUserImportJob(request: { body: CreateBatchUserImportJobRequest,  }, options?: FSRequestOptions): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
+    public async createBatchUserImportJob(request: { body: CreateBatchUserImportJobRequest,  }): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
         const { body,  } = request;
         const apiPath = `${this.basePath}/v2/users/batch`;
         const url = new URL(apiPath);
@@ -63,7 +63,7 @@ export class UsersBatchImportApi {
         };
 
         try {
-            return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body, options);
+            return await this.httpClient.request<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse>(requestOptions, body);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
@@ -77,7 +77,7 @@ export class UsersBatchImportApi {
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param pageToken The token that can be used in a request to fetch the next page of results
     */
-    public async getBatchUserImportErrors(request: { jobId: string, pageToken?: string,  }, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
+    public async getBatchUserImportErrors(request: { jobId: string, pageToken?: string,  }): Promise<FSResponse<GetBatchUserImportErrorsResponse>> {
         const { jobId, pageToken,  } = request;
         const apiPath = `${this.basePath}/v2/users/batch/{job_id}/errors`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
@@ -101,7 +101,7 @@ export class UsersBatchImportApi {
         };
 
         try {
-            return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined, options);
+            return await this.httpClient.request<void, GetBatchUserImportErrorsResponse>(requestOptions, undefined);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
@@ -114,7 +114,7 @@ export class UsersBatchImportApi {
      * @summary Get Batch Import Job Details
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
     */
-    public async getBatchUserImportStatus(request: { jobId: string,  }, options?: FSRequestOptions): Promise<FSResponse<JobStatusResponse>> {
+    public async getBatchUserImportStatus(request: { jobId: string,  }): Promise<FSResponse<JobStatusResponse>> {
         const { jobId,  } = request;
         const apiPath = `${this.basePath}/v2/users/batch/{job_id}`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
@@ -135,7 +135,7 @@ export class UsersBatchImportApi {
         };
 
         try {
-            return await this.httpClient.request<void, JobStatusResponse>(requestOptions, undefined, options);
+            return await this.httpClient.request<void, JobStatusResponse>(requestOptions, undefined);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error
@@ -150,7 +150,7 @@ export class UsersBatchImportApi {
      * @param pageToken The token that can be used in a request to fetch the next page of results
      * @param includeSchema Whether to include schemas in the response.
     */
-    public async getBatchUserImports(request: { jobId: string, pageToken?: string, includeSchema?: boolean,  }, options?: FSRequestOptions): Promise<FSResponse<GetBatchUserImportsResponse>> {
+    public async getBatchUserImports(request: { jobId: string, pageToken?: string, includeSchema?: boolean,  }): Promise<FSResponse<GetBatchUserImportsResponse>> {
         const { jobId, pageToken, includeSchema,  } = request;
         const apiPath = `${this.basePath}/v2/users/batch/{job_id}/imports`
             .replace('{' + 'job_id' + '}', encodeURIComponent(String(jobId)));
@@ -177,7 +177,7 @@ export class UsersBatchImportApi {
         };
 
         try {
-            return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined, options);
+            return await this.httpClient.request<void, GetBatchUserImportsResponse>(requestOptions, undefined);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error

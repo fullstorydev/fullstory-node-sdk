@@ -48,7 +48,6 @@ describe('FullStory Events API', () => {
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'POST', '', expectedHeaders),
             createReq,
-            undefined
         );
         await expect(event).resolves.toEqual({
             httpStatusCode: 200,
@@ -56,12 +55,11 @@ describe('FullStory Events API', () => {
         });
 
         // idempotency key is passed as header
-        events.createEvents({ body: createReq }, { idempotencyKey: MOCK_IDEMPOTENCY_KEY });
+        events.createEvents({ body: createReq });
         expect(mockRequest).toHaveBeenLastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'POST', '', expectedHeaders),
             createReq,
-            { 'idempotencyKey': 'MOCK_IDEMPOTENCY_KEY' }
         );
     });
 });
@@ -104,7 +102,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
             mockReq,
-            undefined
         );
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
@@ -112,11 +109,10 @@ describe('FullStory Batch Events API', () => {
         });
 
         // verify headers
-        batchEvents.createBatchEventsImportJob({ body: mockReq }, { idempotencyKey: MOCK_IDEMPOTENCY_KEY });
+        batchEvents.createBatchEventsImportJob({ body: mockReq });
         expect(mockRequest).toHaveBeenLastCalledWith(
             makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
-            mockReq,
-            { 'idempotencyKey': 'MOCK_IDEMPOTENCY_KEY', }
+            mockReq
         );
     });
 
@@ -141,7 +137,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -168,7 +163,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -195,7 +189,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?page_token=t123'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -222,7 +215,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?include_schema=true'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -256,7 +248,6 @@ describe('FullStory Batch Events API', () => {
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?page_token=page_token'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
