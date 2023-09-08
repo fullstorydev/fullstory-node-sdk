@@ -5,6 +5,7 @@ export interface FSRequestOptions {
     /** An optional Integration-Source string denoting the origin of the requests. */
     readonly integrationSource?: string;
 
+    // TODO(sabrina): move idempotencyKey to header parameters instead
     /** An optional per-request Idempotency-Key string to be passed as a header
      * to kae non-idempotent HTTP methods such as POST or PATCH idempotent.
      * Please see FullStory's developer doc for methods available and more information */

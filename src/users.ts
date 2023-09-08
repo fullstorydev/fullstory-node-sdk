@@ -3,7 +3,7 @@ import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJ
 
 import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSInvalidArgumentError } from './errors/invalidArgument';
-import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
+import { FSResponse, FullStoryOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -19,7 +19,7 @@ export interface UsersApi {
 
     list(...req: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>>;
 
-    delete(request: { id?: string, uid?: string; }, options?: FSRequestOptions): Promise<FSResponse<void>>;
+    delete(request: { id?: string, uid?: string; }): Promise<FSResponse<void>>;
 
     update(...req: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>>;
 }
@@ -38,7 +38,6 @@ export interface BatchUsersApi {
             includeSchema?: boolean,
         },
         jobOptions?: BatchJobOptions,
-        reqOptions?: FSRequestOptions,
     ): BatchUsersJob;
 }
 
@@ -71,7 +70,7 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
     }
 
     async requestCreateJob(request: { body: CreateBatchUserImportJobRequest, idempotencyKey?: string; }): Promise<CreateBatchUserImportJobResponse> {
-        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request, this.fsOpts);
+        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request);
         // make sure job metadata and id exist
         const job = rsp.body;
         if (!job?.job?.id) {
@@ -81,7 +80,7 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
     }
 
     async requestImports(jobId: string, pageToken?: string): Promise<GetBatchUserImportsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImports({ jobId, pageToken, includeSchema: this.includeSchema }, this.fsOpts);
+        const res = await this.batchUsersImpl.getBatchUserImports({ jobId, pageToken, includeSchema: this.includeSchema });
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any expected body');
@@ -90,7 +89,7 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
     }
 
     async requestImportErrors(jobId: string, pageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImportErrors({ jobId, pageToken }, this.fsOpts);
+        const res = await this.batchUsersImpl.getBatchUserImportErrors({ jobId, pageToken });
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any results');
@@ -99,7 +98,7 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
     }
 
     async requestJobStatus(jobId: string): Promise<JobStatusResponse> {
-        const rsp = await this.batchUsersImpl.getBatchUserImportStatus({ jobId }, this.fsOpts);
+        const rsp = await this.batchUsersImpl.getBatchUserImportStatus({ jobId });
         const body = rsp.body;
         if (!body) {
             throw new Error('API did not response with any results');
@@ -120,34 +119,34 @@ export class UsersImpl implements Users {
     }
 
     //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
-    async get(request: { id: string, includeSchema?: boolean; }, options?: FSRequestOptions): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(request, options);
+    async get(request: { id: string, includeSchema?: boolean; }): Promise<FSResponse<GetUserResponse>> {
+        return this.usersImpl.getUser(request);
     }
 
-    async create(request: { body: CreateUserRequest; }, options?: FSRequestOptions): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(request, options);
+    async create(request: { body: CreateUserRequest; }): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(request);
     }
 
-    async list(request: { uid?: string | undefined, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean; }, options?: FSRequestOptions): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(request, options);
+    async list(request: { uid?: string | undefined, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean; }): Promise<FSResponse<ListUsersResponse>> {
+        return this.usersImpl.listUsers(request);
     }
 
-    async delete(request: { id?: string, uid?: string; }, options?: FSRequestOptions): Promise<FSResponse<void>> {
+    async delete(request: { id?: string, uid?: string; }): Promise<FSResponse<void>> {
         const { id, uid } = request;
         if (id && !uid) {
-            return this.usersImpl.deleteUser({ id }, options);
+            return this.usersImpl.deleteUser({ id });
         }
         if (uid && !id) {
-            return this.usersImpl.deleteUserByUid({ uid }, options);
+            return this.usersImpl.deleteUserByUid({ uid });
         }
         throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
-    async update(request: { id: string, body: UpdateUserRequest; }, options?: FSRequestOptions): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(request, options);
+    async update(request: { id: string, body: UpdateUserRequest; }): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(request);
     }
 
-    batchCreate(request: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions, reqOptions?: FSRequestOptions): BatchUsersJob {
-        return new BatchUsersJobImpl({ ...this.opts, ...reqOptions }, request.body, jobOptions, request.includeSchema);
+    batchCreate(request: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchUsersJob {
+        return new BatchUsersJobImpl(this.opts, request.body, jobOptions, request.includeSchema);
     }
 }

@@ -1,6 +1,7 @@
 
 
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import Module from 'module';
 
 import { CreateBatchEventsImportJobRequest, CreateEventsRequest, init, JobStatus } from '..';
 
@@ -15,7 +16,7 @@ const mockJobImports = jest.fn();
 const mockJobErrors = jest.fn();
 jest.mock('@api/index', () => {
     return {
-        ...jest.createMockFromModule<any>('@api/index'),
+        ...jest.createMockFromModule<Module>('@api/index'),
         // so we can spy on "request"
         EventsApi: class {
             createEvents = mockRequest;
@@ -52,21 +53,16 @@ describe('FullStory Events API', () => {
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             { body: createReq },
-            { apiKey: 'Basic MOCK_API_KEY' },
         );
         await expect(event1).resolves.toEqual({
             httpStatusCode: 200,
             body: {},
         });
 
-        const event2 = events.create({ body: createReq }, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
+        const event2 = events.create({ body: createReq });
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             { body: createReq },
-            {
-                apiKey: 'Basic MOCK_API_KEY',
-                idempotencyKey: MOCK_IDEMPOTENT_KEY
-            },
         );
         await expect(event2).resolves.toEqual({
             httpStatusCode: 200,
@@ -103,12 +99,10 @@ describe('FullStory Events API', () => {
         job.on('done', () => {
             expect(mockJobCreate).toHaveBeenLastCalledWith(
                 { body: createJobReq },
-                { apiKey: 'Basic ' + MOCK_API_KEY }
             );
 
             expect(mockJobStatus).toHaveBeenLastCalledWith(
                 { jobId: MOCK_JOB_ID },
-                { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             done();
         });
@@ -137,17 +131,15 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 }, {});
+        const job = events.batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 });
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
             expect(mockJobCreate).toBeCalledWith(
                 { body: createJobReq },
-                { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             expect(mockJobStatus).toBeCalledWith(
                 { jobId: MOCK_JOB_ID },
-                { apiKey: 'Basic ' + MOCK_API_KEY }
             );
             done();
         });
@@ -176,17 +168,15 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate({ body: createJobReq }, {}, { idempotencyKey: MOCK_IDEMPOTENT_KEY });
+        const job = events.batchCreate({ body: createJobReq }, {});
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
             expect(mockJobStatus).toHaveBeenLastCalledWith(
                 { jobId: MOCK_JOB_ID },
-                { apiKey: 'Basic ' + MOCK_API_KEY, idempotencyKey: MOCK_IDEMPOTENT_KEY }
             );
             expect(mockJobCreate).toHaveBeenLastCalledWith(
                 { body: createJobReq },
-                { apiKey: 'Basic ' + MOCK_API_KEY, idempotencyKey: MOCK_IDEMPOTENT_KEY }
             );
             done();
         });

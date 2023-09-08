@@ -44,7 +44,7 @@ describe('FullStory Users API', () => {
         };
 
         // Create User
-        const created = await users.create({ body: createReq }, { idempotencyKey: 'test_client_sdk_create_user_1_' + uidSuffix });
+        const created = await users.create({ body: createReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
