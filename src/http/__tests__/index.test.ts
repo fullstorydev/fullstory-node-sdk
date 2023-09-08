@@ -56,7 +56,7 @@ describe('FSHttpClient', () => {
             return JSON.stringify(mockReply);
         });
 
-        const promise = client.request<any, GetUserResponse>(mockReqOpts, mockBody);
+        const promise = client.request<unknown, GetUserResponse>(mockReqOpts, mockBody);
         await expect(promise).resolves.toEqual({
             httpStatusCode: 200,
             httpHeaders: {},
@@ -139,7 +139,7 @@ describe('FSHttpClient', () => {
             .matchHeader('Idempotency-Key', MOCK_IDEMPOTENCY_KEY)
             .matchHeader('Integration-Source', MOCK_INTEGRATION_SOURCE);
 
-        const promise = client.request<any, GetUserResponse>(mockReqOpts, mockBody, { idempotencyKey: MOCK_IDEMPOTENCY_KEY, integrationSource: MOCK_INTEGRATION_SOURCE });
+        const promise = client.request<unknown, GetUserResponse>(mockReqOpts, mockBody, { idempotencyKey: MOCK_IDEMPOTENCY_KEY, integrationSource: MOCK_INTEGRATION_SOURCE });
         await expect(promise).resolves.toEqual({
             httpStatusCode: 200,
             httpHeaders: {},
