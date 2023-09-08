@@ -7,7 +7,7 @@ import { CreateBatchEventsImportJobRequest, CreateEventsRequest, init, JobStatus
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const MOCK_JOB_ID = 'MOCK_JOB_ID';
-const MOCK_IDEMPOTENT_KEY = 'MOCK_IDEMPOTENT_KEY';
+const MOCK_INTEGRATION_SOURCE = 'MOCK_INTEGRATION_SOURCE';
 
 const mockRequest = jest.fn();
 const mockJobCreate = jest.fn();
@@ -40,6 +40,18 @@ describe('FullStory Events API', () => {
         apiKey: MOCK_API_KEY,
     });
 
+    test('events have the right API key', () => {
+        expect(events).toHaveProperty('opts', { 'apiKey': 'Basic ' + MOCK_API_KEY });
+    });
+
+    test('events withOptions has the right options', () => {
+        expect(events).toHaveProperty('opts', { 'apiKey': 'Basic ' + MOCK_API_KEY });
+        const eventsWithOptions = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE });
+        expect(eventsWithOptions).toHaveProperty('opts', { 'apiKey': 'Basic ' + MOCK_API_KEY, integrationSource: MOCK_INTEGRATION_SOURCE });
+        // original events has not been modified
+        expect(events).toHaveProperty('opts', { 'apiKey': 'Basic ' + MOCK_API_KEY });
+    });
+
     test('create single event success', async () => {
         const createReq: CreateEventsRequest = {
             name: 'nodejs-sdk-event-1',
@@ -50,7 +62,7 @@ describe('FullStory Events API', () => {
         });
 
         const event1 = events.create({ body: createReq });
-        expect(mockRequest).toBeCalledWith(
+        expect(mockRequest).lastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             { body: createReq },
         );
@@ -59,8 +71,8 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const event2 = events.create({ body: createReq });
-        expect(mockRequest).toBeCalledWith(
+        const event2 = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).create({ body: createReq });
+        expect(mockRequest).lastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             { body: createReq },
         );
@@ -110,7 +122,7 @@ describe('FullStory Events API', () => {
         job.execute();
     });
 
-    test('batch event success with job options', (done) => {
+    test('batch event success with job and request options', (done) => {
         const createJobReq: CreateBatchEventsImportJobRequest = {
             requests: [{ name: 'nodejs-sdk-event-2', }]
         };
@@ -131,7 +143,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 });
+        const job = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 });
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
@@ -140,43 +152,6 @@ describe('FullStory Events API', () => {
             );
             expect(mockJobStatus).toBeCalledWith(
                 { jobId: MOCK_JOB_ID },
-            );
-            done();
-        });
-
-        job.execute();
-    });
-
-    test('batch event success with job AND request options', (done) => {
-        const createJobReq: CreateBatchEventsImportJobRequest = {
-            requests: [{ name: 'nodejs-sdk-event-2', }]
-        };
-        mockJobCreate.mockReturnValue({
-            httpStatusCode: 200,
-            body: { job: { id: MOCK_JOB_ID } },
-        });
-        mockJobStatus.mockReturnValue({
-            httpStatusCode: 200,
-            body: { job: { id: MOCK_JOB_ID, status: JobStatus.Completed } },
-        });
-        mockJobImports.mockReturnValue({
-            httpStatusCode: 200,
-            body: {},
-        });
-        mockJobErrors.mockReturnValue({
-            httpStatusCode: 200,
-            body: {},
-        });
-
-        const job = events.batchCreate({ body: createJobReq }, {});
-        expect(mockJobCreate).toBeCalledTimes(0);
-
-        job.on('done', () => {
-            expect(mockJobStatus).toHaveBeenLastCalledWith(
-                { jobId: MOCK_JOB_ID },
-            );
-            expect(mockJobCreate).toHaveBeenLastCalledWith(
-                { body: createJobReq },
             );
             done();
         });

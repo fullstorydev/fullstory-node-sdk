@@ -18,3 +18,7 @@ export interface FSRequestOptions {
 export interface FullStoryOptions extends FSRequestOptions {
     readonly apiKey: string;
 }
+
+export interface WithOptions<T> {
+    withOptions(opts: Partial<FullStoryOptions>): T;
+}

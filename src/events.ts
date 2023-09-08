@@ -2,7 +2,7 @@ import { EventsApi as FSEventsApi, EventsBatchImportApi as FSBatchEventsApi } fr
 import { BatchCreateEventsResponse, CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, FailedEventsImport, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatusResponse } from '@model/index';
 
 import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
-import { FSResponse, FullStoryOptions } from './http';
+import { FSResponse, FullStoryOptions, WithOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -38,7 +38,7 @@ export interface BatchEventsApi {
 export type BatchEventsJob = BatchJob<CreateBatchEventsImportJobRequest, CreateEventsRequest, BatchCreateEventsResponse, FailedEventsImport>;
 
 /**
- * @interface IEvents - create or batch import events.
+ * @interface Events - create or batch import events.
 */
 export type Events = BatchEventsApi & EventsApi;
 
@@ -100,14 +100,17 @@ class BatchEventsRequesterImpl implements BatchEventRequester {
 }
 
 ////////////////////////////////////
-//  Exported User Interface
+//  Exported Event Interface
 ////////////////////////////////////
-
-export class EventsImpl implements Events {
+export class EventsImpl implements Events, WithOptions<Events> {
     protected readonly eventsImpl: FSEventsApi;
 
     constructor(private opts: FullStoryOptions) {
         this.eventsImpl = new FSEventsApi(opts);
+    }
+
+    withOptions(opts: Partial<FullStoryOptions>): Events {
+        return new EventsImpl({ ...this.opts, ...opts });
     }
 
     async create(request: { body: CreateEventsRequest; }): Promise<FSResponse<void>> {

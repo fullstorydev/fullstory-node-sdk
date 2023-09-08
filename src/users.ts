@@ -3,7 +3,7 @@ import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJ
 
 import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSInvalidArgumentError } from './errors/invalidArgument';
-import { FSResponse, FullStoryOptions } from './http';
+import { FSResponse, FullStoryOptions, WithOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -111,11 +111,15 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
 //  Exported User Interface
 ////////////////////////////////////
 
-export class UsersImpl implements Users {
+export class UsersImpl implements Users, WithOptions<Users> {
     protected readonly usersImpl: FSUsersApi;
 
     constructor(private opts: FullStoryOptions) {
         this.usersImpl = new FSUsersApi(opts);
+    }
+
+    withOptions(opts: Partial<FullStoryOptions>): Users {
+        return new UsersImpl({ ...this.opts, ...opts });
     }
 
     //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
