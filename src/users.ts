@@ -12,7 +12,7 @@ import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
 /**
  * @interface UsersApi - single CRUD operations for a user.
 */
-export interface UsersApi {
+interface UsersApi {
     get(...req: Parameters<typeof FSUsersApi.prototype.getUser>): Promise<FSResponse<GetUserResponse>>;
 
     create(...req: Parameters<typeof FSUsersApi.prototype.createUser>): Promise<FSResponse<CreateUserResponse>>;
@@ -31,7 +31,7 @@ export interface UsersApi {
 /**
  * @interface BatchUsersApi - batch import users.
 */
-export interface BatchUsersApi {
+interface BatchUsersApi {
     batchCreate(
         request?: CreateBatchUserImportJobRequest,
         jobOptions?: BatchJobOptions
