@@ -1,3 +1,4 @@
+import { FSInvalidArgumentError } from './errors/invalidArgument';
 import { Events, EventsImpl } from './events';
 import { FullStoryOptions, WithOptions } from './http';
 import { Users, UsersImpl } from './users';
@@ -15,4 +16,12 @@ export class FullStoryImpl implements FullStoryClient {
         this.users = new UsersImpl(opts);
         this.events = new EventsImpl(opts);
     }
+}
+
+export function init(opts: FullStoryOptions): FullStoryClient {
+    if (!opts.apiKey) {
+        throw new FSInvalidArgumentError('The apiKey is required in opts.');
+    }
+    const apiKey = opts.apiKey.indexOf(' ') < 0 ? `Basic ${opts.apiKey}` : opts.apiKey;
+    return new FullStoryImpl({ ...opts, apiKey });
 }
