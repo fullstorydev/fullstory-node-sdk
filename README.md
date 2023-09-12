@@ -306,7 +306,7 @@ Using `withOptions` will not modify the options initially provided, but returns 
   events.withOptions(options)..batchCreate(...);
   
   // the original options will not be modified
-  events..create(...); // will not use the idempotencyKey
+  events.create(...); // will not use the idempotencyKey
 ```
 
 #### Batch Job Options
