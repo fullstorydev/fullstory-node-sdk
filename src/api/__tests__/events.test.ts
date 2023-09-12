@@ -5,6 +5,7 @@ import { EventsApi, EventsBatchImportApi } from '..';
 import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
+const MOCK_IDEMPOTENCY_KEY = 'MOCK_IDEMPOTENCY_KEY';
 const basePath = '/v2/events';
 const expectedHeaders = { accept: 'application/json' };
 
@@ -42,19 +43,24 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const event = events.createEvents(createReq);
-
-        expect(mockRequest).toBeCalledWith(
+        const event = events.createEvents({ body: createReq });
+        expect(mockRequest).toHaveBeenLastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'POST', '', expectedHeaders),
             createReq,
-            undefined
         );
-
         await expect(event).resolves.toEqual({
             httpStatusCode: 200,
             body: {},
         });
+
+        // idempotency key is passed as header
+        events.createEvents({ body: createReq });
+        expect(mockRequest).toHaveBeenLastCalledWith(
+            // TODO(sabrina): find out why the accept headers is not passed for GETs
+            makeMockReq(basePath, 'POST', '', expectedHeaders),
+            createReq,
+        );
     });
 });
 
@@ -92,18 +98,22 @@ describe('FullStory Batch Events API', () => {
             body: mockJob,
         });
 
-        const job = batchEvents.createBatchEventsImportJob(mockReq);
-
+        const job = batchEvents.createBatchEventsImportJob({ body: mockReq });
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
             mockReq,
-            undefined
         );
-
         await expect(job).resolves.toEqual({
             httpStatusCode: 200,
             body: mockJob,
         });
+
+        // verify headers
+        batchEvents.createBatchEventsImportJob({ body: mockReq });
+        expect(mockRequest).toHaveBeenLastCalledWith(
+            makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
+            mockReq
+        );
     });
 
     test('get job status', async () => {
@@ -122,12 +132,11 @@ describe('FullStory Batch Events API', () => {
             body: mockJob,
         });
 
-        const job = batchEvents.getBatchEventsImportStatus('abcd1234');
+        const job = batchEvents.getBatchEventsImportStatus({ jobId: 'abcd1234' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -149,12 +158,11 @@ describe('FullStory Batch Events API', () => {
             body: mockRsp,
         });
 
-        const job = batchEvents.getBatchEventsImports('abcd1234');
+        const job = batchEvents.getBatchEventsImports({ jobId: 'abcd1234' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -176,12 +184,11 @@ describe('FullStory Batch Events API', () => {
             body: mockRsp,
         });
 
-        const job = batchEvents.getBatchEventsImports('abcd1234', 't123');
+        const job = batchEvents.getBatchEventsImports({ jobId: 'abcd1234', pageToken: 't123' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?page_token=t123'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -203,12 +210,11 @@ describe('FullStory Batch Events API', () => {
             body: mockRsp,
         });
 
-        const job = batchEvents.getBatchEventsImports('abcd1234', undefined, true);
+        const job = batchEvents.getBatchEventsImports({ jobId: 'abcd1234', includeSchema: true });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?include_schema=true'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -237,12 +243,11 @@ describe('FullStory Batch Events API', () => {
             body: mockJob,
         });
 
-        const job = batchEvents.getBatchEventsImportErrors('abcd1234', 'page_token');
+        const job = batchEvents.getBatchEventsImportErrors({ jobId: 'abcd1234', pageToken: 'page_token' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?page_token=page_token'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({

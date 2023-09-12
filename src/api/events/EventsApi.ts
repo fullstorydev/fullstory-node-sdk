@@ -12,7 +12,7 @@ import { RequestOptions } from 'node:https';
 
 import { CreateEventsRequest , ErrorResponse } from '@model/index';
 
-import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
+import { FSHttpClientImpl, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
 
 export class EventsApi {
@@ -35,7 +35,8 @@ export class EventsApi {
      * @summary Create Events
      * @param body
     */
-    public async createEvents(body: CreateEventsRequest, options?: FSRequestOptions): Promise<FSResponse<void>> {
+    public async createEvents(request: { body: CreateEventsRequest,  }): Promise<FSResponse<void>> {
+        const { body,  } = request;
         const apiPath = `${this.basePath}/v2/events`;
         const url = new URL(apiPath);
 
@@ -62,7 +63,7 @@ export class EventsApi {
         };
 
         try {
-            return await this.httpClient.request<CreateEventsRequest, void>(requestOptions, body, options);
+            return await this.httpClient.request<CreateEventsRequest, void>(requestOptions, body);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error

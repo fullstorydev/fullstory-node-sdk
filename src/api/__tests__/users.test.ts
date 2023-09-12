@@ -46,13 +46,12 @@ describe('FullStory Users API', () => {
             body: mockUser,
         });
 
-        const user = users.getUser('123123');
+        const user = users.getUser({ id: '123123' });
 
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'GET', '/123123'),
             undefined,
-            undefined
         );
 
         await expect(user).resolves.toEqual({
@@ -77,13 +76,12 @@ describe('FullStory Users API', () => {
             body: mockUser,
         });
 
-        const user = users.listUsers('test_user_1', 'test_user_1@test.com');
+        const user = users.listUsers({ uid: 'test_user_1', email: 'test_user_1@test.com' });
 
         expect(mockRequest).toBeCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'GET', '?uid=test_user_1&email=test_user_1%40test.com'),
             undefined,
-            undefined
         );
 
         await expect(user).resolves.toEqual({
@@ -104,12 +102,11 @@ describe('FullStory Users API', () => {
             body: mockUser,
         });
 
-        const user = users.createUser(mockReq);
+        const user = users.createUser({ body: mockReq });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'POST', '', expectedHeaders),
             mockReq,
-            undefined
         );
 
         await expect(user).resolves.toEqual({
@@ -134,12 +131,11 @@ describe('FullStory Users API', () => {
             body: mockUser,
         });
 
-        const user = users.updateUser('12341234', mockReq);
+        const user = users.updateUser({ id: '12341234', body: mockReq });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'POST', '/12341234', expectedHeaders),
             mockReq,
-            undefined
         );
 
         await expect(user).resolves.toEqual({
@@ -153,12 +149,11 @@ describe('FullStory Users API', () => {
             httpStatusCode: 200
         });
 
-        const user = users.deleteUser('12341234');
+        const user = users.deleteUser({ id: '12341234' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'DELETE', '/12341234'),
             undefined,
-            undefined
         );
         await expect(user).resolves.toHaveProperty('httpStatusCode', 200);
         await expect(user).resolves.not.toHaveProperty('body');
@@ -169,12 +164,11 @@ describe('FullStory Users API', () => {
             httpStatusCode: 200
         });
 
-        const user = users.deleteUserByUid('test-user-id-1');
+        const user = users.deleteUserByUid({ uid: 'test-user-id-1' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'DELETE', '?uid=test-user-id-1'),
             undefined,
-            undefined
         );
         await expect(user).resolves.toHaveProperty('httpStatusCode', 200);
         await expect(user).resolves.not.toHaveProperty('body');
@@ -191,7 +185,7 @@ describe('FullStory Users API', () => {
 
             expect.hasAssertions();
             try {
-                await users.createUser(mockReq);
+                await users.createUser({ body: mockReq });
             } catch (error) {
                 // root error survives
                 expect(error).toBeInstanceOf(FSUnknownError);
@@ -209,7 +203,7 @@ describe('FullStory Users API', () => {
 
             expect.hasAssertions();
             try {
-                await users.getUser('1');
+                await users.getUser({ id: '1' });
             } catch (error) {
                 // root error survives
                 expect(error).toBeInstanceOf(FSApiError);
@@ -245,12 +239,11 @@ describe('FullStory Batch Users API', () => {
             body: mockJob,
         });
 
-        const job = batchUsers.createBatchUserImportJob(mockReq);
+        const job = batchUsers.createBatchUserImportJob({ body: mockReq });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'POST', '/batch', expectedHeaders),
             mockReq,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -275,12 +268,11 @@ describe('FullStory Batch Users API', () => {
             body: mockJob,
         });
 
-        const job = batchUsers.getBatchUserImportStatus('abcd1234');
+        const job = batchUsers.getBatchUserImportStatus({ jobId: 'abcd1234' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -303,12 +295,11 @@ describe('FullStory Batch Users API', () => {
             body: mockRsp,
         });
 
-        const job = batchUsers.getBatchUserImports('abcd1234');
+        const job = batchUsers.getBatchUserImports({ jobId: 'abcd1234' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -331,12 +322,11 @@ describe('FullStory Batch Users API', () => {
             body: mockRsp,
         });
 
-        const job = batchUsers.getBatchUserImports('abcd1234', undefined, true);
+        const job = batchUsers.getBatchUserImports({ jobId: 'abcd1234', includeSchema: true });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?include_schema=true'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -359,12 +349,11 @@ describe('FullStory Batch Users API', () => {
             body: mockRsp,
         });
 
-        const job = batchUsers.getBatchUserImports('abcd1234', 't123');
+        const job = batchUsers.getBatchUserImports({ jobId: 'abcd1234', pageToken: 't123' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/imports?page_token=t123'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({
@@ -391,12 +380,11 @@ describe('FullStory Batch Users API', () => {
             body: mockJob,
         });
 
-        const job = batchUsers.getBatchUserImportErrors('abcd1234', 'page_token');
+        const job = batchUsers.getBatchUserImportErrors({ jobId: 'abcd1234', pageToken: 'page_token' });
 
         expect(mockRequest).toBeCalledWith(
             makeMockReq(basePath, 'GET', '/batch/abcd1234/errors?page_token=page_token'),
             undefined,
-            undefined
         );
 
         await expect(job).resolves.toEqual({

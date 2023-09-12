@@ -10,7 +10,7 @@ import { FSRequestOptions } from '../http';
 import { withDelay, withRetry } from '../utils/retry';
 
 export interface BatchRequester<REQ, RSP, STATUS_RSP, IMPORTS_RSP, ERRORS_RSP> {
-    requestCreateJob(req: REQ): Promise<RSP>;
+    requestCreateJob(request: { body: REQ, idempotencyKey?: string; }): Promise<RSP>;
 
     requestImports(id: string, pageToken?: string): Promise<IMPORTS_RSP>;
 
@@ -229,7 +229,7 @@ export class BatchJobImpl<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_RE
             return;
         }
 
-        withRetry(() => this.requester.requestCreateJob(this.request), this.handleError.bind(this), this.options.maxRetry)
+        withRetry(() => this.requester.requestCreateJob({ body: this.request }), this.handleError.bind(this), this.options.maxRetry)
             .then(response => {
                 // Successful response should always have ID.
                 // If not, something wrong had happened in calling server API

@@ -27,9 +27,7 @@ describe('FullStory Events API', () => {
 
     test('Event with no name should reject with error', async () => {
         try {
-            await events.create({
-                name: ''
-            });
+            await events.create({ body: { name: '' } });
         } catch (e) {
             expect(e).toBeInstanceOf(FSApiError);
             const apiError = e as FSApiError;
@@ -59,7 +57,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create(createEventsReq);
+        const created = await events.create({ body: createEventsReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -69,7 +67,8 @@ describe('FullStory Events API', () => {
     test('Create Events API for user.id', async () => {
         // Setup user
         const u = await users.create({
-            display_name: 'nodejs_sdk_smoke_test_display_' + uidSuffix
+            body:
+                { display_name: 'nodejs_sdk_smoke_test_display_' + uidSuffix }
         });
         expect(u.body?.id).toBeTruthy();
 
@@ -88,7 +87,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create(createEventsReq);
+        const created = await events.create({ body: createEventsReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -110,7 +109,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create(createEventsReq);
+        const created = await events.create({ body: createEventsReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -140,7 +139,7 @@ describe('FullStory Events API', () => {
 
         // Create A Job
         const job = events
-            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
+            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.on('processing', (job) => {

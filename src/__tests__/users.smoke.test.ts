@@ -44,7 +44,7 @@ describe('FullStory Users API', () => {
         };
 
         // Create User
-        const created = await users.create(createReq);
+        const created = await users.create({ body: createReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -55,7 +55,7 @@ describe('FullStory Users API', () => {
         if (!id) {
             throw new Error('expected crated user to have ID');
         }
-        const got = await users.get(id);
+        const got = await users.get({ id, includeSchema: true });
         expect(got).toHaveProperty('httpStatusCode', 200);
         expect(got).toHaveProperty('httpHeaders');
         expect(got).toHaveProperty('body');
@@ -75,20 +75,20 @@ describe('FullStory Users API', () => {
             }
         };
 
-        const updated = await users.update(id, updateReq);
+        const updated = await users.update({ id, body: updateReq });
         expect(updated).toHaveProperty('httpStatusCode', 200);
         expect(updated).toHaveProperty('httpHeaders');
         expect(updated).toHaveProperty('body');
         expect(updated.body).toHaveProperty('id');
 
         // Delete User
-        const deleted = await users.delete(id);
+        const deleted = await users.delete({ id });
         expect(deleted).toHaveProperty('httpStatusCode', 200);
         expect(deleted).toHaveProperty('httpHeaders');
         expect(deleted).toHaveProperty('body');
 
         try {
-            const gotAfterDelete = await users.get(id);
+            const gotAfterDelete = await users.get({ id });
             // Either user is marked for delete
             expect(gotAfterDelete).toHaveProperty('httpStatusCode', 200);
             expect(gotAfterDelete.body).toHaveProperty('is_being_deleted', true);
@@ -143,11 +143,11 @@ describe('FullStory Users API', () => {
         ];
 
         // create a job object
-        const j = users.batchCreate({ requests });
+        users.batchCreate({ body: { requests } });
 
         // Create A Job
         const job = users
-            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
+            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.execute();

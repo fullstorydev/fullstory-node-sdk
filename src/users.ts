@@ -3,7 +3,7 @@ import { BatchUserImportRequest, BatchUserImportResponse, CreateBatchUserImportJ
 
 import { BatchJob, BatchJobImpl, BatchJobOptions, BatchRequester } from './batch';
 import { FSInvalidArgumentError } from './errors/invalidArgument';
-import { FSRequestOptions, FSResponse, FullStoryOptions } from './http';
+import { FSResponse, FullStoryOptions, WithOptions } from './http';
 
 ////////////////////////////////////
 //  CRUD operations
@@ -19,7 +19,7 @@ export interface UsersApi {
 
     list(...req: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>>;
 
-    delete(id?: string, uid?: string, options?: FSRequestOptions): Promise<FSResponse<void>>;
+    delete(request: { id?: string, uid?: string; }): Promise<FSResponse<void>>;
 
     update(...req: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>>;
 }
@@ -33,8 +33,11 @@ export interface UsersApi {
 */
 export interface BatchUsersApi {
     batchCreate(
-        request?: CreateBatchUserImportJobRequest,
-        jobOptions?: BatchJobOptions
+        request: {
+            body: CreateBatchUserImportJobRequest,
+            includeSchema?: boolean,
+        },
+        jobOptions?: BatchJobOptions,
     ): BatchUsersJob;
 }
 
@@ -66,8 +69,8 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
     }
 
-    async requestCreateJob(req: CreateBatchUserImportJobRequest): Promise<CreateBatchUserImportJobResponse> {
-        const rsp = await this.batchUsersImpl.createBatchUserImportJob(req, this.fsOpts);
+    async requestCreateJob(request: { body: CreateBatchUserImportJobRequest, idempotencyKey?: string; }): Promise<CreateBatchUserImportJobResponse> {
+        const rsp = await this.batchUsersImpl.createBatchUserImportJob(request);
         // make sure job metadata and id exist
         const job = rsp.body;
         if (!job?.job?.id) {
@@ -76,8 +79,8 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
         return job;
     }
 
-    async requestImports(id: string, pageToken?: string): Promise<GetBatchUserImportsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImports(id, pageToken, this.includeSchema, this.fsOpts);
+    async requestImports(jobId: string, pageToken?: string): Promise<GetBatchUserImportsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImports({ jobId, pageToken, includeSchema: this.includeSchema });
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any expected body');
@@ -85,8 +88,8 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
         return results;
     }
 
-    async requestImportErrors(id: string, pageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
-        const res = await this.batchUsersImpl.getBatchUserImportErrors(id, pageToken, this.fsOpts);
+    async requestImportErrors(jobId: string, pageToken?: string): Promise<GetBatchUserImportErrorsResponse> {
+        const res = await this.batchUsersImpl.getBatchUserImportErrors({ jobId, pageToken });
         const results = res.body;
         if (!results) {
             throw new Error('API did not response with any results');
@@ -94,8 +97,8 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
         return results;
     }
 
-    async requestJobStatus(id: string): Promise<JobStatusResponse> {
-        const rsp = await this.batchUsersImpl.getBatchUserImportStatus(id, this.fsOpts);
+    async requestJobStatus(jobId: string): Promise<JobStatusResponse> {
+        const rsp = await this.batchUsersImpl.getBatchUserImportStatus({ jobId });
         const body = rsp.body;
         if (!body) {
             throw new Error('API did not response with any results');
@@ -108,41 +111,46 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
 //  Exported User Interface
 ////////////////////////////////////
 
-export class UsersImpl implements Users {
+export class UsersImpl implements Users, WithOptions<Users> {
     protected readonly usersImpl: FSUsersApi;
 
     constructor(private opts: FullStoryOptions) {
         this.usersImpl = new FSUsersApi(opts);
     }
 
+    withOptions(opts: Partial<FullStoryOptions>): Users {
+        return new UsersImpl({ ...this.opts, ...opts });
+    }
+
     //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
-    async get(id: string, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(id, includeSchema, options);
+    async get(request: { id: string, includeSchema?: boolean; }): Promise<FSResponse<GetUserResponse>> {
+        return this.usersImpl.getUser(request);
     }
 
-    async create(body: CreateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(body, options);
+    async create(request: { body: CreateUserRequest; }): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(request);
     }
 
-    async list(uid?: string | undefined, email?: string | undefined, displayName?: string | undefined, isIdentified?: boolean | undefined, pageToken?: string | undefined, includeSchema?: boolean, options?: FSRequestOptions | undefined): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(uid, email, displayName, isIdentified, pageToken, includeSchema, options);
+    async list(request: { uid?: string | undefined, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean; }): Promise<FSResponse<ListUsersResponse>> {
+        return this.usersImpl.listUsers(request);
     }
 
-    async delete(id?: string, uid?: string, options?: FSRequestOptions | undefined): Promise<FSResponse<void>> {
+    async delete(request: { id?: string, uid?: string; }): Promise<FSResponse<void>> {
+        const { id, uid } = request;
         if (id && !uid) {
-            return this.usersImpl.deleteUser(id, options);
+            return this.usersImpl.deleteUser({ id });
         }
         if (uid && !id) {
-            return this.usersImpl.deleteUserByUid(uid, options);
+            return this.usersImpl.deleteUserByUid({ uid });
         }
         throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
-    async update(id: string, body: UpdateUserRequest, options?: FSRequestOptions | undefined): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(id, body, options);
+    async update(request: { id: string, body: UpdateUserRequest; }): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(request);
     }
 
-    batchCreate(request: CreateBatchUserImportJobRequest = { requests: [] }, jobOptions?: BatchJobOptions, includeSchema?: boolean): BatchUsersJob {
-        return new BatchUsersJobImpl(this.opts, request, jobOptions, includeSchema);
+    batchCreate(request: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchUsersJob {
+        return new BatchUsersJobImpl(this.opts, request.body, jobOptions, request.includeSchema);
     }
 }

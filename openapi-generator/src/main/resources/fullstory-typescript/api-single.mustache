@@ -15,7 +15,7 @@ import { {{key}} } from '@model/index';
 {{/entrySet}}
 {{/tsImports}}
 
-import { FSHttpClientImpl, FSRequestOptions, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
+import { FSHttpClientImpl, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
 
 {{#operations}}
@@ -50,7 +50,8 @@ export class {{classname}} {
      {{/allParams}}
      {{! TODO(sabrina): @throws error }}
     */
-    public async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}options?: FSRequestOptions): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+    public async {{nickname}}(request: { {{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}} }): Promise<FSResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>> {
+        {{#allParams.0}}const { {{#allParams}}{{paramName}}, {{/allParams}} } = request;{{/allParams.0}}
         const apiPath = `${this.basePath}{{{path}}}`{{#pathParams}}
             .replace('{' + '{{baseName}}' + '}', encodeURIComponent(String({{paramName}}))){{/pathParams}};
         const url = new URL(apiPath);
@@ -96,7 +97,7 @@ export class {{classname}} {
         };
 
         try {
-            return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}}, options);
+            return await this.httpClient.request<{{#bodyParam}}{{dataType}}{{/bodyParam}}{{^bodyParam}}void{{/bodyParam}}, {{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}void{{/returnType}}>(requestOptions{{#bodyParam}}, body{{/bodyParam}}{{^bodyParam}}, undefined{{/bodyParam}});
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error

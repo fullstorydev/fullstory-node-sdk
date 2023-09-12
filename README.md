@@ -47,44 +47,48 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
   ```ts
   const createResponse = await users.create({
-    uid: 'user123',
-    display_name: 'Display Name',
-    email: 'user123@example.com',
-    properties: {
-      pricing_plan: 'paid',
-      popup_help: true,
-      total_spent: 14.55,
-    },
-  });
+    body: {
+      uid: 'user123',
+      display_name: 'Display Name',
+      email: 'user123@example.com',
+      properties: {
+        pricing_plan: 'paid',
+        popup_help: true,
+        total_spent: 14.55,
+        },
+      },
+    });
   ```
 
 - [Get a user](https://developer.fullstory.com/server/v2/users/get-user/)
 
   ```ts
   // get user by the fullstory assigned id
-  const getResponse = await users.get('123456');
+  const getResponse = await users.get({ id: '123456' });
   ```
 
 - [Get users](https://developer.fullstory.com/server/v2/users/list-users/)
 
   ```ts
   // get user by the application-specific uid
-  const listResponse = await users.list('user123');
+  const listResponse = await users.list({ uid: 'user123' });
   ```
 
 - [Update a user](https://developer.fullstory.com/server/v2/users/update-user/)
 
   ```ts
   // update user by the fullstory assigned id
-  const updatedResponse = await users.update('123456',
-    { display_name: 'New Display Name' });
+  const updatedResponse = await users.update({
+    id: '123456',
+    body: { display_name: 'New Display Name' }
+  });
   ```
 
 - [Delete a user](https://developer.fullstory.com/server/v2/users/delete-user/)
 
   ```ts
   // delete user by the fullstory assigned id
-  await users.delete('123456');
+  await users.delete({ id: '123456' });
   ```
 
 #### Events
@@ -99,6 +103,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
   ```ts
   const createResponse = await events.create({
+    body: {
       user: {
         id: '123456',
       },
@@ -106,7 +111,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
         use_most_recent: true,
       },
       context: {
-        web: {
+        browser: {
           url: 'https://www.example.com',
           initial_referrer: 'https://www.referrer.com',
         },
@@ -123,7 +128,8 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
         source: 'Email',
         title: 'Account locked out',
       },
-    });
+    }
+  });
   ```
 
 #### Batch Import Job
@@ -153,7 +159,10 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = users.batchCreate({ requests });
+  const job = users.batchCreate({
+    body: { requests },
+    includeSchema: true,
+  });
 
   // you can add more requests before executing
   job.add(
@@ -189,7 +198,10 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = events.batchCreate({ requests });
+  const job = events.batchCreate({ 
+    body: { requests }
+    includeSchema: true,
+  });
 
   // you can add more requests before executing
   job.add({
@@ -205,19 +217,6 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
       name: 'Events - 2',
       timestamp: '2022-03-15T14:23:23Z',
     });
-  ```
-
-- Batch Import Options
-
-  Each job can be created with different options:
-
-  ```ts
-  const options = {
-    // poll job status every one minute
-    pollInterval: 60000,
-    // retry 5 times on API errors before aborting
-    maxRetry: 5,
-  }
   ```
 
 - Adding listeners for a batch import job and executing the job
@@ -278,7 +277,9 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 - Restart a job
   ```ts
   // restart failed job
-  const job = events.batchCreate({ requests });
+  const job = events.batchCreate({
+    body: { requests }
+  });
   job.on('abort', () => {
     // if should restart
     baseJob.restart();
@@ -288,7 +289,48 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   // restart a failed job with a job id
   const job = events.batchCreate().restart('your-job-id');
   ```
+
+#### Request Options
+
+If there is a need to override the options from the initially provided options during `init`, `withOptions` can be used to apply options to your request.
+
+Using `withOptions` will not modify the options initially provided, but returns a new instance.
+
+```ts
+  const { events } = init({ apiKey: '<YOUR_API_KEY>' });
   
+  const options = { idempotencyKey: '<YOUR_KEY>' });
+  // to apply to the create event API
+  events.withOptions(options).create(...);
+  // to apply to the batch create events API
+  events.withOptions(options)..batchCreate(...);
+  
+  // the original options will not be modified
+  events.create(...); // will not use the idempotencyKey
+```
+
+#### Batch Job Options
+- Batch Import Options
+
+  Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
+
+  ```ts
+  const options = {
+    // poll job status every one minute
+    pollInterval: 60000,
+    // retry 5 times on API errors before aborting
+    maxRetry: 5,
+  }
+  
+  const createResponse = await users.batchCreate(
+      { 
+        body: { requests: [{ uid: 'user123' }] },
+        includeSchema: true,
+      },
+      { pollInterval: 5000 }
+  );
+  ```
+
 ### Multiple batch import jobs
 
   It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.
