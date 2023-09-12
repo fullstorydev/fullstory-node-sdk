@@ -31,17 +31,21 @@ export class UsersApi {
     }
 
     /**
-     * Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).
+     * Creates a user with the specified details.
      * @summary Create User
      * @param body
+     * @param idempotencyKey Optional header for making the request idempotent
     */
-    public async createUser(request: { body: CreateUserRequest,  }): Promise<FSResponse<CreateUserResponse>> {
-        const { body,  } = request;
+    public async createUser(request: { body: CreateUserRequest, idempotencyKey?: string,  }): Promise<FSResponse<CreateUserResponse>> {
+        const { body, idempotencyKey,  } = request;
         const apiPath = `${this.basePath}/v2/users`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (idempotencyKey !== undefined) {
+            headerParams['Idempotency-Key'] = idempotencyKey;
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported

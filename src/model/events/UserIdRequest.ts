@@ -18,7 +18,7 @@ export interface UserIdRequest {
      */
     'uid'?: string;
     /**
-     * The FullStory assigned user ID.
+     * The FullStory-assigned user ID. This value is returned in a `POST /v2/users` (create user) response.
      */
     'id'?: string;
 }

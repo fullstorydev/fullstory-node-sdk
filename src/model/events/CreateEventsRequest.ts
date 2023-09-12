@@ -21,7 +21,7 @@ export interface CreateEventsRequest {
      */
     'name': string;
     /**
-     * Optional. The event's timestamp, if not provided, defaults to current time. It is recommended to always set the timestamp.
+     * Optional. The event's timestamp represented in ISO 8601 format. If not provided, the current FullStory server time will be used. It is recommended to always set the timestamp.
      */
     'timestamp'?: string;
     /**

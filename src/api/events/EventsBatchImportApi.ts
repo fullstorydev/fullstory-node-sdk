@@ -31,17 +31,21 @@ export class EventsBatchImportApi {
     }
 
     /**
-     * Creates a batch events import job with the given list of event information.  The maximum number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).
+     * Creates a batch events import job with the given list of event information.
      * @summary Create Events Batch Import
      * @param body The request payloads contains the list of events to be imported
+     * @param idempotencyKey Optional header for marking the request to be idempotent
     */
-    public async createBatchEventsImportJob(request: { body: CreateBatchEventsImportJobRequest,  }): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
-        const { body,  } = request;
+    public async createBatchEventsImportJob(request: { body: CreateBatchEventsImportJobRequest, idempotencyKey?: string,  }): Promise<FSResponse<CreateBatchEventsImportJobResponse>> {
+        const { body, idempotencyKey,  } = request;
         const apiPath = `${this.basePath}/v2/events/batch`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (idempotencyKey !== undefined) {
+            headerParams['Idempotency-Key'] = idempotencyKey;
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported

@@ -31,17 +31,21 @@ export class UsersBatchImportApi {
     }
 
     /**
-     * Creates a batch user import job with the given list of users\' information. Users are upserted (created if they do not exist or updated if they do exist).  ### Payload Limits  The number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).
+     * Creates a batch user import job with the given list of users\' information.
      * @summary Create Batch Import
      * @param body
+     * @param idempotencyKey Optional header for making the request idempotent
     */
-    public async createBatchUserImportJob(request: { body: CreateBatchUserImportJobRequest,  }): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
-        const { body,  } = request;
+    public async createBatchUserImportJob(request: { body: CreateBatchUserImportJobRequest, idempotencyKey?: string,  }): Promise<FSResponse<CreateBatchUserImportJobResponse>> {
+        const { body, idempotencyKey,  } = request;
         const apiPath = `${this.basePath}/v2/users/batch`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (idempotencyKey !== undefined) {
+            headerParams['Idempotency-Key'] = idempotencyKey;
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported
@@ -144,7 +148,7 @@ export class UsersBatchImportApi {
     }
 
     /**
-     * Get the FullStory uid and user details for successful users imported from a batch user import job.
+     * Get the FullStory id and user details for successful users imported from a batch user import job.
      * @summary Get Batch Imported Users
      * @param jobId ID that can be used to check the status and retrieve results for the batch import
      * @param pageToken The token that can be used in a request to fetch the next page of results
