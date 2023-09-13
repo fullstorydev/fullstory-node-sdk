@@ -230,7 +230,7 @@
       },
       "post": {
         "summary": "Create User",
-        "description": "Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a user with the specified details.",
         "operationId": "CreateUser",
         "responses": {
           "200": {
@@ -308,6 +308,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateUserRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -319,7 +326,7 @@
     "/v2/users/batch": {
       "post": {
         "summary": "Create Batch Import",
-        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a batch user import job with the given list of users' information.",
         "operationId": "CreateBatchUserImportJob",
         "responses": {
           "200": {
@@ -397,6 +404,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateBatchUserImportJobRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -598,7 +612,7 @@
     "/v2/users/batch/{job_id}/imports": {
       "get": {
         "summary": "Get Batch Imported Users",
-        "description": "Get the FullStory uid and user details for successful users imported from a batch user import job.",
+        "description": "Get the FullStory id and user details for successful users imported from a batch user import job.",
         "operationId": "GetBatchUserImports",
         "responses": {
           "200": {
@@ -798,7 +812,7 @@
       },
       "delete": {
         "summary": "Delete User",
-        "description": "Delete a single user. `id` may be supplied as a path parameter, or `uid` as a query parameter. One or the other is required. ex: `/v2beta/users?uid={uid}` or `/v2beta/users/{id}`",
+        "description": "Delete a single user.",
         "operationId": "DeleteUser",
         "responses": {
           "200": {
@@ -1188,7 +1202,7 @@
       },
       "post": {
         "summary": "Create User",
-        "description": "Creates a user with the specified details. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a user with the specified details.",
         "operationId": "CreateUser2",
         "responses": {
           "200": {
@@ -1266,6 +1280,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateUserRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -1277,7 +1298,7 @@
     "/v2beta/users/batch": {
       "post": {
         "summary": "Create Batch Import",
-        "description": "Creates a batch user import job with the given list of users' information. Users are upserted (created if they do not exist or updated if they do exist).\n\n### Payload Limits\n\nThe number of request objects that can be included in a single batch request is `50,000`. This request can be [made idempotent](../../idempotent-requests).",
+        "description": "Creates a batch user import job with the given list of users' information.",
         "operationId": "CreateBatchUserImportJob2",
         "responses": {
           "200": {
@@ -1355,6 +1376,13 @@
             "schema": {
               "$ref": "#/definitions/fullstory.v2.users.CreateBatchUserImportJobRequest"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "description": "Optional header for making the request idempotent",
+            "in": "header",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -1556,7 +1584,7 @@
     "/v2beta/users/batch/{job_id}/imports": {
       "get": {
         "summary": "Get Batch Imported Users",
-        "description": "Get the FullStory uid and user details for successful users imported from a batch user import job.",
+        "description": "Get the FullStory id and user details for successful users imported from a batch user import job.",
         "operationId": "GetBatchUserImports2",
         "responses": {
           "200": {
@@ -1756,7 +1784,7 @@
       },
       "delete": {
         "summary": "Delete User",
-        "description": "Delete a single user. `id` may be supplied as a path parameter, or `uid` as a query parameter. One or the other is required. ex: `/v2beta/users?uid={uid}` or `/v2beta/users/{id}`",
+        "description": "Delete a single user.",
         "operationId": "DeleteUser2",
         "responses": {
           "200": {
@@ -2090,7 +2118,6 @@
     "fullstory.v2.users.BatchUserImportResponse": {
       "type": "object",
       "example": {
-        "id": "987654321",
         "uid": "xyz123",
         "display_name": "Daniel Falko",
         "email": "daniel.falko@example.com",
@@ -2098,7 +2125,9 @@
           "pricing_plan": "paid",
           "popup_help": true,
           "total_spent": 14.55
-        }
+        },
+        "schema": null,
+        "type_conflicts": null
       },
       "properties": {
         "id": {
@@ -2257,7 +2286,9 @@
                 "pricing_plan": "paid",
                 "popup_help": true,
                 "total_spent": 14.55
-              }
+              },
+              "schema": null,
+              "type_conflicts": null
             }
           },
           {
@@ -2270,7 +2301,9 @@
                 "pricing_plan": "free",
                 "popup_help": true,
                 "total_spent": 0
-              }
+              },
+              "schema": null,
+              "type_conflicts": null
             }
           }
         ],
@@ -2305,7 +2338,6 @@
         "message": "The error message",
         "code": "error_code",
         "user": {
-          "id": 123,
           "uid": "xyz123",
           "display_name": "Daniel Falko",
           "email": "daniel.falko@example.com",
@@ -2313,7 +2345,9 @@
             "pricing_plan": "paid",
             "popup_help": true,
             "total_spent": 14.55
-          }
+          },
+          "schema": null,
+          "type_conflicts": null
         }
       },
       "properties": {
@@ -2349,7 +2383,9 @@
               "pricing_plan": "paid",
               "popup_help": true,
               "total_spent": 14.55
-            }
+            },
+            "schema": null,
+            "type_conflicts": null
           },
           {
             "uid": "xyz124",
@@ -2359,7 +2395,9 @@
               "pricing_plan": "paid",
               "popup_help": true,
               "total_spent": 14.55
-            }
+            },
+            "schema": null,
+            "type_conflicts": null
           }
         ],
         "total_records": "98",
@@ -2399,7 +2437,10 @@
           "pricing_plan": "paid",
           "popup_help": true,
           "total_spent": 14.55
-        }
+        },
+        "schema": null,
+        "type_conflicts": null,
+        "app_url": "https://app.fullstory.com/ui/orgid/segments/everyone/people:search:abc/user/xyz"
       },
       "properties": {
         "id": {
@@ -2462,11 +2503,15 @@
               "pricing_plan": "paid",
               "popup_help": true,
               "total_spent": 14.55
-            }
+            },
+            "schema": null,
+            "type_conflicts": null,
+            "app_url": "https://app.fullstory.com/ui/orgid/segments/everyone/people:search:abc/user/xyz"
           }
         ],
         "total_records": "1200",
-        "next_page_token": "asd543"
+        "next_page_token": "asd543",
+        "app_url": "https://app.fullstory.com/ui/orgid/segments/everyone/people:search:abc/0"
       },
       "properties": {
         "results": {

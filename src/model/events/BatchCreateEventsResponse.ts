@@ -21,7 +21,7 @@ export interface BatchCreateEventsResponse {
      */
     'name': string;
     /**
-     * Optional. The event's timestamp, defaults to current time.
+     * Optional. The event's timestamp represented in ISO 8601 format. If not provided, the current FullStory server time will be used.
      */
     'timestamp'?: string;
     /**

@@ -123,16 +123,16 @@ export class UsersImpl implements Users, WithOptions<Users> {
     }
 
     //TODO(sabrina): move options or make query param a typed object, to make call signature backward compatible when adding query params
-    async get(request: { id: string, includeSchema?: boolean; }): Promise<FSResponse<GetUserResponse>> {
-        return this.usersImpl.getUser(request);
+    async get(...request: Parameters<typeof FSUsersApi.prototype.getUser>): Promise<FSResponse<GetUserResponse>> {
+        return this.usersImpl.getUser(...request);
     }
 
-    async create(request: { body: CreateUserRequest; }): Promise<FSResponse<CreateUserResponse>> {
-        return this.usersImpl.createUser(request);
+    async create(...request: Parameters<typeof FSUsersApi.prototype.createUser>): Promise<FSResponse<CreateUserResponse>> {
+        return this.usersImpl.createUser(...request);
     }
 
-    async list(request: { uid?: string | undefined, email?: string, displayName?: string, isIdentified?: boolean, pageToken?: string, includeSchema?: boolean; }): Promise<FSResponse<ListUsersResponse>> {
-        return this.usersImpl.listUsers(request);
+    async list(...request: Parameters<typeof FSUsersApi.prototype.listUsers>): Promise<FSResponse<ListUsersResponse>> {
+        return this.usersImpl.listUsers(...request);
     }
 
     async delete(request: { id?: string, uid?: string; }): Promise<FSResponse<void>> {
@@ -146,8 +146,8 @@ export class UsersImpl implements Users, WithOptions<Users> {
         throw new FSInvalidArgumentError('At least one and only one of id or uid is required.');
     }
 
-    async update(request: { id: string, body: UpdateUserRequest; }): Promise<FSResponse<UpdateUserResponse>> {
-        return this.usersImpl.updateUser(request);
+    async update(...request: Parameters<typeof FSUsersApi.prototype.updateUser>): Promise<FSResponse<UpdateUserResponse>> {
+        return this.usersImpl.updateUser(...request);
     }
 
     batchCreate(request: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchUsersJob {

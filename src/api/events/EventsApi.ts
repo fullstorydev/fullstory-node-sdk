@@ -31,17 +31,21 @@ export class EventsApi {
     }
 
     /**
-     * Creates one event with the specified details. This request can be [made idempotent](../../idempotent-requests).
+     * Creates one event with the specified details.
      * @summary Create Events
      * @param body
+     * @param idempotencyKey Optional header for making the request idempotent
     */
-    public async createEvents(request: { body: CreateEventsRequest,  }): Promise<FSResponse<void>> {
-        const { body,  } = request;
+    public async createEvents(request: { body: CreateEventsRequest, idempotencyKey?: string,  }): Promise<FSResponse<void>> {
+        const { body, idempotencyKey,  } = request;
         const apiPath = `${this.basePath}/v2/events`;
         const url = new URL(apiPath);
 
         const queryParams: URLSearchParams = new URLSearchParams();
         const headerParams: OutgoingHttpHeaders = {};
+        if (idempotencyKey !== undefined) {
+            headerParams['Idempotency-Key'] = idempotencyKey;
+        }
 
         const consumes = ['application/json'];
         // prefer 'application/json' if supported
