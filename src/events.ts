@@ -113,8 +113,8 @@ export class EventsImpl implements Events, WithOptions<Events> {
         return new EventsImpl({ ...this.opts, ...opts });
     }
 
-    async create(request: { body: CreateEventsRequest; }): Promise<FSResponse<void>> {
-        return this.eventsImpl.createEvents(request);
+    async create(...request: Parameters<typeof FSEventsApi.prototype.createEvents>): Promise<FSResponse<void>> {
+        return this.eventsImpl.createEvents(...request);
     }
 
     batchCreate(request: { body: CreateBatchEventsImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchEventsJob {

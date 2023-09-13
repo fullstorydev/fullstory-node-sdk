@@ -8,6 +8,7 @@ import { CreateBatchEventsImportJobRequest, CreateEventsRequest, init, JobStatus
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const MOCK_JOB_ID = 'MOCK_JOB_ID';
 const MOCK_INTEGRATION_SOURCE = 'MOCK_INTEGRATION_SOURCE';
+const MOCK_IDEMPOTENCY_KEY = 'MOCK_IDEMPOTENCY_KEY';
 
 const mockRequest = jest.fn();
 const mockJobCreate = jest.fn();
@@ -71,10 +72,10 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const event2 = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).create({ body: createReq });
+        const event2 = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).create({ body: createReq, idempotencyKey: MOCK_IDEMPOTENCY_KEY });
         expect(mockRequest).lastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
-            { body: createReq },
+            { body: createReq, idempotencyKey: MOCK_IDEMPOTENCY_KEY },
         );
         await expect(event2).resolves.toEqual({
             httpStatusCode: 200,
