@@ -57,20 +57,26 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
         total_spent: 14.55,
         },
       },
+    // optionally provide an idempotencyKey to make
+    // the request idempotent
+    idempotencyKey: "YOUR_KEY"
     });
   ```
 
 - [Get a user](https://developer.fullstory.com/server/v2/users/get-user/)
 
   ```ts
-  // get user by the fullstory assigned id
-  const getResponse = await users.get({ id: '123456' });
+  // get user by the FullStory assigned id 
+  const getResponse = await users.get({
+    id: '123456',
+    includeSchema: true
+  });
   ```
 
 - [Get users](https://developer.fullstory.com/server/v2/users/list-users/)
 
   ```ts
-  // get user by the application-specific uid
+  // get all users by the application-specified uid
   const listResponse = await users.list({ uid: 'user123' });
   ```
 
@@ -87,8 +93,11 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 - [Delete a user](https://developer.fullstory.com/server/v2/users/delete-user/)
 
   ```ts
-  // delete user by the fullstory assigned id
+  // delete user by the FullStory assigned id
   await users.delete({ id: '123456' });
+
+  // delete user by the application-specified uid
+  await users.delete({ uid: 'xyz123' });
   ```
 
 #### Events
@@ -104,11 +113,8 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ```ts
   const createResponse = await events.create({
     body: {
-      user: {
-        id: '123456',
-      },
       session: {
-        use_most_recent: true,
+        id: '123:456',
       },
       context: {
         browser: {
@@ -116,8 +122,8 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
           initial_referrer: 'https://www.referrer.com',
         },
         location: {
-          latitude: 33.80177165865808,
-          longitude: -84.39222238465959,
+          latitude: 33.748997,
+          longitude: -84.387985,
         },
       },
       name: 'Support Ticket',
@@ -127,14 +133,16 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
         priority: 'Normal',
         source: 'Email',
         title: 'Account locked out',
-      },
+      }
     }
   });
   ```
 
 #### Batch Import Job
 
-- [Create a batch users import job](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
+- Creating import job objects allows clients to batch import items such as users or events. First create a job object:
+
+  - [Create a batch users import job](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
 
   ```ts
   // array of users to be imported
@@ -161,6 +169,8 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   // create a job object
   const job = users.batchCreate({
     body: { requests },
+    // include schema in the server response
+    // when retrieving imported users
     includeSchema: true,
   });
 
@@ -219,29 +229,31 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     });
   ```
 
-- Adding listeners for a batch import job and executing the job
+- Batch import job lifecycle.
+  
+  Optional events listeners can be added for the batch import job. The batch import job will manage the following lifecycle:
 
-  1. When the job's execute method is called, an API request is made to the server to create the import the job:
+  1. When the job's `execute` method is called, an API request is made to the server to create the import the job:
   - [users](https://developer.fullstory.com/server/v2/users/create-batch-user-import-job/)
   - [events](https://developer.fullstory.com/server/v2/events/create-batch-events-import-job/)
 
-  2. Once the job is created successfully, `created` listeners are invoked with the job's information.
+  2. Once the job is created successfully, `created` listeners are invoked with the job's metadata.
 
-  3. The job then starts to poll on the server to get the latest job status at an interval:
+  3. The job then starts to poll on the server API to get the latest job status at an interval:
   - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-import-status/)
   - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-import-status/)
 
-    Each successful poll will result in `processing` listeners being invoked.
+    Each successful poll will invoke the `processing` listeners.
 
-  4. When the job status reaches a `done` state (`COMPLETED` or `FAILED`), we automatically retrieve the results, by calling get batch imports:
+  4. When the job status reaches a `done` state (either `COMPLETED` or `FAILED`), the job automatically starts to retrieve the imported items, by calling the "get batch imports" APIs:
   - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-imports/) 
   - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-imports/) 
 
-    or get batch errors:
+    or "get batch errors" APIs if there were errors:
   - [users](https://developer.fullstory.com/server/v2/users/get-batch-user-import-errors/) 
   - [events](https://developer.fullstory.com/server/v2/events/get-batch-events-import-errors/)
 
-    And the `done` listeners are invoked with the results.
+    And lastly the `done` listeners are invoked with the results.
 
   5. The `error` listeners are called anytime an error is encountered, may be called more than once.
 
@@ -275,13 +287,16 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
     > Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
 - Restart a job
+  
+  If a job had been successfully created, but aborted for some reason, you may restart the polling of the same job by calling `restart`.
+
   ```ts
   // restart failed job
   const job = events.batchCreate({
     body: { requests }
   });
   job.on('abort', () => {
-    // if should restart
+    // logic to determine if should restart
     baseJob.restart();
   });
   
@@ -292,21 +307,29 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
 #### Request Options
 
-If there is a need to override the options from the initially provided options during `init`, `withOptions` can be used to apply options to your request.
+If there is a need to override the options from the initially provided options during `init`, the `withOptions` method can be used to apply per-request options to your request.
 
-Using `withOptions` will not modify the options initially provided, but returns a new instance.
+Using `withOptions` will **not** modify the options initially provided, but returns a new instance.
 
 ```ts
   const { events } = init({ apiKey: '<YOUR_API_KEY>' });
-  
-  const options = { idempotencyKey: '<YOUR_KEY>' });
-  // to apply to the create event API
+
+  const options: FSRequestOptions = { 
+    // integrationSource is generally intended for FullStory
+    // or FullStory partners while building integrations.
+    //Generally it should be left empty.
+    integrationSource: 'SPECIAL_INTEGRATION_SOURCE' 
+  };
+
+  // to apply the options to the create event API
   events.withOptions(options).create(...);
-  // to apply to the batch create events API
-  events.withOptions(options)..batchCreate(...);
-  
+  // to apply the options to the batch create events API
+  events.withOptions(options).batchCreate(...);
+
   // the original options will not be modified
-  events.create(...); // will not use the idempotencyKey
+  // below request will not use the SPECIAL_INTEGRATION_SOURCE
+  events.create(...);
+
 ```
 
 #### Batch Job Options
@@ -315,7 +338,7 @@ Using `withOptions` will not modify the options initially provided, but returns 
   Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
 
   ```ts
-  const options = {
+  const options: BatchJobOptions = {
     // poll job status every one minute
     pollInterval: 60000,
     // retry 5 times on API errors before aborting
@@ -327,7 +350,7 @@ Using `withOptions` will not modify the options initially provided, but returns 
         body: { requests: [{ uid: 'user123' }] },
         includeSchema: true,
       },
-      { pollInterval: 5000 }
+      options
   );
   ```
 
