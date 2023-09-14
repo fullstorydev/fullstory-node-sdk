@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-beta.7
+- [#53](https://github.com/fullstorydev/fullstory-node-sdk/pull/53) Rename exported interface names to better match TS conventions
+- [#54] (https://github.com/fullstorydev/fullstory-node-sdk/pull/54)
+  - Change method signatures to allow parameter additions to each function, without breaking changes.
+  - Change per-request option overrides to use `withOptions` method instead of tagging at the end of each request method
+- [#56](https://github.com/fullstorydev/fullstory-node-sdk/pull/56) Update specs to use the latest server API specs. Move `Idempotency-Key` as a header parameter for APIs that supports it.
+
 ## 1.0.0-beta.6
 
 - [#46](https://github.com/fullstorydev/fullstory-node-sdk/pull/46) improvements to the smoke tests
