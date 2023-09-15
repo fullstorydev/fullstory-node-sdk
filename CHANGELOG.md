@@ -6,6 +6,7 @@
   - Change method signatures to allow parameter additions to each function, without breaking changes.
   - Change per-request option overrides to use `withOptions` method instead of tagging at the end of each request method
 - [#56](https://github.com/fullstorydev/fullstory-node-sdk/pull/56) Update specs to use the latest server API specs. Move `Idempotency-Key` as a header parameter for APIs that supports it.
+- [#59](https://github.com/fullstorydev/fullstory-node-sdk/pull/59) update plural `CreateEvents` names including request and response types to `CreateEvent`
 
 ## 1.0.0-beta.6
 
