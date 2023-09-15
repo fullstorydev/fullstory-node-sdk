@@ -2,8 +2,6 @@
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/fullstorydev/fullstory-node-sdk/tree/main.svg?style=svg&circle-token=ff82bccfd4023cd504f7b59ec5bd537bc875ec79)](https://dl.circleci.com/status-badge/redirect/gh/fullstorydev/fullstory-node-sdk/tree/main)
 
-> This package is in beta preview. It may contain breaking changes without notice, do not use in production.
-
 The Official FullStory server API client SDK for NodeJS. The SDK is designed for easy usage to make server-to-server HTTP API requests. For more information visit our [developer site](https://developer.fullstory.com/server/v2/getting-started/).
 
 To use our in-browser module, we also provide a [FullStory browser SDK](https://www.npmjs.com/package/@fullstory/browser).

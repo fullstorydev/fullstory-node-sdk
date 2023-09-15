@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.0
+- [#60](https://github.com/fullstorydev/fullstory-node-sdk/pull/60) allow `batchCreate` with empty parameter
+
 ## 1.0.0-beta.7
 - [#53](https://github.com/fullstorydev/fullstory-node-sdk/pull/53) Rename exported interface names to better match TS conventions
 - [#54] (https://github.com/fullstorydev/fullstory-node-sdk/pull/54)
