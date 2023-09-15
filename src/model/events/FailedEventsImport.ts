@@ -5,7 +5,7 @@
  * Do not edit manually.
  */
 
-import { CreateEventsRequest } from '@model/events/CreateEventsRequest';
+import { CreateEventRequest } from '@model/events/CreateEventRequest';
 import { SharedData } from '@model/events/SharedData';
 /**
  * @interface FailedEventsImport Server response for failed batch events
@@ -19,7 +19,7 @@ export interface FailedEventsImport {
      * The error code.
      */
     'code'?: string;
-    'event'?: CreateEventsRequest;
+    'event'?: CreateEventRequest;
     'shared'?: SharedData;
 }
 

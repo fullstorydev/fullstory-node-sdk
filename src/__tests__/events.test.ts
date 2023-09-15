@@ -3,7 +3,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import Module from 'module';
 
-import { CreateBatchEventsImportJobRequest, CreateEventsRequest, init, JobStatus } from '..';
+import { CreateBatchEventsImportJobRequest, CreateEventRequest, init, JobStatus } from '..';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
 const MOCK_JOB_ID = 'MOCK_JOB_ID';
@@ -20,7 +20,7 @@ jest.mock('@api/index', () => {
         ...jest.createMockFromModule<Module>('@api/index'),
         // so we can spy on "request"
         EventsApi: class {
-            createEvents = mockRequest;
+            createEvent = mockRequest;
         },
         EventsBatchImportApi: class {
             createBatchEventsImportJob = mockJobCreate;
@@ -54,7 +54,7 @@ describe('FullStory Events API', () => {
     });
 
     test('create single event success', async () => {
-        const createReq: CreateEventsRequest = {
+        const createReq: CreateEventRequest = {
             name: 'nodejs-sdk-event-1',
         };
         mockRequest.mockReturnValue({

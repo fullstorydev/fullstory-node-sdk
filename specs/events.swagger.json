@@ -23,14 +23,14 @@
   "paths": {
     "/v2/events": {
       "post": {
-        "summary": "Create Events",
+        "summary": "Create Event",
         "description": "Creates one event with the specified details.",
-        "operationId": "CreateEvents",
+        "operationId": "CreateEvent",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventResponse"
             }
           },
           "400": {
@@ -100,7 +100,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventRequest"
             }
           },
           {
@@ -513,14 +513,14 @@
     },
     "/v2beta/events": {
       "post": {
-        "summary": "Create Events",
+        "summary": "Create Event",
         "description": "Creates one event with the specified details.",
-        "operationId": "CreateEvents2",
+        "operationId": "CreateEvent2",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.events.CreateEventsResponse"
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventResponse"
             }
           },
           "400": {
@@ -590,7 +590,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+              "$ref": "#/definitions/fullstory.v2.events.CreateEventRequest"
             }
           },
           {
@@ -1114,7 +1114,7 @@
         "requests": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest"
+            "$ref": "#/definitions/fullstory.v2.events.CreateEventRequest"
           },
           "description": "The list of event requests that should be imported"
         },
@@ -1141,7 +1141,7 @@
         "job"
       ]
     },
-    "fullstory.v2.events.CreateEventsRequest": {
+    "fullstory.v2.events.CreateEventRequest": {
       "type": "object",
       "properties": {
         "user": {
@@ -1185,7 +1185,7 @@
         "name"
       ]
     },
-    "fullstory.v2.events.CreateEventsResponse": {
+    "fullstory.v2.events.CreateEventResponse": {
       "type": "object"
     },
     "fullstory.v2.events.DeviceContext": {
@@ -1229,10 +1229,12 @@
         },
         "total_records": {
           "type": "string",
+          "example": "98",
           "description": "The total number of failures for the specified events import"
         },
         "next_page_token": {
           "type": "string",
+          "example": "asd543=",
           "description": "The token that can be used in a subsequent request to fetch the next page of import failures"
         }
       },
@@ -1250,7 +1252,7 @@
           "description": "The error code."
         },
         "event": {
-          "$ref": "#/definitions/fullstory.v2.events.CreateEventsRequest",
+          "$ref": "#/definitions/fullstory.v2.events.CreateEventRequest",
           "description": "The corresponding events import request that resulted in the failure."
         },
         "shared": {
@@ -1273,7 +1275,7 @@
         },
         "total_records": {
           "type": "string",
-          "example": 98,
+          "example": "1200",
           "description": "Total number of records in this batch import"
         },
         "next_page_token": {
@@ -1408,30 +1410,28 @@
     },
     "fullstory.v2.job.JobMetadata": {
       "type": "object",
-      "example": {
-        "id": "abc123",
-        "status": "PROCESSING",
-        "created": "2017-01-15T01:30:15.01Z",
-        "finished": "2017-01-15T02:30:15.01Z"
-      },
       "properties": {
         "id": {
           "type": "string",
+          "example": "abc123",
           "description": "ID of the job."
         },
         "status": {
           "$ref": "#/definitions/fullstory.v2.job.JobStatus",
+          "example": "PROCESSING",
           "description": "Status of the job."
         },
         "created": {
           "type": "string",
           "format": "date-time",
+          "example": "2017-01-15T01:30:15.01Z",
           "description": "Time the job was accepted."
         },
         "finished": {
           "type": "string",
           "format": "date-time",
-          "description": "Time the job was finished, either successfully or unsuccessfully."
+          "description": "Time the job was finished, either successfully or unsuccessfully.",
+          "x-fullstory-doc-example-ignore": true
         }
       },
       "description": "JobMetadata contains metadata about asynchronous jobs.",
@@ -1454,29 +1454,27 @@
     },
     "fullstory.v2.job.JobStatusResponse": {
       "type": "object",
-      "example": {
-        "imports": 42,
-        "errors": 2,
-        "job": {
-          "id": "abd123=",
-          "status": "FAILED",
-          "created": "2019-04-18T14:36:11.123Z",
-          "finished": "2019-04-18T15:36:11.123Z"
-        }
-      },
       "properties": {
         "imports": {
           "type": "integer",
           "format": "int32",
+          "example": 42,
           "description": "The stats on the number of items imported successfully"
         },
         "errors": {
           "type": "integer",
           "format": "int32",
+          "example": 2,
           "description": "Only included for failed imports. The stats on the number of items that failed to be imported"
         },
         "job": {
           "$ref": "#/definitions/fullstory.v2.job.JobMetadata",
+          "example": {
+            "id": "abd123=",
+            "status": "FAILED",
+            "created": "2019-04-18T14:36:11.123Z",
+            "finished": "2019-04-18T15:36:11.123Z"
+          },
           "description": "Information about the current state of the job"
         }
       },
