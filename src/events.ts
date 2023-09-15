@@ -24,7 +24,7 @@ interface EventsApi {
 */
 interface BatchEventsApi {
     batchCreate(
-        request: {
+        request?: {
             body: CreateBatchEventsImportJobRequest,
             includeSchema?: boolean,
         },
@@ -43,7 +43,7 @@ export type BatchEventsJob = BatchJob<CreateBatchEventsImportJobRequest, CreateE
 export type Events = BatchEventsApi & EventsApi;
 
 class BatchEventsJobImpl extends BatchJobImpl<CreateBatchEventsImportJobRequest, CreateEventRequest, CreateBatchEventsImportJobResponse, JobStatusResponse, BatchCreateEventsResponse, FailedEventsImport> {
-    constructor(fsOpts: FullStoryOptions, request: CreateBatchEventsImportJobRequest, opts: BatchJobOptions = {}, includeSchema = false) {
+    constructor(fsOpts: FullStoryOptions, request: CreateBatchEventsImportJobRequest = { requests: [] }, opts: BatchJobOptions = {}, includeSchema = false) {
         super(request, new BatchEventsRequesterImpl(fsOpts, includeSchema), opts);
     }
 }
@@ -117,7 +117,7 @@ export class EventsImpl implements Events, WithOptions<Events> {
         return this.eventsImpl.createEvent(...request);
     }
 
-    batchCreate(request: { body: CreateBatchEventsImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchEventsJob {
-        return new BatchEventsJobImpl(this.opts, request.body, jobOptions, request.includeSchema);
+    batchCreate(request?: { body: CreateBatchEventsImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchEventsJob {
+        return new BatchEventsJobImpl(this.opts, request?.body, jobOptions, request?.includeSchema);
     }
 }
