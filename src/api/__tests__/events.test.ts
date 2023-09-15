@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventsRequest, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
+import { CreateBatchEventsImportJobRequest, CreateBatchEventsImportJobResponse, CreateEventRequest, GetBatchEventsImportErrorsResponse, GetBatchEventsImportsResponse, JobStatus, JobStatusResponse } from '@model/index';
 
 import { EventsApi, EventsBatchImportApi } from '..';
 import { makeMockReq } from './util';
 
 const MOCK_API_KEY = 'MOCK_API_KEY';
-const MOCK_IDEMPOTENCY_KEY = 'MOCK_IDEMPOTENCY_KEY';
 const basePath = '/v2/events';
 const expectedHeaders = { accept: 'application/json' };
 
@@ -30,7 +29,7 @@ describe('FullStory Events API', () => {
     });
 
     test('create', async () => {
-        const createReq: CreateEventsRequest = {
+        const createReq: CreateEventRequest = {
             user: { id: 'test_user_id' },
             session: { id: 'test_session_id' },
             context: {
@@ -43,7 +42,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const event = events.createEvents({ body: createReq });
+        const event = events.createEvent({ body: createReq });
         expect(mockRequest).toHaveBeenLastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'POST', '', expectedHeaders),
@@ -55,7 +54,7 @@ describe('FullStory Events API', () => {
         });
 
         // idempotency key is passed as header
-        events.createEvents({ body: createReq });
+        events.createEvent({ body: createReq });
         expect(mockRequest).toHaveBeenLastCalledWith(
             // TODO(sabrina): find out why the accept headers is not passed for GETs
             makeMockReq(basePath, 'POST', '', expectedHeaders),

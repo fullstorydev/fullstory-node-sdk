@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { CreateEventsRequest, ErrorResponse, JobStatus } from '@model/index';
+import { CreateEventRequest, ErrorResponse, JobStatus } from '@model/index';
 import { randomUUID } from 'crypto';
 import * as dotenv from 'dotenv';
 
@@ -43,7 +43,7 @@ describe('FullStory Events API', () => {
 
     test('Create Events API should create a new with user.uid', async () => {
         // Create events
-        const createEventsReq: CreateEventsRequest = {
+        const createEventReq: CreateEventRequest = {
             user: { uid: 'nodejs_sdk_smoke_test_event_' + uidSuffix },
             name: 'NodeJS Smoke Test Event - with user.uid',
             properties: {
@@ -57,7 +57,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create({ body: createEventReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -73,7 +73,7 @@ describe('FullStory Events API', () => {
         expect(u.body?.id).toBeTruthy();
 
         // Create events
-        const createEventsReq: CreateEventsRequest = {
+        const createEventReq: CreateEventRequest = {
             user: { id: u.body?.id },
             name: 'NodeJS Smoke Test Event - with user.id',
             properties: {
@@ -87,7 +87,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create({ body: createEventReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -96,7 +96,7 @@ describe('FullStory Events API', () => {
 
     test('Create Events API should create new anonymous user', async () => {
         // Create events
-        const createEventsReq: CreateEventsRequest = {
+        const createEventReq: CreateEventRequest = {
             name: 'NodeJS Smoke Test Event - anonymous user',
             properties: {
                 membership_tier: 'gold',
@@ -109,7 +109,7 @@ describe('FullStory Events API', () => {
             }
         };
 
-        const created = await events.create({ body: createEventsReq });
+        const created = await events.create({ body: createEventReq });
         expect(created).toHaveProperty('httpStatusCode', 200);
         expect(created).toHaveProperty('httpHeaders');
         expect(created).toHaveProperty('body');
@@ -117,7 +117,7 @@ describe('FullStory Events API', () => {
     });
 
     test('Batch Events Job handling', done => {
-        const createReq1: CreateEventsRequest = {
+        const createReq1: CreateEventRequest = {
             // user: { uid: 'nodejs_sdk_smoke_test_batch_2' },
             name: 'NodeJS Smoke Test Batch - Event - 1',
             properties: {
@@ -129,11 +129,11 @@ describe('FullStory Events API', () => {
                 cell_num: '4041111111'
             }
         };
-        const createReq2: CreateEventsRequest = {
+        const createReq2: CreateEventRequest = {
             // user: { uid: 'nodejs_sdk_smoke_test_batch_2' },
             name: 'NodeJS Smoke Test Batch - Event - 3',
         };
-        const createReq3: CreateEventsRequest = {
+        const createReq3: CreateEventRequest = {
             name: 'NodeJS Smoke Test Batch - Event - 4',
         };
 

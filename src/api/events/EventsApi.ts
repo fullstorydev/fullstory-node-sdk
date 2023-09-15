@@ -10,7 +10,7 @@
 import { OutgoingHttpHeaders } from 'node:http';
 import { RequestOptions } from 'node:https';
 
-import { CreateEventsRequest , ErrorResponse } from '@model/index';
+import { CreateEventRequest , ErrorResponse } from '@model/index';
 
 import { FSHttpClientImpl, FSResponse, FullStoryOptions, FSHttpClient } from '../../http';
 import { chainedFSError } from '../../errors';
@@ -32,11 +32,11 @@ export class EventsApi {
 
     /**
      * Creates one event with the specified details.
-     * @summary Create Events
+     * @summary Create Event
      * @param body
      * @param idempotencyKey Optional header for making the request idempotent
     */
-    public async createEvents(request: { body: CreateEventsRequest, idempotencyKey?: string,  }): Promise<FSResponse<void>> {
+    public async createEvent(request: { body: CreateEventRequest, idempotencyKey?: string,  }): Promise<FSResponse<void>> {
         const { body, idempotencyKey,  } = request;
         const apiPath = `${this.basePath}/v2/events`;
         const url = new URL(apiPath);
@@ -67,7 +67,7 @@ export class EventsApi {
         };
 
         try {
-            return await this.httpClient.request<CreateEventsRequest, void>(requestOptions, body);
+            return await this.httpClient.request<CreateEventRequest, void>(requestOptions, body);
         } catch (e) {
             // e originates from a callback (node task queue)
             // try to append the current stack trace to the error

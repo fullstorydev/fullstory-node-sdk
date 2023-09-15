@@ -11,7 +11,7 @@ export * from '@model/events/BrowserContext';
 export * from '@model/events/Context';
 export * from '@model/events/CreateBatchEventsImportJobRequest';
 export * from '@model/events/CreateBatchEventsImportJobResponse';
-export * from '@model/events/CreateEventsRequest';
+export * from '@model/events/CreateEventRequest';
 export * from '@model/events/DeviceContext';
 export * from '@model/apierror/ErrorResponse';
 export * from '@model/events/FailedEventsImport';
