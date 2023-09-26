@@ -26,7 +26,7 @@ interface BatchEventsApi {
     batchCreate(
         request?: CreateBatchEventsImportJobRequest | {
             /** @deprecated Set request as {@link CreateBatchEventsImportJobRequest} instead */
-            body: CreateBatchEventsImportJobRequest,
+            body?: CreateBatchEventsImportJobRequest,
             /** @deprecated Use  {@link BatchJobOptions.includeSchema} instead */
             includeSchema?: boolean,
         },

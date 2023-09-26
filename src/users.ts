@@ -35,7 +35,7 @@ interface BatchUsersApi {
     batchCreate(
         request?: CreateBatchUserImportJobRequest | {
             /** @deprecated Set request as {@link CreateBatchUserImportJobRequest} instead */
-            body: CreateBatchUserImportJobRequest,
+            body?: CreateBatchUserImportJobRequest,
             /** @deprecated Use {@link BatchJobOptions.includeSchema} instead */
             includeSchema?: boolean,
         },
