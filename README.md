@@ -25,12 +25,22 @@ yarn add @fullstory/server-api-client
 
 #### Initializing the Client
 
-Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
+Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/). The `FullStoryOptions` used in `init` function will be used for all server API requests, unless overridden by [per request options](#request-options).
 
 ```ts
 import { init } from '@fullstory/server-api-client';
 
-const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
+const fsOpts: FullStoryOptions = {
+  // apiKey is required to init the FullStory client
+  apiKey: '<YOUR_API_KEY>',
+  
+  // integrationSource is generally intended for FullStory developers
+  // or FullStory partners while building integrations.
+  //Generally it should be left empty.
+  integrationSource: 'INTEGRATION_NAME' 
+};
+
+const fsClient = init(fsOpts);
 ```
 
 #### Users
@@ -313,9 +323,6 @@ Using `withOptions` will **not** modify the options initially provided, but retu
   const { events } = init({ apiKey: '<YOUR_API_KEY>' });
 
   const options: FSRequestOptions = { 
-    // integrationSource is generally intended for FullStory
-    // or FullStory partners while building integrations.
-    //Generally it should be left empty.
     integrationSource: 'SPECIAL_INTEGRATION_SOURCE' 
   };
 
