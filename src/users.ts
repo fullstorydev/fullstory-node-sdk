@@ -33,8 +33,10 @@ interface UsersApi {
 */
 interface BatchUsersApi {
     batchCreate(
-        request?: {
+        request?: CreateBatchUserImportJobRequest | {
+            /** @deprecated Set request as {@link CreateBatchUserImportJobRequest} instead */
             body: CreateBatchUserImportJobRequest,
+            /** @deprecated Use {@link BatchJobOptions.includeSchema} instead */
             includeSchema?: boolean,
         },
         jobOptions?: BatchJobOptions,
@@ -52,8 +54,8 @@ export type BatchUsersJob = BatchJob<CreateBatchUserImportJobRequest, BatchUserI
 export type Users = BatchUsersApi & UsersApi;
 
 class BatchUsersJobImpl extends BatchJobImpl<CreateBatchUserImportJobRequest, BatchUserImportRequest, CreateBatchUserImportJobResponse, JobStatusResponse, BatchUserImportResponse, FailedUserImport> {
-    constructor(fsOpts: FullStoryOptions, request: CreateBatchUserImportJobRequest = { requests: [] }, opts: BatchJobOptions = {}, includeSchema = false) {
-        super(request, new BatchUsersRequesterImpl(fsOpts, includeSchema), opts);
+    constructor(fsOpts: FullStoryOptions, request: CreateBatchUserImportJobRequest = { requests: [] }, opts: BatchJobOptions = {}) {
+        super(request, new BatchUsersRequesterImpl(fsOpts, opts?.includeSchema), opts);
     }
 }
 export type BatchUsersRequester = BatchRequester<CreateBatchUserImportJobRequest, CreateBatchUserImportJobResponse, JobStatusResponse, GetBatchUserImportsResponse, GetBatchEventsImportErrorsResponse>;
@@ -63,7 +65,7 @@ class BatchUsersRequesterImpl implements BatchUsersRequester {
     protected readonly fsOpts: FullStoryOptions;
     protected readonly includeSchema: boolean;
 
-    constructor(fsOpts: FullStoryOptions, includeSchema: boolean) {
+    constructor(fsOpts: FullStoryOptions, includeSchema = false) {
         this.fsOpts = fsOpts;
         this.includeSchema = includeSchema;
         this.batchUsersImpl = new FSUsersBatchApi(fsOpts);
@@ -150,7 +152,18 @@ export class UsersImpl implements Users, WithOptions<Users> {
         return this.usersImpl.updateUser(...request);
     }
 
-    batchCreate(request?: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; }, jobOptions?: BatchJobOptions): BatchUsersJob {
-        return new BatchUsersJobImpl(this.opts, request?.body, jobOptions, request?.includeSchema);
+    batchCreate(request?: { body: CreateBatchUserImportJobRequest, includeSchema?: boolean; } | CreateBatchUserImportJobRequest, jobOptions?: BatchJobOptions): BatchUsersJob {
+        let body: CreateBatchUserImportJobRequest | undefined;
+        if (request && 'requests' in request) {
+            body = { 'requests': request.requests };
+        } else {
+            body = request?.body;
+        }
+
+        let includeSchema = jobOptions?.includeSchema;
+        if (includeSchema === undefined && request) {
+            includeSchema = 'includeSchema' in request ? request?.includeSchema : undefined;
+        }
+        return new BatchUsersJobImpl(this.opts, body, jobOptions);
     }
 }

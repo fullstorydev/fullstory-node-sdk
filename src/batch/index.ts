@@ -27,12 +27,20 @@ export interface BatchJobOptions {
      * poll had completed.
      * If polling had hit a rate limit, exponentially increasing delays based on `retry-after` header
      * and the number of consecutive failures.
+     * Default: 2000
      */
     pollInterval?: number;
     /*
      * maxRetry: max number of API errors in a row before aborting.
+     * Default: 3.
      */
     maxRetry?: number,
+    /*
+     * includeSchema: whether to include schema in the server responses when retrieving
+     * imported items.
+     * Default: false.
+     */
+    includeSchema?: boolean,
     /*
      * TODO(sabrina): add a timeout and onTimeout to clean up everything
      * TODO(sabrina): allow custom retry policies
@@ -42,6 +50,7 @@ export interface BatchJobOptions {
 export const DefaultBatchJobOpts: Required<BatchJobOptions> = {
     pollInterval: 2000,
     maxRetry: 3,
+    includeSchema: false,
 };
 
 export interface BatchJob<REQUEST extends { requests: SINGLE_REQ[]; }, SINGLE_REQ, IMPORT, FAILURE> {

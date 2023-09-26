@@ -65,6 +65,7 @@ describe('FullStory Users API', () => {
                 properties: expect.objectContaining(createReq.properties as any),
             })
         );
+        expect(got.body?.schema).toBeDefined();
 
         // Update user
         const updateReq: UpdateUserRequest = {
@@ -143,11 +144,11 @@ describe('FullStory Users API', () => {
         ];
 
         // create a job object
-        users.batchCreate({ body: { requests } });
+        users.batchCreate({ requests });
 
         // Create A Job
         const job = users
-            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
+            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000, includeSchema: true })
             .add(createReq2, createReq3);
 
         job.execute();
@@ -172,6 +173,10 @@ describe('FullStory Users API', () => {
                         expect.objectContaining({ ...createReq3 })
                     ])
                 );
+                imported.forEach(im => {
+                    // make sure schema is included
+                    expect(im.schema).toBeDefined();
+                });
                 done();
             });
 

@@ -139,7 +139,7 @@ describe('FullStory Events API', () => {
 
         // Create A Job
         const job = events
-            .batchCreate({ body: { requests: [createReq1] } }, { pollInterval: 1000 })
+            .batchCreate({ requests: [createReq1] }, { pollInterval: 1000 })
             .add(createReq2, createReq3);
 
         job.on('processing', (job) => {

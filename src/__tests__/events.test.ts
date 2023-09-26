@@ -104,7 +104,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.batchCreate({ body: createJobReq });
+        const job = events.batchCreate(createJobReq);
         expect(mockJobCreate).toBeCalledTimes(0);
         job.on('abort', (errs: Error[]) => {
             throw errs;
@@ -144,7 +144,7 @@ describe('FullStory Events API', () => {
             body: {},
         });
 
-        const job = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).batchCreate({ body: createJobReq }, { pollInterval: 1000, maxRetry: 5 });
+        const job = events.withOptions({ integrationSource: MOCK_INTEGRATION_SOURCE }).batchCreate(createJobReq, { pollInterval: 1000, maxRetry: 5, includeSchema: true });
         expect(mockJobCreate).toBeCalledTimes(0);
 
         job.on('done', () => {
@@ -154,6 +154,11 @@ describe('FullStory Events API', () => {
             expect(mockJobStatus).toBeCalledWith(
                 { jobId: MOCK_JOB_ID },
             );
+            expect(mockJobImports).toBeCalledWith({
+                includeSchema: true,
+                jobId: MOCK_JOB_ID,
+            });
+            expect(mockJobErrors).toBeCalledTimes(0);
             done();
         });
 

@@ -165,12 +165,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = users.batchCreate({
-    body: { requests },
-    // include schema in the server response
-    // when retrieving imported users
-    includeSchema: true,
-  });
+  const job = users.batchCreate({ requests });
 
   // you can add more requests before executing
   job.add(
@@ -206,10 +201,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   ];
 
   // create a job object
-  const job = events.batchCreate({ 
-    body: { requests }
-    includeSchema: true,
-  });
+  const job = events.batchCreate({ requests });
 
   // you can add more requests before executing
   job.add({
@@ -290,9 +282,8 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
   ```ts
   // restart failed job
-  const job = events.batchCreate({
-    body: { requests }
-  });
+  const job = events.batchCreate({ requests });
+
   job.on('abort', () => {
     // logic to determine if should restart
     baseJob.restart();
@@ -331,24 +322,45 @@ Using `withOptions` will **not** modify the options initially provided, but retu
 ```
 
 #### Batch Job Options
+
 - Batch Import Options
 
   Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
 
   ```ts
-  const options: BatchJobOptions = {
+  const jobOptions: BatchJobOptions = {
     // poll job status every one minute
     pollInterval: 60000,
     // retry 5 times on API errors before aborting
     maxRetry: 5,
+    // include schema in the server response
+    // when retrieving imported users
+    includeSchema: true,
   }
   
   const createResponse = await users.batchCreate(
-      { 
-        body: { requests: [{ uid: 'user123' }] },
+      { requests: [{ uid: 'user123' }] },
+      jobOptions
+  );
+  ```
+
+- Using Both Request Options and Batch Job Options
+  It is possible to `withOptions` for batch jobs as well. Setting request options will ensure that the request options is used for all server API requests originated from the job, including creating the job, getting the job status and getting job's results. And job options configure the behavior of the batch job itself.
+  
+  ```ts
+  const createResponse = await users
+  .withOptions({
+    // request options will be used for all server API requests for this job
+    integrationSource: 'SPECIAL_INTEGRATION_SOURCE'
+  })
+  .batchCreate(
+      { requests: [{ uid: 'user123' }]},
+      // any batch job options for this job
+      {
+        pollInterval: 60000,
+        maxRetry: 5,
         includeSchema: true,
-      },
-      options
+      }
   );
   ```
 
