@@ -235,7 +235,32 @@ const fsClient = init(fsOpts);
       name: 'Events - 2',
       timestamp: '2022-03-15T14:23:23Z',
     });
+  
+  job
+    // register listeners before executing
+    .on('created', job => {
+      console.log('batch job successfully created', job.getId());
+    })
+    .on('processing', job => {
+      console.log('get notified when job status polled and is still processing', job.getId());
+    })
+    .on('error', error => {
+      console.log('an error had occurred during the import', error);
+    })
+    .on('abort', error => {
+      console.error('an unrecoverable error had occurred and the job had been aborted', error);
+    })
+    .on('done', (imported, failed) => {
+      console.log('the batch imported job is done');
+      console.log('items successfully imported', imported);
+      console.log('items failed to be imported', failed);
+    })
+
+    // execute the job by calling the server API
+  job.execute();
   ```
+
+> Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
 - Batch import job lifecycle.
   
@@ -267,32 +292,6 @@ const fsClient = init(fsOpts);
 
   6. The `abort` listeners is called only once per job, if non-recoverable errors had occurred, such as multiple API failures had been encountered that exceeds the max number of retries.
 
-    ```ts
-    job
-      // register listeners before executing
-      .on('created', job => {
-        console.log('batch job successfully created', job.getId());
-      })
-      .on('processing', job => {
-        console.log('get notified when job status polled and is still processing', job.getId());
-      })
-      .on('error', error => {
-        console.log('an error had occurred during the import', error);
-      })
-      .on('abort', error => {
-        console.error('an unrecoverable error had occurred and the job had been aborted', error);
-      })
-      .on('done', (imported, failed) => {
-        console.log('the batch imported job is done');
-        console.log('items successfully imported', imported);
-        console.log('items failed to be imported', failed);
-      })
-
-      // execute the job by calling the server API
-      job.execute();
-    ```
-
-    > Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
 - Restart a job
   
