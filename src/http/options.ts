@@ -18,5 +18,10 @@ export interface FullStoryOptions extends FSRequestOptions {
 }
 
 export interface WithOptions<T> {
+    /**
+     * withOptions allows per request overriding for FullStoryOptions.
+     * It is recommended to provide all options during `init`
+     * and avoid using withOptions.
+    */
     withOptions(opts: Partial<FullStoryOptions>): T;
 }

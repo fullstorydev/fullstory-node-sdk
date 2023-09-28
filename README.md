@@ -313,34 +313,9 @@ const fsClient = init(fsOpts);
   const job = events.batchCreate().restart('your-job-id');
   ```
 
-#### Request Options
-
-If there is a need to override the options from the initially provided options during `init`, the `withOptions` method can be used to apply per-request options to your request.
-
-Using `withOptions` will **not** modify the options initially provided, but returns a new instance.
-
-```ts
-  const { events } = init({ apiKey: '<YOUR_API_KEY>' });
-
-  const options: FSRequestOptions = { 
-    integrationSource: 'SPECIAL_INTEGRATION_SOURCE' 
-  };
-
-  // to apply the options to the create event API
-  events.withOptions(options).create(...);
-  // to apply the options to the batch create events API
-  events.withOptions(options).batchCreate(...);
-
-  // the original options will not be modified
-  // below request will not use the SPECIAL_INTEGRATION_SOURCE
-  events.create(...);
-
-```
-
 #### Batch Job Options
-- Batch Import Options
 
-  Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
+  Each job can be created with different `BatchJobOptions` when needed.
 
   ```ts
   const options: BatchJobOptions = {
@@ -367,7 +342,7 @@ Using `withOptions` will **not** modify the options initially provided, but retu
 
 ## Error Handling
 
-- `init` may throw an error when the required options fields are not satisfied.
+- `init` may throw an error when the required fields are not satisfied.
 
 - Functions in the FullStory client may throw `FSError` objects. For import jobs, the `FSError` object is provided to the on `error` callbacks.
 
