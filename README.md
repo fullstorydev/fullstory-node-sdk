@@ -25,12 +25,22 @@ yarn add @fullstory/server-api-client
 
 #### Initializing the Client
 
-Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/).
+Use the `init` function to initialize the FullStory client with [your API key](https://developer.fullstory.com/server/v2/authentication/). The `FullStoryOptions` used in the `init` function will be used for all server API requests.
 
 ```ts
 import { init } from '@fullstory/server-api-client';
 
-const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
+const fsOpts: FullStoryOptions = {
+  // apiKey is required to init the FullStory client
+  apiKey: '<YOUR_API_KEY>',
+  
+  // integrationSource is generally intended for FullStory developers
+  // or FullStory partners while building integrations.
+  //Generally it should be left empty.
+  integrationSource: 'INTEGRATION_NAME' 
+};
+
+const fsClient = init(fsOpts);
 ```
 
 #### Users
@@ -225,7 +235,32 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
       name: 'Events - 2',
       timestamp: '2022-03-15T14:23:23Z',
     });
+  
+  job
+    // register listeners before executing
+    .on('created', job => {
+      console.log('batch job successfully created', job.getId());
+    })
+    .on('processing', job => {
+      console.log('get notified when job status polled and is still processing', job.getId());
+    })
+    .on('error', error => {
+      console.log('an error had occurred during the import', error);
+    })
+    .on('abort', error => {
+      console.error('an unrecoverable error had occurred and the job had been aborted', error);
+    })
+    .on('done', (imported, failed) => {
+      console.log('the batch imported job is done');
+      console.log('items successfully imported', imported);
+      console.log('items failed to be imported', failed);
+    })
+
+    // execute the job by calling the server API
+  job.execute();
   ```
+
+> Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
 - Batch import job lifecycle.
   
@@ -257,32 +292,6 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
 
   6. The `abort` listeners is called only once per job, if non-recoverable errors had occurred, such as multiple API failures had been encountered that exceeds the max number of retries.
 
-    ```ts
-    job
-      // register listeners before executing
-      .on('created', job => {
-        console.log('batch job successfully created', job.getId());
-      })
-      .on('processing', job => {
-        console.log('get notified when job status polled and is still processing', job.getId());
-      })
-      .on('error', error => {
-        console.log('an error had occurred during the import', error);
-      })
-      .on('abort', error => {
-        console.error('an unrecoverable error had occurred and the job had been aborted', error);
-      })
-      .on('done', (imported, failed) => {
-        console.log('the batch imported job is done');
-        console.log('items successfully imported', imported);
-        console.log('items failed to be imported', failed);
-      })
-
-      // execute the job by calling the server API
-      job.execute();
-    ```
-
-    > Note: Any `error`, `abort` or `done` listeners registered after the job has been executed, the callback may be called immediately with any historical data from the job, if any error had occurred, or if the job is already aborted or done, respectively.
 
 - Restart a job
   
@@ -295,7 +304,7 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   });
   job.on('abort', () => {
     // logic to determine if should restart
-    baseJob.restart();
+    job.restart();
   });
   
   // Or
@@ -303,37 +312,9 @@ const fsClient = init({ apiKey: '<YOUR_API_KEY>' });
   const job = events.batchCreate().restart('your-job-id');
   ```
 
-#### Request Options
-
-If there is a need to override the options from the initially provided options during `init`, the `withOptions` method can be used to apply per-request options to your request.
-
-Using `withOptions` will **not** modify the options initially provided, but returns a new instance.
-
-```ts
-  const { events } = init({ apiKey: '<YOUR_API_KEY>' });
-
-  const options: FSRequestOptions = { 
-    // integrationSource is generally intended for FullStory
-    // or FullStory partners while building integrations.
-    //Generally it should be left empty.
-    integrationSource: 'SPECIAL_INTEGRATION_SOURCE' 
-  };
-
-  // to apply the options to the create event API
-  events.withOptions(options).create(...);
-  // to apply the options to the batch create events API
-  events.withOptions(options).batchCreate(...);
-
-  // the original options will not be modified
-  // below request will not use the SPECIAL_INTEGRATION_SOURCE
-  events.create(...);
-
-```
-
 #### Batch Job Options
-- Batch Import Options
 
-  Each job can be created with different options. Additional request options can also be provided when creating the job, the request options will be applied to all server API requests such as requests to check for job status.
+  Each job can be created with different `BatchJobOptions` when needed.
 
   ```ts
   const options: BatchJobOptions = {
@@ -354,13 +335,13 @@ Using `withOptions` will **not** modify the options initially provided, but retu
 
 ### Multiple batch import jobs
 
-  It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollingInterval` option accordingly.
+  It is recommended to have one batch import job of a resource type at a given time. However in case you need to create multiple batch import jobs by calling `batchCreate` multiple times. The jobs may be concurrently executed. In this case that the server APIs may return rate limiting errors. It is recommended to adjust the `pollInterval` option accordingly.
 
   The batch import job execution will retry if rate limit or other transient errors are encountered up to a max number of retries.
 
 ## Error Handling
 
-- `init` may throw an error when the required options fields are not satisfied.
+- `init` may throw an error when the required fields are not satisfied.
 
 - Functions in the FullStory client may throw `FSError` objects. For import jobs, the `FSError` object is provided to the on `error` callbacks.
 
