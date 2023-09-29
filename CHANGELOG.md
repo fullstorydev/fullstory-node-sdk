@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+- [#64](https://github.com/fullstorydev/fullstory-node-sdk/pull/64) deprecate `withOptions`: create a new client by providing all options to `init` instead.
+
 ## 1.0.0
 - [#60](https://github.com/fullstorydev/fullstory-node-sdk/pull/60) allow `batchCreate` with empty parameter
 
