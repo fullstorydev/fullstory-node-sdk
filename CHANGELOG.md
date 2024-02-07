@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1
+- [#68](https://github.com/fullstorydev/fullstory-node-sdk/pull/68) Bump @babel/traverse from 7.21.3 to 7.23.9
+- [#69](https://github.com/fullstorydev/fullstory-node-sdk/pull/69) Bump axios and @openapitools/openapi-generator-cli
+- [#70](https://github.com/fullstorydev/fullstory-node-sdk/pull/70) Bump follow-redirects from 1.15.2 to 1.15.5
+- [#71](https://github.com/fullstorydev/fullstory-node-sdk/pull/71) run npm audit fix for 2 moderate severity vulnerabilities
+
 ## 1.1.0
 - [#64](https://github.com/fullstorydev/fullstory-node-sdk/pull/64) deprecate `withOptions`: create a new client by providing all options to `init` instead.
 
