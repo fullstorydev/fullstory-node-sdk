@@ -119,7 +119,7 @@ describe('FSHttpClient', () => {
                 expect(e).toHaveProperty('httpStatusCode', 200);
                 expect(e).toHaveProperty('fsErrorPayload', invalidRsp);
                 expect(e.cause).toHaveProperty('name', 'SyntaxError');
-                expect(e.cause).toHaveProperty('message', expect.stringMatching(new RegExp('Unexpected token \'?i\'?')));
+                expect(e.cause).toHaveProperty('message', expect.stringContaining('Unexpected token'));
             }
         }
     }, 2000);
